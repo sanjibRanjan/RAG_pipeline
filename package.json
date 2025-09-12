@@ -1,0 +1,29 @@
+{
+  "name": "rag_pip",
+  "version": "1.0.0",
+  "description": "This RAg will answer from pdf",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/core/server.js",
+    "ingest": "node src/processing/ingest.js",
+    "test-ingest": "node src/processing/test_ingestion.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@chroma-core/default-embed": "^0.1.8",
+    "@huggingface/inference": "^4.8.0",
+    "@langchain/community": "^0.3.55",
+    "@langchain/core": "^0.3.75",
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/textsplitters": "^0.0.1",
+    "chromadb": "*",
+    "dotenv": "^17.2.2",
+    "langsmith": "^0.3.67",
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1",
+    "uuid": "^9.0.1"
+  }
+}
