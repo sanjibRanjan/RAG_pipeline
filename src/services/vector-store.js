@@ -341,6 +341,86 @@ export class VectorStore {
   }
 
   /**
+   * Search with filters (for mixed retrieval)
+   * @param {number[]} queryEmbedding - Query embedding
+   * @param {Object} filters - Metadata filters
+   * @returns {Promise<Object[]>} Filtered search results
+   */
+  async searchWithFilters(queryEmbedding, filters = {}) {
+    try {
+      if (!this.isInitialized || !this.collection) {
+        throw new Error("Vector store not initialized");
+      }
+
+      console.log(`🔍 Searching with filters:`, filters);
+
+      // First perform semantic search
+      const semanticResults = await this.search(queryEmbedding, 20);
+
+      if (!semanticResults.documents?.[0]) {
+        return [];
+      }
+
+      // Apply metadata filters
+      const filteredResults = [];
+
+      for (let i = 0; i < semanticResults.documents[0].length; i++) {
+        const metadata = semanticResults.metadatas[0][i];
+        const content = semanticResults.documents[0][i];
+
+        let matches = true;
+
+        // Apply filters
+        if (filters.fileType && metadata.fileType !== filters.fileType) {
+          matches = false;
+        }
+
+        if (filters.language && metadata.language !== filters.language) {
+          matches = false;
+        }
+
+        if (filters.minFileSize && (metadata.fileSize || 0) < filters.minFileSize) {
+          matches = false;
+        }
+
+        if (filters.maxFileSize && (metadata.fileSize || 0) > filters.maxFileSize) {
+          matches = false;
+        }
+
+        if (filters.minUploadDate) {
+          const uploadDate = new Date(metadata.uploadedAt || 0);
+          const minDate = new Date(filters.minUploadDate);
+          if (uploadDate < minDate) {
+            matches = false;
+          }
+        }
+
+        if (matches) {
+          filteredResults.push({
+            id: semanticResults.ids[0][i],
+            content: content,
+            contentPreview: content.substring(0, 200) + "...",
+            documentName: metadata.documentName,
+            chunkIndex: metadata.chunkIndex,
+            fileType: metadata.fileType,
+            fileSize: metadata.fileSize,
+            version: metadata.version,
+            uploadedAt: metadata.uploadedAt,
+            distance: semanticResults.distances[0][i]
+          });
+        }
+      }
+
+      console.log(`✅ Filtered search returned ${filteredResults.length} results`);
+      return filteredResults;
+
+    } catch (error) {
+      console.error("❌ Error searching with filters:", error);
+      throw new Error(`Failed to search with filters: ${error.message}`);
+    }
+  }
+
+  /**
    * Search documents by name or content
    * @param {string} query - Search query
    * @param {Object} filters - Additional filters
