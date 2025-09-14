@@ -1467,6 +1467,9 @@ export class QAService {
       answer = this.smartTruncateAnswer(answer, this.maxContextLength * 1.5);
     }
 
+    // Apply proper sentence capitalization to ensure all sentences start with capital letters
+    answer = this.capitalizeSentences(answer);
+
     return answer;
   }
 
@@ -1539,7 +1542,7 @@ export class QAService {
     const relatedTopics = this.extractRelatedTopics(recentContext, question);
 
     if (relatedTopics.length > 0) {
-      answer = `Based on our previous discussion about ${relatedTopics.join(", ")}, ${answer.toLowerCase()}`;
+      answer = `Based on our previous discussion about ${relatedTopics.join(", ")}, ${this.capitalizeFirstLetter(answer)}`;
     }
 
     return answer;
@@ -1564,6 +1567,43 @@ export class QAService {
     }
 
     return Array.from(topics).slice(0, 3);
+  }
+
+  /**
+   * Capitalize the first letter of a string
+   * @param {string} str - String to capitalize
+   * @returns {string} Capitalized string
+   */
+  capitalizeFirstLetter(str) {
+    if (!str || str.length === 0) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  /**
+   * Capitalize the first letter of each sentence in the text
+   * @param {string} text - Text to process
+   * @returns {string} Text with proper sentence capitalization
+   */
+  capitalizeSentences(text) {
+    if (!text || text.length === 0) return text;
+
+    // Split text into sentences using regex that handles various punctuation
+    const sentences = text.split(/([.!?]+\s*)/);
+
+    // Process each sentence and punctuation pair
+    const result = [];
+    for (let i = 0; i < sentences.length; i++) {
+      let sentence = sentences[i];
+
+      // If this is a sentence (not punctuation), capitalize first letter
+      if (sentence.trim().length > 0 && !/^[.!?\s]+$/.test(sentence)) {
+        sentence = this.capitalizeFirstLetter(sentence);
+      }
+
+      result.push(sentence);
+    }
+
+    return result.join('');
   }
 
   /**
