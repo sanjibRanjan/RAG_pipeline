@@ -1,115 +1,121 @@
-import { Chroma } from '@langchain/community/vectorstores/chroma';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
-import { ChromaClient } from 'chromadb'; // Import ChromaClient
-
+import { DocumentProcessor } from '../services/document-processor.js';
+import { EmbeddingService } from '../services/embedding-service.js';
+import { VectorStore } from '../services/vector-store.js';
 import 'dotenv/config';
 import { readdir } from 'fs/promises';
+import path from 'path';
 
 const DATA_DIR = './data/docs';
-const CHUNK_SIZE = 1000;
-const CHUNK_OVERLAP = 200;
 const COLLECTION_NAME = process.env.CHROMA_COLLECTION_NAME || 'rag_documents';
-const CHROMA_DB_URL = process.env.CHROMA_DB_URL || 'http://localhost:8000';
 
 async function runIngestion() {
-  console.log('Starting data ingestion...');
+  console.log('🚀 Starting data ingestion process...');
 
-  const allChunks = [];
-  let files;
   try {
-    files = await readdir(DATA_DIR);
-    console.log(`Found ${files.length} files in ${DATA_DIR}`);
-  } catch (error) {
-    console.error(`Error reading directory ${DATA_DIR}:`, error);
-    return;
-  }
+    // Initialize services
+    console.log('🔧 Initializing services...');
+    const documentProcessor = new DocumentProcessor();
+    const embeddingService = new EmbeddingService();
+    const vectorStore = new VectorStore();
 
-  for (const file of files) {
-    const filePath = `${DATA_DIR}/${file}`;
-    let loader;
+    await embeddingService.initialize();
+    await vectorStore.initialize();
 
-    if (file.endsWith('.pdf')) {
-      loader = new PDFLoader(filePath);
-    } else if (file.endsWith('.txt')) {
-      loader = new TextLoader(filePath);
-    } else {
-      console.warn(`Skipping unsupported file type: ${file}`);
-      continue;
+    // Get files from data directory
+    let files;
+    try {
+      files = await readdir(DATA_DIR);
+      console.log(`📂 Found ${files.length} files in ${DATA_DIR}`);
+    } catch (error) {
+      console.error(`❌ Error reading directory ${DATA_DIR}:`, error);
+      return;
     }
 
-    const docs = await loader.load();
+    if (files.length === 0) {
+      console.log('⚠️ No files found in data directory. Exiting.');
+      return;
+    }
 
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: CHUNK_SIZE,
-      chunkOverlap: CHUNK_OVERLAP,
-    });
+    // Process each file
+    const processedDocuments = [];
+    let totalChunks = 0;
 
-    const fileChunks = await splitter.splitDocuments(docs);
-    allChunks.push(...fileChunks);
-  }
+    for (const file of files) {
+      const filePath = path.join(DATA_DIR, file);
 
-  console.log(`Total chunks created: ${allChunks.length}`);
+      try {
+        console.log(`\n📄 Processing: ${file}`);
 
-  if (allChunks.length === 0) {
-    console.log('No documents to process. Exiting.');
-    return;
-  }
+        // Validate file
+        documentProcessor.validateFile(filePath, file);
 
-  // Cleanse metadata to ensure all values are string, number, boolean, or null
-  allChunks.forEach(chunk => {
-    if (chunk.metadata) {
-      for (const key in chunk.metadata) {
-        const val = chunk.metadata[key];
-        if (!['string', 'number', 'boolean'].includes(typeof val) && val !== null) {
-          chunk.metadata[key] = String(val); // Convert invalid metadata to string
-        }
+        // Process document
+        const processedDoc = await documentProcessor.processFile(filePath, file);
+        processedDocuments.push(processedDoc);
+        totalChunks += processedDoc.chunks.length;
+
+        console.log(`✅ ${file}: ${processedDoc.chunks.length} chunks created`);
+      } catch (error) {
+        console.error(`❌ Failed to process ${file}:`, error.message);
+        continue; // Continue with other files
       }
     }
-  });
 
-  if (!process.env.HF_API_KEY) {
-    throw new Error('HF_API_KEY is required for Hugging Face embeddings');
-  }
+    console.log(`\n📊 Processing Summary:`);
+    console.log(`   • Documents processed: ${processedDocuments.length}`);
+    console.log(`   • Total chunks: ${totalChunks}`);
 
-  const embeddingsGenerator = new HuggingFaceInferenceEmbeddings({
-    model: process.env.HF_MODEL || 'sentence-transformers/all-MiniLM-L6-v2',
-    apiKey: process.env.HF_API_KEY,
-  });
+    if (processedDocuments.length === 0) {
+      console.log('⚠️ No documents were successfully processed. Exiting.');
+      return;
+    }
 
-  console.log('Initializing ChromaDB with server connection...');
+    // Generate embeddings and store in vector database
+    console.log('\n🤖 Generating embeddings and storing in vector database...');
 
-  try {
-    const chromaClient = new ChromaClient({
-      host: CHROMA_DB_URL.split('://')[1].split(':')[0],
-      port: parseInt(CHROMA_DB_URL.split(':')[2], 10),
-    });
+    for (const doc of processedDocuments) {
+      try {
+        console.log(`🔄 Processing embeddings for: ${doc.originalName}`);
 
-    const collection = await chromaClient.getOrCreateCollection({
-      name: COLLECTION_NAME,
-      embeddingFunction: embeddingsGenerator, // Pass embeddingsGenerator directly
-    });
+        // Generate embeddings for chunks
+        const texts = doc.chunks.map(chunk => chunk.content);
+        const embeddings = await embeddingService.generateEmbeddings(texts);
 
-    // Generate embeddings for all chunks
-    const texts = allChunks.map(chunk => chunk.pageContent);
-    const embeddings = await embeddingsGenerator.embedDocuments(texts);
+        // Generate unique IDs for this document
+        const baseId = `doc_${Date.now()}_${doc.originalName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const ids = doc.chunks.map((_, index) => `${baseId}_chunk_${index}`);
 
-    // Prepare metadatas and ids
-    const metadatas = allChunks.map(chunk => chunk.metadata);
-    const ids = allChunks.map((_, i) => `doc-${i}`); // Simple ID generation
+        // Prepare metadata
+        const metadatas = doc.chunks.map((chunk, index) => ({
+          ...chunk.metadata,
+          documentName: doc.originalName,
+          chunkIndex: index,
+          totalChunks: doc.chunks.length,
+          version: doc.metadata.version,
+          uploadedAt: doc.metadata.processedAt,
+          fileSize: doc.metadata.fileSize,
+          fileType: doc.metadata.fileType,
+          textLength: doc.metadata.textLength,
+        }));
 
-    await collection.add({
-      ids: ids,
-      embeddings: embeddings,
-      metadatas: metadatas,
-      documents: texts,
-    });
+        // Store in vector database
+        await vectorStore.addDocuments(texts, embeddings, metadatas, ids);
 
-    console.log('Data ingestion complete!');
+        console.log(`✅ Stored ${doc.chunks.length} chunks for ${doc.originalName}`);
+      } catch (error) {
+        console.error(`❌ Failed to store ${doc.originalName}:`, error.message);
+        continue;
+      }
+    }
+
+    console.log('\n🎉 Data ingestion completed successfully!');
+    console.log(`📈 Final Summary:`);
+    console.log(`   • Documents processed: ${processedDocuments.length}`);
+    console.log(`   • Total chunks stored: ${totalChunks}`);
+    console.log(`   • Vector database: ${COLLECTION_NAME}`);
+
   } catch (error) {
-    console.error('Error during ChromaDB initialization or document addition:', error);
+    console.error('💥 Fatal error during ingestion process:', error);
     throw error;
   }
 }

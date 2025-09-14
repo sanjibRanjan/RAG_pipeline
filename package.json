@@ -7,7 +7,21 @@
   "scripts": {
     "start": "node src/core/server.js",
     "ingest": "node src/processing/ingest.js",
-    "test-ingest": "node src/processing/test_ingestion.js"
+    "test-ingest": "node src/processing/test_ingestion.js",
+    "test": "node tests/test-suite.js",
+    "test:verbose": "node tests/test-suite.js --verbose",
+    "test:unit": "node tests/test-suite.js --unit",
+    "test:integration": "node tests/test-suite.js --integration",
+    "test:performance": "node tests/test-suite.js --performance",
+    "test:load": "node tests/test-suite.js --load",
+    "test:report": "node tests/test-suite.js --report",
+    "test:quick": "node test-runner.js --quick",
+    "test:full": "node test-runner.js --full",
+    "chromadb:start": "docker run -d --name chromadb -p 8000:8000 chromadb/chroma",
+    "chromadb:stop": "docker stop chromadb && docker rm chromadb",
+    "chromadb:status": "docker ps | grep chromadb || echo 'ChromaDB is not running'",
+    "chromadb:logs": "docker logs chromadb",
+    "chromadb:test": "node -e \"import { ChromaClient } from 'chromadb'; const client = new ChromaClient({ host: 'localhost', port: 8000 }); const collection = await client.getOrCreateCollection({ name: 'test_collection' }); console.log('✅ ChromaDB connection successful! Documents:', await collection.count());\""
   },
   "keywords": [],
   "author": "",
@@ -19,11 +33,17 @@
     "@langchain/core": "^0.3.75",
     "@langchain/langgraph": "^0.4.9",
     "@langchain/textsplitters": "^0.0.1",
+    "axios": "^1.12.1",
     "chromadb": "*",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "form-data": "^4.0.4",
     "langsmith": "^0.3.67",
+    "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "pdf-parse": "^1.1.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "winston": "^3.17.0"
   }
 }
