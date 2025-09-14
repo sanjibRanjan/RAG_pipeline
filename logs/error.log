@@ -1,0 +1,1 @@
+2025-09-14 16:14:16 [[31merror[39m]: [31m[API] GET /favicon.ico 404 11ms[39m | {"method":"GET","url":"/favicon.ico","statusCode":404,"duration":11,"requestId":"1757846656722_zhcjz9mkj","responseSize":"62","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}

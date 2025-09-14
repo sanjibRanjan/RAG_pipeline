@@ -1,4 +1,19 @@
-# RAG Pipeline API
+# RAG Pipeline
+
+A comprehensive Retrieval-Augmented Generation system with a modern chat UI for document Q&A.
+
+## ✨ Features
+
+- 📄 **Multi-format Support**: PDF and TXT document processing
+- 🧠 **Intelligent QA**: Context-aware question answering with source attribution
+- 💬 **Modern Chat UI**: ChatGPT-inspired interface for seamless interaction
+- 📤 **Document Upload**: Easy file upload with real-time processing status
+- 💾 **Conversation Memory**: Persistent conversation sessions
+- 🔄 **Version Control**: Document versioning and rollback capabilities
+- 📊 **Analytics**: Comprehensive usage statistics and monitoring
+- 🔍 **Advanced Search**: Full-text and metadata search
+- 📝 **Rich Metadata**: Automatic document metadata extraction
+- 📊 **Performance Monitoring**: Built-in logging and metrics API
 
 This RAG (Retrieval-Augmented Generation) pipeline answers questions from PDF documents using vector embeddings and ChromaDB.
 
@@ -44,6 +59,10 @@ npm start
 
 ### Application Scripts
 - `npm start` - Start the API server
+- `npm run frontend` - Start the React frontend (port 3001)
+- `npm run dev` - Start both backend and frontend concurrently
+- `npm run dev:backend` - Start only the backend server
+- `npm run dev:frontend` - Start only the frontend
 - `npm run ingest` - Run document ingestion
 - `npm run test-ingest` - Run ingestion tests
 
@@ -77,6 +96,29 @@ NODE_ENV=development
 
 ### Health Check
 - `GET /api/health` - Check service health
+
+## 💻 Frontend Chat UI
+
+The application includes a modern, ChatGPT-inspired web interface for easy interaction:
+
+### Features
+- **Document Upload**: Drag & drop or click to upload PDF/TXT files
+- **Real-time Chat**: Ask questions and get instant AI responses
+- **Source Attribution**: See which documents and chunks were used for answers
+- **Confidence Scores**: View confidence levels for each response
+- **Conversation History**: Persistent chat sessions with context
+- **Responsive Design**: Works on desktop and mobile devices
+
+### Accessing the UI
+1. Start both services: `npm run dev`
+2. Open http://localhost:3001 in your browser
+3. Upload documents and start asking questions!
+
+### UI Workflow
+1. **Upload**: Click "Choose File" to add documents to your knowledge base
+2. **Process**: Documents are automatically processed and indexed
+3. **Ask**: Type questions in the chat input
+4. **Review**: Check sources and confidence scores in responses
 
 ## 🛠️ Manual ChromaDB Setup
 

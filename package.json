@@ -6,6 +6,10 @@
   "type": "module",
   "scripts": {
     "start": "node src/core/server.js",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm start\" \"npm run frontend\"",
+    "dev:backend": "npm start",
+    "dev:frontend": "npm run frontend",
     "ingest": "node src/processing/ingest.js",
     "test-ingest": "node src/processing/test_ingestion.js",
     "test": "node tests/test-suite.js",
@@ -45,5 +49,8 @@
     "pdf-parse": "^1.1.1",
     "uuid": "^9.0.1",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }
