@@ -31,7 +31,7 @@ npm install
 ### 2. Start ChromaDB Locally
 ```bash
 # Using Docker (recommended)
-npm run chromadb:start
+¸npm run chromadb:start
 
 # Or manually with Docker
 docker run -d --name chromadb -p 8000:8000 chromadb/chroma
@@ -78,6 +78,25 @@ CHROMA_COLLECTION_NAME=rag_documents
 # HuggingFace API (for embeddings)
 HF_API_KEY=your_huggingface_api_key_here
 HF_MODEL=sentence-transformers/all-MiniLM-L6-v2
+
+# LLM Configuration (choose one provider)
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+# OPENAI_MODEL=gpt-3.5-turbo  # or gpt-4, gpt-4-turbo
+
+# Anthropic Configuration (alternative to OpenAI)
+# ANTHROPIC_API_KEY=your_anthropic_api_key_here
+# ANTHROPIC_MODEL=claude-3-haiku-20240307  # or claude-3-sonnet-20240229
+
+# Google Gemini Configuration (alternative to OpenAI/Anthropic)
+# GOOGLE_API_KEY=your_google_api_key_here
+# GEMINI_MODEL=gemini-1.5-flash  # or gemini-1.5-pro
+
+# LLM Provider Settings
+LLM_PROVIDER=openai  # or 'anthropic', 'google', or 'gemini'
+LLM_MODEL=gpt-3.5-turbo  # model name (will use defaults if not specified)
+LLM_TEMPERATURE=0.3  # creativity level (0.0 = deterministic, 1.0 = creative)
+LLM_MAX_TOKENS=2000  # maximum response length
 
 # Server Configuration
 PORT=3000

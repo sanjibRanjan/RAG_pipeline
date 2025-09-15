@@ -1,3 +1,5 @@
+import LangChainManager from './langchain-manager.js';
+
 export class QAService {
   constructor(embeddingService, vectorStore, options = {}) {
     this.embeddingService = embeddingService;
@@ -6,6 +8,19 @@ export class QAService {
     this.similarityThreshold = options.similarityThreshold || -0.5; // Lower threshold for ChromaDB distances
     this.maxContextLength = options.maxContextLength || 2000;
     this.isInitialized = false;
+
+    // Initialize LLM manager if provider is configured
+    this.llmProvider = process.env.LLM_PROVIDER || 'none';
+    this.langChainManager = null;
+
+    if (this.llmProvider !== 'none') {
+      this.langChainManager = new LangChainManager({
+        provider: this.llmProvider,
+        modelName: process.env.LLM_MODEL,
+        temperature: parseFloat(process.env.LLM_TEMPERATURE) || 0.3,
+        maxTokens: parseInt(process.env.LLM_MAX_TOKENS) || 2000
+      });
+    }
   }
 
   /**
@@ -23,6 +38,17 @@ export class QAService {
     // Test services
     await this.embeddingService.healthCheck();
     await this.vectorStore.healthCheck();
+
+    // Initialize LLM if configured
+    if (this.langChainManager) {
+      try {
+        await this.langChainManager.initialize();
+        console.log("🤖 LLM integration enabled");
+      } catch (error) {
+        console.warn("⚠️ LLM initialization failed, falling back to rule-based generation:", error.message);
+        this.langChainManager = null;
+      }
+    }
 
     this.isInitialized = true;
     console.log("✅ QA Service initialized successfully");
@@ -1537,6 +1563,46 @@ export class QAService {
   async applyAdvancedReasoning(question, relevantChunks, conversationHistory) {
     const questionAnalysis = this.analyzeQuestionType(question);
 
+    // Check if LLM is available - use it as primary reasoning method
+    if (this.langChainManager) {
+      try {
+        console.log(`🤖 Using LLM for answer generation (${this.llmProvider})`);
+        const llmResult = await this.langChainManager.generateAnswer(
+          question,
+          relevantChunks,
+          questionAnalysis,
+          conversationHistory
+        );
+
+        return {
+          answer: llmResult.answer,
+          reasoningStrategy: 'llm_generation',
+          reasoningSteps: [],
+          confidence: llmResult.confidence,
+          questionAnalysis,
+          llmMetadata: llmResult.metadata
+        };
+      } catch (error) {
+        console.warn(`⚠️ LLM generation failed, falling back to rule-based approach: ${error.message}`);
+
+        // Fallback to rule-based approach
+        return await this.applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis);
+      }
+    }
+
+    // No LLM available, use rule-based reasoning
+    return await this.applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis);
+  }
+
+  /**
+   * Apply rule-based reasoning when LLM is not available
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {Array} conversationHistory - Conversation history
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {Object} Reasoning result
+   */
+  async applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis) {
     // Choose reasoning strategy based on question type and complexity
     let reasoningStrategy = 'standard';
 
@@ -2811,7 +2877,10 @@ export class QAService {
       similarityThreshold: this.similarityThreshold,
       maxContextLength: this.maxContextLength,
       embeddingServiceHealthy: this.embeddingService ? true : false,
-      vectorStoreHealthy: this.vectorStore ? true : false
+      vectorStoreHealthy: this.vectorStore ? true : false,
+      llmProvider: this.llmProvider,
+      llmEnabled: this.langChainManager ? true : false,
+      llmStats: this.langChainManager ? this.langChainManager.getStats() : null
     };
   }
 
@@ -2828,6 +2897,11 @@ export class QAService {
 
       // Test vector store
       await this.vectorStore.getStats();
+
+      // Test LLM if available
+      if (this.langChainManager) {
+        await this.langChainManager.healthCheck();
+      }
 
       return true;
     } catch (error) {
