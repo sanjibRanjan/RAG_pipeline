@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import ChatInterface from './components/ChatInterface';
-import DocumentUpload from './components/DocumentUpload';
 import Header from './components/Header';
 
 const theme = createTheme({
@@ -65,7 +64,6 @@ function App() {
             mx: 'auto',
             width: '100%'
           }}>
-            <DocumentUpload />
             <ChatInterface
               messages={messages}
               setMessages={setMessages}

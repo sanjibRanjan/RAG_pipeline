@@ -12,12 +12,16 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  IconButton,
+  Tooltip,
+  Alert,
+  LinearProgress,
 } from '@mui/material';
-import { Send, ExpandMore, Psychology, Person } from '@mui/icons-material';
+import { Send, ExpandMore, Psychology, Person, CloudUpload, CheckCircle, Error as ErrorIcon } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-  import axios from 'axios';
+import axios from 'axios';
 
 const ChatInterface = ({
   messages,
@@ -29,6 +33,10 @@ const ChatInterface = ({
   messagesEndRef
 }) => {
   const [inputMessage, setInputMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -90,6 +98,91 @@ const ChatInterface = ({
     }
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'text/plain'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Only PDF and TXT files are allowed');
+      return;
+    }
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('File size must be less than 10MB');
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+    setUploadSuccess(null);
+
+    try {
+      // Upload file
+      const formData = new FormData();
+      formData.append('document', file);
+
+      const uploadResponse = await axios.post('/api/documents/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (!uploadResponse.data.success) {
+        throw new Error(uploadResponse.data.message);
+      }
+
+      const uploadData = uploadResponse.data.data;
+
+      // Ingest document
+      const ingestResponse = await axios.post('/api/documents/ingest', {
+        filePath: uploadData.uploadPath,
+        originalName: uploadData.originalName,
+      });
+
+      if (!ingestResponse.data.success) {
+        throw new Error(ingestResponse.data.message);
+      }
+
+      const ingestData = ingestResponse.data.data;
+
+      // Add to uploaded files list
+      setUploadedFiles(prev => [...prev, {
+        name: uploadData.originalName,
+        size: uploadData.size,
+        chunks: ingestData.chunksProcessed,
+        uploadedAt: new Date(),
+        status: 'completed'
+      }]);
+
+      setUploadSuccess(`Successfully uploaded and processed ${uploadData.originalName}`);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadError(error.response?.data?.message || error.message || 'Upload failed');
+
+      // Add failed upload to list
+      setUploadedFiles(prev => [...prev, {
+        name: file.name,
+        size: file.size,
+        status: 'failed',
+        uploadedAt: new Date()
+      }]);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
@@ -98,7 +191,10 @@ const ChatInterface = ({
   };
 
   const structureResponse = (text) => {
-    if (!text) return text;
+    // Ensure text is a string
+    if (!text || typeof text !== 'string') {
+      return typeof text === 'object' ? JSON.stringify(text) : String(text || '');
+    }
 
     // Check if the response is already well-structured (contains emoji markers)
     const structuredMarkers = ['🔍', '📖', '🔸', '📋', '💡', '🎯', '🔹'];
@@ -424,7 +520,85 @@ const ChatInterface = ({
           bgcolor: 'background.paper',
         }}
       >
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        {/* Upload Status Messages */}
+        {uploading && (
+          <Box sx={{ mb: 1 }}>
+            <LinearProgress sx={{ mb: 1 }} />
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Processing document...
+            </Typography>
+          </Box>
+        )}
+
+        {uploadError && (
+          <Alert severity="error" sx={{ mb: 1, py: 0.5 }}>
+            <Typography variant="body2">{uploadError}</Typography>
+          </Alert>
+        )}
+
+        {uploadSuccess && (
+          <Alert severity="success" sx={{ mb: 1, py: 0.5 }}>
+            <Typography variant="body2">{uploadSuccess}</Typography>
+          </Alert>
+        )}
+
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+          {/* Upload Button */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <input
+              accept=".pdf,.txt"
+              style={{ display: 'none' }}
+              id="document-upload"
+              type="file"
+              onChange={handleFileUpload}
+              disabled={uploading}
+            />
+            <label htmlFor="document-upload">
+              <Tooltip title="Upload Document (PDF/TXT)">
+                <IconButton
+                  component="span"
+                  disabled={uploading}
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.5,
+                    }
+                  }}
+                >
+                  {uploading ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    <CloudUpload sx={{ color: 'primary.main' }} />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </label>
+
+            {/* Recent uploads indicator */}
+            {uploadedFiles.length > 0 && (
+              <Box sx={{ mt: 0.5 }}>
+                <Tooltip title={`${uploadedFiles.length} document${uploadedFiles.length > 1 ? 's' : ''} uploaded`}>
+                  <Chip
+                    size="small"
+                    label={uploadedFiles.length}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ height: 16, fontSize: '0.7rem', minWidth: 20 }}
+                  />
+                </Tooltip>
+              </Box>
+            )}
+          </Box>
+
+          {/* Text Input */}
           <TextField
             fullWidth
             multiline
@@ -441,6 +615,8 @@ const ChatInterface = ({
               },
             }}
           />
+
+          {/* Send Button */}
           <Button
             variant="contained"
             onClick={handleSendMessage}
@@ -458,10 +634,6 @@ const ChatInterface = ({
             )}
           </Button>
         </Box>
-
-        <Typography variant="caption" sx={{ mt: 1, color: 'text.secondary', display: 'block' }}>
-          Press Enter to send, Shift+Enter for new line
-        </Typography>
       </Box>
     </Paper>
   );

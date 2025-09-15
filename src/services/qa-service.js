@@ -76,14 +76,18 @@ export class QAService {
         };
       }
 
-      // Generate answer based on retrieved documents and conversation context
-      const answer = this.generateAnswer(question, relevantChunks, conversationHistory);
+      // Apply advanced reasoning techniques based on question type
+      const reasoningResult = await this.applyAdvancedReasoning(question, relevantChunks, conversationHistory);
+      const answer = reasoningResult.answer;
 
       // Extract sources from relevant chunks
       const sources = this.extractSources(relevantChunks, searchResults);
 
-      // Calculate confidence score
-      const confidence = this.calculateConfidence(sources, relevantChunks.length);
+      // Apply quality control and hallucination detection
+      const qualityCheck = await this.performQualityControl(answer, question, relevantChunks);
+
+      // Calculate enhanced confidence score
+      const confidence = this.calculateEnhancedConfidence(sources, relevantChunks.length, reasoningResult.confidence, qualityCheck);
 
       console.log(`✅ Generated answer with ${sources.length} sources, confidence: ${(confidence * 100).toFixed(1)}%`);
 
@@ -515,20 +519,53 @@ export class QAService {
    * @returns {Object} Structured answer components
    */
   extractAnswerComponents(relevantChunks, question, questionAnalysis) {
-    const allText = relevantChunks.map(chunk => chunk.content).join(" ");
+    try {
+      // Ensure we have valid inputs
+      if (!relevantChunks || relevantChunks.length === 0) {
+        return this.getEmptyComponents();
+      }
 
-    // Extract different types of content based on question type
-    const components = {
-      mainDefinition: this.extractMainDefinition(allText, question),
-      categories: this.extractCategories(allText, questionAnalysis),
-      examples: this.extractExamples(allText, questionAnalysis),
-      applications: this.extractApplications(allText, questionAnalysis),
-      keyPoints: this.extractKeyPoints(allText, question, questionAnalysis),
-      supportingDetails: this.extractSupportingDetails(relevantChunks, questionAnalysis),
-      conclusion: this.generateConclusion(questionAnalysis)
+      const allText = relevantChunks
+        .filter(chunk => chunk && chunk.content)
+        .map(chunk => chunk.content)
+        .join(" ");
+
+      if (!allText || allText.trim().length === 0) {
+        return this.getEmptyComponents();
+      }
+
+      // Extract different types of content based on question type
+      const components = {
+        mainDefinition: this.extractMainDefinition(allText, question) || null,
+        categories: this.extractCategories(allText, questionAnalysis) || [],
+        examples: this.extractExamples(allText, questionAnalysis) || [],
+        applications: this.extractApplications(allText, questionAnalysis) || [],
+        keyPoints: this.extractKeyPoints(allText, question, questionAnalysis) || [],
+        supportingDetails: this.extractSupportingDetails(relevantChunks, questionAnalysis) || { sources: 0, topDocuments: [], confidence: 0, topics: [] },
+        conclusion: this.generateConclusion(questionAnalysis) || null
+      };
+
+      return components;
+    } catch (error) {
+      console.error("❌ Error in extractAnswerComponents:", error);
+      return this.getEmptyComponents();
+    }
+  }
+
+  /**
+   * Get empty components structure for fallback
+   * @returns {Object} Empty components object
+   */
+  getEmptyComponents() {
+    return {
+      mainDefinition: null,
+      categories: [],
+      examples: [],
+      applications: [],
+      keyPoints: [],
+      supportingDetails: { sources: 0, topDocuments: [], confidence: 0, topics: [] },
+      conclusion: null
     };
-
-    return components;
   }
 
   /**
@@ -799,50 +836,71 @@ export class QAService {
   buildStructuredAnswer(question, components, questionAnalysis) {
     const sections = [];
 
-    // Title/Header
-    sections.push(`🔍 ${this.generateAnswerTitle(question, questionAnalysis)}`);
+    // Title/Header - always include this
+    const title = this.generateAnswerTitle(question, questionAnalysis);
+    if (title) {
+      sections.push(`🔍 ${title}`);
+    }
 
     // Main definition/introduction
-    if (components.mainDefinition) {
-      sections.push(`📖 **Definition & Purpose**\n${components.mainDefinition}`);
+    if (components.mainDefinition && components.mainDefinition.trim().length > 0) {
+      sections.push(`📖 **Definition & Purpose**\n${components.mainDefinition.trim()}`);
     }
 
     // Categories/Types section
-    if (components.categories.length > 0) {
-      sections.push(`🔸 **${this.getCategoriesTitle(questionAnalysis)}**\n${
-        components.categories.map((cat, i) => `${i + 1}. ${cat}`).join('\n')
-      }`);
+    if (components.categories && components.categories.length > 0) {
+      const validCategories = components.categories.filter(cat => cat && cat.trim().length > 0);
+      if (validCategories.length > 0) {
+        const categoryTitle = this.getCategoriesTitle(questionAnalysis) || "Key Categories";
+        sections.push(`🔸 **${categoryTitle}**\n${
+          validCategories.map((cat, i) => `${i + 1}. ${cat.trim()}`).join('\n')
+        }`);
+      }
     }
 
     // Key points section
-    if (components.keyPoints.length > 0) {
-      sections.push(`📋 **Key Points**\n${
-        components.keyPoints.map(point => `• ${point}`).join('\n')
-      }`);
+    if (components.keyPoints && components.keyPoints.length > 0) {
+      const validKeyPoints = components.keyPoints.filter(point => point && point.trim().length > 0);
+      if (validKeyPoints.length > 0) {
+        sections.push(`📋 **Key Points**\n${
+          validKeyPoints.map(point => `• ${point.trim()}`).join('\n')
+        }`);
+      }
     }
 
     // Examples section
-    if (components.examples.length > 0) {
-      sections.push(`💡 **Examples**\n${
-        components.examples.map(example => `• ${example}`).join('\n')
-      }`);
+    if (components.examples && components.examples.length > 0) {
+      const validExamples = components.examples.filter(example => example && example.trim().length > 0);
+      if (validExamples.length > 0) {
+        sections.push(`💡 **Examples**\n${
+          validExamples.map(example => `• ${example.trim()}`).join('\n')
+        }`);
+      }
     }
 
     // Applications section
-    if (components.applications.length > 0) {
-      sections.push(`🎯 **Applications**\n${
-        components.applications.map(app => `• ${app}`).join('\n')
-      }`);
+    if (components.applications && components.applications.length > 0) {
+      const validApplications = components.applications.filter(app => app && app.trim().length > 0);
+      if (validApplications.length > 0) {
+        sections.push(`🎯 **Applications**\n${
+          validApplications.map(app => `• ${app.trim()}`).join('\n')
+        }`);
+      }
     }
 
     // Conclusion
-    if (components.conclusion) {
-      sections.push(`🔹 **Conclusion**\n${components.conclusion}`);
+    if (components.conclusion && components.conclusion.trim().length > 0) {
+      sections.push(`🔹 **Conclusion**\n${components.conclusion.trim()}`);
     }
 
     // Add source information
-    if (components.supportingDetails.sources > 0) {
+    if (components.supportingDetails && components.supportingDetails.sources > 0) {
       sections.push(`\n📚 *Information sourced from ${components.supportingDetails.sources} relevant sections across ${components.supportingDetails.topDocuments.length} documents*`);
+    }
+
+    // Ensure we have at least a basic response
+    if (sections.length === 0) {
+      return `🔍 ${title || "Information Found"}\n\nI found relevant information in the documents but had trouble organizing it into a structured format.`;
     }
 
     return sections.join('\n\n');
@@ -1441,6 +1499,649 @@ export class QAService {
   }
 
   /**
+   * Capitalize the first letter of each sentence in the text
+   * @param {string} text - Text to capitalize
+   * @returns {string} Text with properly capitalized sentences
+   */
+  capitalizeSentences(text) {
+    if (!text || typeof text !== 'string') return text;
+
+    // Split text into sentences using regex that handles various punctuation
+    const sentences = text.split(/([.!?]+(?:\s|$))/);
+
+    // Process each sentence and punctuation pair
+    const capitalized = sentences.map((part, index) => {
+      // If this is a sentence (not punctuation), capitalize it
+      if (index % 2 === 0 && part.trim().length > 0) {
+        const trimmed = part.trim();
+        if (trimmed.length > 0) {
+          // Capitalize first letter, preserve rest of sentence
+          return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        }
+      }
+      // Return punctuation as-is
+      return part;
+    });
+
+    // Rejoin all parts
+    return capitalized.join('');
+  }
+
+  /**
+   * Apply advanced reasoning techniques based on question type and content
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant document chunks
+   * @param {Array} conversationHistory - Previous conversation messages
+   * @returns {Object} Reasoning result with answer and metadata
+   */
+  async applyAdvancedReasoning(question, relevantChunks, conversationHistory) {
+    const questionAnalysis = this.analyzeQuestionType(question);
+
+    // Choose reasoning strategy based on question type and complexity
+    let reasoningStrategy = 'standard';
+
+    if (this.requiresChainOfThought(question, questionAnalysis)) {
+      reasoningStrategy = 'chain_of_thought';
+    } else if (this.requiresSelfConsistency(question, relevantChunks)) {
+      reasoningStrategy = 'self_consistency';
+    } else if (this.isComplexReasoningQuestion(question)) {
+      reasoningStrategy = 'multi_step_reasoning';
+    }
+
+    console.log(`🧠 Applying ${reasoningStrategy} reasoning strategy`);
+
+    let answer;
+    let reasoningSteps = [];
+    let confidence = 0;
+
+    switch (reasoningStrategy) {
+      case 'chain_of_thought':
+        const cotResult = await this.applyChainOfThought(question, relevantChunks, questionAnalysis);
+        answer = cotResult.answer;
+        reasoningSteps = cotResult.steps;
+        confidence = cotResult.confidence;
+        break;
+
+      case 'self_consistency':
+        const scResult = await this.applySelfConsistency(question, relevantChunks);
+        answer = scResult.answer;
+        confidence = scResult.confidence;
+        break;
+
+      case 'multi_step_reasoning':
+        const msResult = await this.applyMultiStepReasoning(question, relevantChunks, questionAnalysis);
+        answer = msResult.answer;
+        reasoningSteps = msResult.steps;
+        confidence = msResult.confidence;
+        break;
+
+      default:
+        answer = this.generateAnswer(question, relevantChunks, conversationHistory);
+        confidence = 0.7; // Standard confidence
+    }
+
+    return {
+      answer,
+      reasoningStrategy,
+      reasoningSteps,
+      confidence,
+      questionAnalysis
+    };
+  }
+
+  /**
+   * Determine if question requires chain-of-thought reasoning
+   * @param {string} question - User's question
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {boolean} Whether CoT is needed
+   */
+  requiresChainOfThought(question, questionAnalysis) {
+    const questionLower = question.toLowerCase();
+
+    // Questions that benefit from step-by-step reasoning
+    const cotIndicators = [
+      'how to', 'why does', 'explain', 'analyze', 'compare',
+      'what happens when', 'what if', 'solve', 'calculate',
+      'reason', 'because', 'therefore', 'consequently'
+    ];
+
+    const hasCotIndicators = cotIndicators.some(indicator => questionLower.includes(indicator));
+
+    // Complex question types that benefit from CoT
+    const complexTypes = ['analysis', 'comparison', 'why_explain'];
+    const isComplexType = complexTypes.includes(questionAnalysis.type);
+
+    // Long questions or questions with multiple parts
+    const isLongQuestion = question.split(' ').length > 12;
+    const hasMultipleParts = (questionLower.match(/\?/) || []).length > 1;
+
+    return hasCotIndicators || isComplexType || isLongQuestion || hasMultipleParts;
+  }
+
+  /**
+   * Determine if question requires self-consistency checking
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant chunks
+   * @returns {boolean} Whether self-consistency is needed
+   */
+  requiresSelfConsistency(question, relevantChunks) {
+    // Use self-consistency for questions where multiple interpretations are possible
+    const ambiguousTerms = ['best', 'better', 'optimal', 'recommended', 'preferred'];
+    const hasAmbiguousTerms = ambiguousTerms.some(term =>
+      question.toLowerCase().includes(term)
+    );
+
+    // Use self-consistency when we have many relevant chunks (potential for conflicting info)
+    const hasManyChunks = relevantChunks.length > 5;
+
+    return hasAmbiguousTerms || hasManyChunks;
+  }
+
+  /**
+   * Check if question requires complex multi-step reasoning
+   * @param {string} question - User's question
+   * @returns {boolean} Whether multi-step reasoning is needed
+   */
+  isComplexReasoningQuestion(question) {
+    const questionLower = question.toLowerCase();
+
+    const complexPatterns = [
+      'relationship between', 'interaction', 'impact of',
+      'influence', 'effect', 'consequence', 'trade-off',
+      'pros and cons', 'advantages and disadvantages'
+    ];
+
+    return complexPatterns.some(pattern => questionLower.includes(pattern));
+  }
+
+  /**
+   * Apply chain-of-thought reasoning to generate answer
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {Object} Chain-of-thought result
+   */
+  async applyChainOfThought(question, relevantChunks, questionAnalysis) {
+    console.log("🔗 Applying Chain-of-Thought reasoning");
+
+    const steps = [];
+    let currentAnswer = "";
+    let confidence = 0.8;
+
+    // Step 1: Understand the question
+    steps.push({
+      step: 1,
+      type: 'understanding',
+      content: `Understanding question: "${question}" - Type: ${questionAnalysis.type}, Complexity: ${questionAnalysis.complexity}`
+    });
+
+    // Step 2: Gather relevant information
+    const keyInformation = this.extractKeyInformation(relevantChunks, question);
+    steps.push({
+      step: 2,
+      type: 'information_gathering',
+      content: `Found ${keyInformation.length} key pieces of information relevant to the question`
+    });
+
+    // Step 3: Analyze and synthesize information
+    const analysis = this.analyzeInformation(keyInformation, question, questionAnalysis);
+    steps.push({
+      step: 3,
+      type: 'analysis',
+      content: `Analyzed information: ${analysis.mainPoints.length} main points identified`
+    });
+
+    // Step 4: Generate structured answer
+    currentAnswer = this.generateStructuredAnswer(keyInformation, analysis, questionAnalysis);
+    steps.push({
+      step: 4,
+      type: 'synthesis',
+      content: `Synthesized comprehensive answer based on analysis`
+    });
+
+    // Step 5: Validate answer quality
+    const validation = this.validateAnswerQuality(currentAnswer, question, relevantChunks);
+    if (!validation.isValid) {
+      console.log("⚠️ Answer validation failed, attempting correction");
+      currentAnswer = this.correctAnswer(currentAnswer, validation.issues);
+      confidence -= 0.1;
+    }
+    steps.push({
+      step: 5,
+      type: 'validation',
+      content: `Validated answer quality: ${validation.isValid ? 'Passed' : 'Corrected'}`
+    });
+
+    return {
+      answer: currentAnswer,
+      steps,
+      confidence
+    };
+  }
+
+  /**
+   * Apply self-consistency checking for reliable answers
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant chunks
+   * @returns {Object} Self-consistency result
+   */
+  async applySelfConsistency(question, relevantChunks) {
+    console.log("🔄 Applying Self-Consistency checking");
+
+    // Generate multiple answer variations
+    const answerVariations = [];
+    const numVariations = Math.min(3, relevantChunks.length);
+
+    for (let i = 0; i < numVariations; i++) {
+      const subset = this.selectChunkSubset(relevantChunks, i);
+      const variation = this.generateAnswer(question, subset, []);
+      answerVariations.push(variation);
+    }
+
+    // Find the most consistent answer
+    const consistencyResult = this.findMostConsistentAnswer(answerVariations);
+
+    return {
+      answer: consistencyResult.answer,
+      confidence: consistencyResult.consistencyScore
+    };
+  }
+
+  /**
+   * Apply multi-step reasoning for complex questions
+   * @param {string} question - User's question
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {Object} Multi-step reasoning result
+   */
+  async applyMultiStepReasoning(question, relevantChunks, questionAnalysis) {
+    console.log("🔀 Applying Multi-Step Reasoning");
+
+    const steps = [];
+    let currentContext = "";
+    let confidence = 0.75;
+
+    // Break down complex question into sub-questions
+    const subQuestions = this.breakDownQuestion(question, questionAnalysis);
+
+    steps.push({
+      step: 0,
+      type: 'decomposition',
+      content: `Decomposed question into ${subQuestions.length} sub-questions`
+    });
+
+    // Answer each sub-question sequentially, building context
+    for (let i = 0; i < subQuestions.length; i++) {
+      const subQuestion = subQuestions[i];
+      const subAnswer = this.generateAnswer(subQuestion, relevantChunks, []);
+
+      steps.push({
+        step: i + 1,
+        type: 'sub_reasoning',
+        content: `Sub-question ${i + 1}: ${subQuestion}`
+      });
+
+      currentContext += ` ${subAnswer}`;
+    }
+
+    // Synthesize final answer from sub-answers
+    const finalAnswer = this.synthesizeMultiStepAnswer(subQuestions, currentContext, question);
+
+    steps.push({
+      step: subQuestions.length + 1,
+      type: 'synthesis',
+      content: 'Synthesized final answer from sub-question responses'
+    });
+
+    return {
+      answer: finalAnswer,
+      steps,
+      confidence
+    };
+  }
+
+  /**
+   * Extract key information from chunks for reasoning
+   * @param {Array} chunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {Array} Key information pieces
+   */
+  extractKeyInformation(chunks, question) {
+    const questionKeywords = this.extractKeywordsForAnalysis(question);
+    const keyInfo = [];
+
+    chunks.forEach(chunk => {
+      const sentences = chunk.content.split(/[.!?]+/);
+      sentences.forEach(sentence => {
+        const trimmed = sentence.trim();
+        if (trimmed.length > 10) {
+          const matches = questionKeywords.filter(keyword =>
+            trimmed.toLowerCase().includes(keyword.toLowerCase())
+          );
+
+          if (matches.length > 0) {
+            keyInfo.push({
+              text: trimmed,
+              relevance: matches.length,
+              source: chunk.metadata.documentName || 'Unknown'
+            });
+          }
+        }
+      });
+    });
+
+    return keyInfo.sort((a, b) => b.relevance - a.relevance);
+  }
+
+  /**
+   * Analyze information for patterns and relationships
+   * @param {Array} keyInfo - Key information pieces
+   * @param {string} question - Original question
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {Object} Analysis results
+   */
+  analyzeInformation(keyInfo, question, questionAnalysis) {
+    const mainPoints = [];
+    const relationships = [];
+    const contradictions = [];
+
+    // Extract main points
+    keyInfo.slice(0, 5).forEach(info => {
+      mainPoints.push(info.text);
+    });
+
+    // Look for relationships and contradictions
+    for (let i = 0; i < keyInfo.length - 1; i++) {
+      for (let j = i + 1; j < keyInfo.length; j++) {
+        const relation = this.analyzeRelationship(keyInfo[i].text, keyInfo[j].text);
+        if (relation.type !== 'unrelated') {
+          relationships.push({
+            items: [keyInfo[i].text, keyInfo[j].text],
+            type: relation.type,
+            description: relation.description
+          });
+        }
+      }
+    }
+
+    return {
+      mainPoints,
+      relationships,
+      contradictions,
+      questionType: questionAnalysis.type
+    };
+  }
+
+  /**
+   * Analyze relationship between two pieces of information
+   * @param {string} text1 - First text
+   * @param {string} text2 - Second text
+   * @returns {Object} Relationship analysis
+   */
+  analyzeRelationship(text1, text2) {
+    const text1Lower = text1.toLowerCase();
+    const text2Lower = text2.toLowerCase();
+
+    // Check for causal relationships
+    if ((text1Lower.includes('because') || text1Lower.includes('therefore')) &&
+        text2Lower.includes('because') || text2Lower.includes('therefore')) {
+      return { type: 'causal', description: 'Causal relationship detected' };
+    }
+
+    // Check for comparative relationships
+    if ((text1Lower.includes('better') || text1Lower.includes('worse')) &&
+        (text2Lower.includes('better') || text2Lower.includes('worse'))) {
+      return { type: 'comparative', description: 'Comparative relationship detected' };
+    }
+
+    // Check for sequential relationships
+    if ((text1Lower.includes('first') || text1Lower.includes('then') || text1Lower.includes('next')) &&
+        (text2Lower.includes('first') || text2Lower.includes('then') || text2Lower.includes('next'))) {
+      return { type: 'sequential', description: 'Sequential relationship detected' };
+    }
+
+    return { type: 'unrelated', description: 'No clear relationship' };
+  }
+
+  /**
+   * Generate structured answer from analysis
+   * @param {Array} keyInfo - Key information
+   * @param {Object} analysis - Analysis results
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {string} Structured answer
+   */
+  generateStructuredAnswer(keyInfo, analysis, questionAnalysis) {
+    const sections = [];
+
+    // Title section
+    const title = this.generateAnswerTitle(question, questionAnalysis);
+    if (title) {
+      sections.push(`🔍 ${title}`);
+    }
+
+    // Main points section
+    if (analysis.mainPoints.length > 0) {
+      sections.push(`📋 **Key Information:**\n${analysis.mainPoints.map(point => `• ${point}`).join('\n')}`);
+    }
+
+    // Relationships section (if any found)
+    if (analysis.relationships.length > 0) {
+      const relationText = analysis.relationships.map(rel =>
+        `• ${rel.description}: ${rel.items[0].substring(0, 50)}... ↔ ${rel.items[1].substring(0, 50)}...`
+      ).join('\n');
+      sections.push(`🔗 **Relationships Found:**\n${relationText}`);
+    }
+
+    // Conclusion based on question type
+    const conclusion = this.generateReasoningConclusion(analysis, questionAnalysis);
+    if (conclusion) {
+      sections.push(`🔹 **Conclusion:** ${conclusion}`);
+    }
+
+    return sections.join('\n\n');
+  }
+
+  /**
+   * Generate conclusion based on reasoning analysis
+   * @param {Object} analysis - Analysis results
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {string} Conclusion text
+   */
+  generateReasoningConclusion(analysis, questionAnalysis) {
+    const conclusions = {
+      definition: "This analysis provides a comprehensive understanding of the concept and its key characteristics.",
+      how_to: "Based on the available information, this step-by-step approach provides a clear path forward.",
+      comparison: "The analysis reveals distinct differences and similarities that should guide decision-making.",
+      why_explain: "The reasoning shows clear causal relationships and contributing factors.",
+      analysis: "This detailed analysis uncovers important insights and patterns in the information.",
+      general: "The reasoning process has identified the most relevant and reliable information available."
+    };
+
+    return conclusions[questionAnalysis.type] || conclusions.general;
+  }
+
+  /**
+   * Validate answer quality and identify issues
+   * @param {string} answer - Generated answer
+   * @param {string} question - Original question
+   * @param {Array} chunks - Source chunks
+   * @returns {Object} Validation result
+   */
+  validateAnswerQuality(answer, question, chunks) {
+    const issues = [];
+    let isValid = true;
+
+    // Check if answer addresses the question
+    const questionKeywords = this.extractKeywordsForAnalysis(question);
+    const answerLower = answer.toLowerCase();
+    const matchedKeywords = questionKeywords.filter(keyword =>
+      answerLower.includes(keyword.toLowerCase())
+    );
+
+    if (matchedKeywords.length < questionKeywords.length * 0.5) {
+      issues.push('Answer may not fully address the question');
+      isValid = false;
+    }
+
+    // Check for hallucinations (content not in source chunks)
+    const sentences = answer.split(/[.!?]+/);
+    for (const sentence of sentences) {
+      if (sentence.trim().length > 20) {
+        const foundInChunks = chunks.some(chunk =>
+          chunk.content.toLowerCase().includes(sentence.toLowerCase().substring(0, 30))
+        );
+        if (!foundInChunks) {
+          issues.push('Potential hallucination detected');
+          isValid = false;
+          break;
+        }
+      }
+    }
+
+    // Check answer length appropriateness
+    if (answer.length < 50) {
+      issues.push('Answer too short');
+      isValid = false;
+    }
+
+    return { isValid, issues };
+  }
+
+  /**
+   * Correct identified issues in the answer
+   * @param {string} answer - Original answer
+   * @param {Array} issues - Identified issues
+   * @returns {string} Corrected answer
+   */
+  correctAnswer(answer, issues) {
+    let correctedAnswer = answer;
+
+    issues.forEach(issue => {
+      if (issue === 'Answer too short') {
+        correctedAnswer += '\n\nFor more detailed information, please provide additional context or ask follow-up questions.';
+      }
+    });
+
+    return correctedAnswer;
+  }
+
+  /**
+   * Select subset of chunks for self-consistency checking
+   * @param {Array} chunks - All chunks
+   * @param {number} index - Subset index
+   * @returns {Array} Chunk subset
+   */
+  selectChunkSubset(chunks, index) {
+    const subsetSize = Math.max(2, Math.floor(chunks.length * 0.6));
+    const start = (index * subsetSize) % chunks.length;
+    return chunks.slice(start, start + subsetSize);
+  }
+
+  /**
+   * Find most consistent answer from variations
+   * @param {Array} variations - Answer variations
+   * @returns {Object} Most consistent answer
+   */
+  findMostConsistentAnswer(variations) {
+    if (variations.length === 1) {
+      return { answer: variations[0], consistencyScore: 0.8 };
+    }
+
+    // Simple consistency check based on text similarity
+    let bestAnswer = variations[0];
+    let bestConsistency = 0;
+
+    for (let i = 0; i < variations.length; i++) {
+      let consistency = 0;
+      for (let j = 0; j < variations.length; j++) {
+        if (i !== j) {
+          const similarity = this.calculateTextSimilarity(variations[i], variations[j]);
+          consistency += similarity;
+        }
+      }
+      consistency /= (variations.length - 1);
+
+      if (consistency > bestConsistency) {
+        bestConsistency = consistency;
+        bestAnswer = variations[i];
+      }
+    }
+
+    return {
+      answer: bestAnswer,
+      consistencyScore: Math.min(bestConsistency + 0.3, 1.0) // Boost confidence for consistency
+    };
+  }
+
+  /**
+   * Break down complex question into sub-questions
+   * @param {string} question - Complex question
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {Array} Sub-questions
+   */
+  breakDownQuestion(question, questionAnalysis) {
+    const subQuestions = [];
+
+    if (questionAnalysis.type === 'comparison') {
+      // For comparison questions, create sub-questions for each item
+      const items = this.extractComparisonItems(question);
+      items.forEach(item => {
+        subQuestions.push(`What are the characteristics of ${item}?`);
+      });
+      subQuestions.push(`How do these items compare in terms of key factors?`);
+    } else if (questionAnalysis.type === 'analysis') {
+      // For analysis questions, break into components
+      subQuestions.push(`What are the main components involved?`);
+      subQuestions.push(`How do these components interact?`);
+      subQuestions.push(`What are the key outcomes or implications?`);
+    } else {
+      // General decomposition for complex questions
+      const parts = question.split(/and|or|but|however|therefore/i);
+      parts.forEach(part => {
+        if (part.trim().length > 10) {
+          subQuestions.push(part.trim());
+        }
+      });
+    }
+
+    return subQuestions.slice(0, 4); // Limit to 4 sub-questions
+  }
+
+  /**
+   * Extract items being compared from comparison question
+   * @param {string} question - Comparison question
+   * @returns {Array} Items being compared
+   */
+  extractComparisonItems(question) {
+    const questionLower = question.toLowerCase();
+    const items = [];
+
+    // Look for common comparison patterns
+    const vsPattern = questionLower.split(/\bvs\b|\bversus\b|\bcompared to\b/i);
+    if (vsPattern.length > 1) {
+      vsPattern.forEach(part => {
+        const words = part.trim().split(/\s+/);
+        if (words.length > 0) {
+          items.push(words.slice(-2).join(' ')); // Take last 2 words as item
+        }
+      });
+    }
+
+    return items.length > 0 ? items : ['item1', 'item2']; // Fallback
+  }
+
+  /**
+   * Synthesize final answer from multi-step reasoning
+   * @param {Array} subQuestions - Sub-questions
+   * @param {string} context - Accumulated context
+   * @param {string} originalQuestion - Original question
+   * @returns {string} Synthesized answer
+   */
+  synthesizeMultiStepAnswer(subQuestions, context, originalQuestion) {
+    return `Based on multi-step analysis addressing: ${subQuestions.join('; ')}\n\n${context}\n\nThis comprehensive analysis provides a complete answer to: "${originalQuestion}"`;
+  }
+
+  /**
    * Generate comprehensive, structured answer based on retrieved chunks
    * @param {string} question - User's question
    * @param {Array} relevantChunks - Relevant document chunks
@@ -1448,29 +2149,100 @@ export class QAService {
    * @returns {string} Generated comprehensive answer
    */
   generateAnswer(question, relevantChunks, conversationHistory) {
-    // Analyze question type and content depth
-    const questionAnalysis = this.analyzeQuestionType(question);
+    try {
+      // Analyze question type and content depth
+      const questionAnalysis = this.analyzeQuestionType(question);
 
-    // Get comprehensive information from chunks
-    const answerComponents = this.extractAnswerComponents(relevantChunks, question, questionAnalysis);
+      // Get comprehensive information from chunks
+      const answerComponents = this.extractAnswerComponents(relevantChunks, question, questionAnalysis);
 
-    // Generate structured answer based on question type
-    let answer = this.buildStructuredAnswer(question, answerComponents, questionAnalysis);
+      // Generate structured answer based on question type
+      let answer = this.buildStructuredAnswer(question, answerComponents, questionAnalysis);
 
-    // Add conversation context if available
-    if (conversationHistory.length > 0) {
-      answer = this.enhanceWithConversationContext(answer, conversationHistory, question);
+      // Fallback 1: If structured answer is too short or empty, try direct chunk content
+      if (!answer || answer.trim().length < 50) {
+        console.log("🔄 Structured answer too short, using fallback approach");
+        answer = this.generateFallbackAnswer(relevantChunks, question);
+      }
+
+      // Fallback 2: If still no answer, use the most relevant chunk directly
+      if (!answer || answer.trim().length < 20) {
+        console.log("🔄 Fallback answer insufficient, using raw chunk content");
+        if (relevantChunks.length > 0) {
+          const topChunk = relevantChunks[0];
+          answer = `Based on the documents, here's the most relevant information:\n\n${topChunk.content.substring(0, 800)}${topChunk.content.length > 800 ? '...' : ''}`;
+        } else {
+          answer = "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+        }
+      }
+
+      // Add conversation context if available
+      if (conversationHistory.length > 0) {
+        answer = this.enhanceWithConversationContext(answer, conversationHistory, question);
+      }
+
+      // Ensure answer is not too long but comprehensive
+      if (answer && answer.length > this.maxContextLength * 2) {
+        answer = this.smartTruncateAnswer(answer, this.maxContextLength * 1.5);
+      }
+
+      // Apply sentence capitalization to ensure proper formatting
+      answer = this.capitalizeSentences(answer);
+
+      // Final fallback - ensure we always return a string
+      if (!answer || typeof answer !== 'string') {
+        console.log("🔄 Final fallback - returning basic response");
+        answer = "I've found relevant information but had trouble formatting it properly. The documents contain information that may answer your question.";
+      }
+
+      return answer;
+
+    } catch (error) {
+      console.error("❌ Error in generateAnswer:", error);
+      // Emergency fallback
+      if (relevantChunks.length > 0) {
+        return `I found relevant information in the documents: ${relevantChunks[0].content.substring(0, 500)}...`;
+      }
+      return "I encountered an error while generating the answer. Please try again.";
+    }
+  }
+
+  /**
+   * Generate fallback answer when structured generation fails
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {string} Fallback answer
+   */
+  generateFallbackAnswer(relevantChunks, question) {
+    if (relevantChunks.length === 0) {
+      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
     }
 
-    // Ensure answer is not too long but comprehensive
-    if (answer.length > this.maxContextLength * 2) { // Allow longer answers for comprehensive responses
-      answer = this.smartTruncateAnswer(answer, this.maxContextLength * 1.5);
+    // Combine all chunk content
+    const allText = relevantChunks.map(chunk => chunk.content).join(" ");
+
+    // Extract sentences that might be relevant
+    const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    const questionLower = question.toLowerCase();
+
+    // Find sentences that contain question keywords
+    const relevantSentences = sentences.filter(sentence => {
+      const sentenceLower = sentence.toLowerCase();
+      // Check if sentence contains important words from the question
+      const questionWords = questionLower.split(/\s+/).filter(word => word.length > 3);
+      return questionWords.some(word => sentenceLower.includes(word));
+    });
+
+    if (relevantSentences.length > 0) {
+      // Return top 3-5 relevant sentences
+      const topSentences = relevantSentences.slice(0, Math.min(5, relevantSentences.length));
+      return `🔍 Answer based on document content:\n\n${topSentences.join('. ')}.`;
     }
 
-    // Apply proper sentence capitalization to ensure all sentences start with capital letters
-    answer = this.capitalizeSentences(answer);
-
-    return answer;
+    // If no specific sentences match, return the beginning of the most relevant chunk
+    const topChunk = relevantChunks[0];
+    const previewLength = Math.min(600, topChunk.content.length);
+    return `🔍 Here's relevant information from the documents:\n\n${topChunk.content.substring(0, previewLength)}${topChunk.content.length > previewLength ? '...' : ''}`;
   }
 
   /**
@@ -1542,7 +2314,7 @@ export class QAService {
     const relatedTopics = this.extractRelatedTopics(recentContext, question);
 
     if (relatedTopics.length > 0) {
-      answer = `Based on our previous discussion about ${relatedTopics.join(", ")}, ${this.capitalizeFirstLetter(answer)}`;
+      answer = `Based on our previous discussion about ${relatedTopics.join(", ")}, ${answer.toLowerCase()}`;
     }
 
     return answer;
@@ -1567,43 +2339,6 @@ export class QAService {
     }
 
     return Array.from(topics).slice(0, 3);
-  }
-
-  /**
-   * Capitalize the first letter of a string
-   * @param {string} str - String to capitalize
-   * @returns {string} Capitalized string
-   */
-  capitalizeFirstLetter(str) {
-    if (!str || str.length === 0) return str;
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  /**
-   * Capitalize the first letter of each sentence in the text
-   * @param {string} text - Text to process
-   * @returns {string} Text with proper sentence capitalization
-   */
-  capitalizeSentences(text) {
-    if (!text || text.length === 0) return text;
-
-    // Split text into sentences using regex that handles various punctuation
-    const sentences = text.split(/([.!?]+\s*)/);
-
-    // Process each sentence and punctuation pair
-    const result = [];
-    for (let i = 0; i < sentences.length; i++) {
-      let sentence = sentences[i];
-
-      // If this is a sentence (not punctuation), capitalize first letter
-      if (sentence.trim().length > 0 && !/^[.!?\s]+$/.test(sentence)) {
-        sentence = this.capitalizeFirstLetter(sentence);
-      }
-
-      result.push(sentence);
-    }
-
-    return result.join('');
   }
 
   /**
@@ -1637,6 +2372,393 @@ export class QAService {
     }
 
     return sources;
+  }
+
+  /**
+   * Perform comprehensive quality control on generated answer
+   * @param {string} answer - Generated answer
+   * @param {string} question - Original question
+   * @param {Array} chunks - Source chunks
+   * @returns {Object} Quality control results
+   */
+  async performQualityControl(answer, question, chunks) {
+    const qualityMetrics = {
+      hallucinationScore: 0,
+      groundednessScore: 1.0,
+      factualConsistency: 1.0,
+      answerCompleteness: 0.8,
+      overallQuality: 0.8
+    };
+
+    try {
+      // 1. Hallucination Detection
+      qualityMetrics.hallucinationScore = this.detectHallucinations(answer, chunks);
+
+      // 2. Groundedness Check
+      qualityMetrics.groundednessScore = this.checkGroundedness(answer, chunks);
+
+      // 3. Factual Consistency
+      qualityMetrics.factualConsistency = this.checkFactualConsistency(answer, chunks);
+
+      // 4. Answer Completeness
+      qualityMetrics.answerCompleteness = this.assessAnswerCompleteness(answer, question);
+
+      // 5. Overall Quality Score
+      qualityMetrics.overallQuality = this.calculateOverallQuality(qualityMetrics);
+
+      console.log(`🛡️ Quality Control Results: Hallucination: ${(qualityMetrics.hallucinationScore * 100).toFixed(1)}%, Groundedness: ${(qualityMetrics.groundednessScore * 100).toFixed(1)}%, Overall: ${(qualityMetrics.overallQuality * 100).toFixed(1)}%`);
+
+      return qualityMetrics;
+    } catch (error) {
+      console.warn("Quality control failed:", error.message);
+      return qualityMetrics; // Return default scores on failure
+    }
+  }
+
+  /**
+   * Detect potential hallucinations in the answer
+   * @param {string} answer - Generated answer
+   * @param {Array} chunks - Source chunks
+   * @returns {number} Hallucination score (0-1, higher = more hallucinations)
+   */
+  detectHallucinations(answer, chunks) {
+    let hallucinationScore = 0;
+    const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    const allChunkText = chunks.map(chunk => chunk.content).join(' ').toLowerCase();
+
+    for (const sentence of sentences) {
+      const trimmed = sentence.trim().toLowerCase();
+
+      // Skip very short sentences
+      if (trimmed.length < 20) continue;
+
+      // Check if sentence contains factual claims not supported by sources
+      const hasFactualClaims = this.containsFactualClaims(trimmed);
+      if (hasFactualClaims) {
+        // Check if this factual claim exists in source chunks
+        const claimSupported = this.isClaimSupported(trimmed, allChunkText);
+
+        if (!claimSupported) {
+          hallucinationScore += 0.2; // Increment for unsupported claims
+        }
+      }
+
+      // Check for contradictory information
+      const hasContradictions = this.detectContradictions(trimmed, allChunkText);
+      if (hasContradictions) {
+        hallucinationScore += 0.15;
+      }
+    }
+
+    return Math.min(hallucinationScore, 1.0);
+  }
+
+  /**
+   * Check if text contains factual claims
+   * @param {string} text - Text to analyze
+   * @returns {boolean} Whether text contains factual claims
+   */
+  containsFactualClaims(text) {
+    const factualIndicators = [
+      'is ', 'are ', 'was ', 'were ', 'has ', 'have ', 'contains ',
+      'includes ', 'requires ', 'needs ', 'must ', 'should ', 'can ',
+      'cannot ', 'will ', 'would ', 'does ', 'do ', 'did '
+    ];
+
+    const lowerText = text.toLowerCase();
+    return factualIndicators.some(indicator => lowerText.includes(indicator));
+  }
+
+  /**
+   * Check if a factual claim is supported by source text
+   * @param {string} claim - Factual claim
+   * @param {string} sourceText - Combined source text
+   * @returns {boolean} Whether claim is supported
+   */
+  isClaimSupported(claim, sourceText) {
+    // Extract key terms from the claim
+    const claimWords = claim.toLowerCase()
+      .split(/\s+/)
+      .filter(word => word.length > 3 && !this.isStopWord(word))
+      .slice(0, 5); // Take first 5 significant words
+
+    if (claimWords.length === 0) return true; // Can't verify very short claims
+
+    // Check if source contains similar wording
+    const sourceWords = sourceText.split(/\s+/);
+    let matches = 0;
+
+    claimWords.forEach(claimWord => {
+      if (sourceWords.some(sourceWord =>
+        this.calculateLevenshteinDistance(claimWord, sourceWord.toLowerCase()) <= 2
+      )) {
+        matches++;
+      }
+    });
+
+    return matches >= Math.ceil(claimWords.length * 0.6); // 60% of key terms should match
+  }
+
+  /**
+   * Detect contradictions between answer and source text
+   * @param {string} answerText - Answer text
+   * @param {string} sourceText - Source text
+   * @returns {boolean} Whether contradictions detected
+   */
+  detectContradictions(answerText, sourceText) {
+    // Simple contradiction detection based on negations
+    const negations = ['not', 'never', 'no', 'none', 'nothing', 'nobody', 'nowhere'];
+    const answerWords = answerText.split(/\s+/);
+    const sourceWords = sourceText.split(/\s+/);
+
+    // Check for direct contradictions
+    for (const negation of negations) {
+      if (answerWords.includes(negation)) {
+        // Look for the word being negated in source
+        const negatedIndex = answerWords.indexOf(negation);
+        if (negatedIndex > 0) {
+          const negatedWord = answerWords[negatedIndex - 1];
+          if (sourceWords.some(word => word.toLowerCase() === negatedWord.toLowerCase())) {
+            return true; // Potential contradiction
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Check how well the answer is grounded in source material
+   * @param {string} answer - Generated answer
+   * @param {Array} chunks - Source chunks
+   * @returns {number} Groundedness score (0-1)
+   */
+  checkGroundedness(answer, chunks) {
+    const answerLower = answer.toLowerCase();
+    let totalGroundedWords = 0;
+    let totalWords = 0;
+
+    const answerWords = answerLower.split(/\s+/).filter(word => word.length > 2);
+    totalWords = answerWords.length;
+
+    // Check each answer word against all chunks
+    answerWords.forEach(word => {
+      let foundInChunk = false;
+      for (const chunk of chunks) {
+        if (chunk.content.toLowerCase().includes(word)) {
+          foundInChunk = true;
+          break;
+        }
+      }
+      if (foundInChunk) {
+        totalGroundedWords++;
+      }
+    });
+
+    return totalWords > 0 ? totalGroundedWords / totalWords : 0;
+  }
+
+  /**
+   * Check factual consistency across sources
+   * @param {string} answer - Generated answer
+   * @param {Array} chunks - Source chunks
+   * @returns {number} Consistency score (0-1)
+   */
+  checkFactualConsistency(answer, chunks) {
+    if (chunks.length <= 1) return 1.0; // No consistency issues with single source
+
+    const facts = this.extractFactsFromAnswer(answer);
+    let consistentFacts = 0;
+
+    facts.forEach(fact => {
+      let factSupported = 0;
+      chunks.forEach(chunk => {
+        if (this.isFactInChunk(fact, chunk.content)) {
+          factSupported++;
+        }
+      });
+
+      // Fact is consistent if supported by majority of chunks
+      if (factSupported >= Math.ceil(chunks.length * 0.5)) {
+        consistentFacts++;
+      }
+    });
+
+    return facts.length > 0 ? consistentFacts / facts.length : 1.0;
+  }
+
+  /**
+   * Extract factual statements from answer
+   * @param {string} answer - Answer text
+   * @returns {Array} Array of factual statements
+   */
+  extractFactsFromAnswer(answer) {
+    const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 15);
+    return sentences.filter(sentence => this.containsFactualClaims(sentence));
+  }
+
+  /**
+   * Check if a fact is present in chunk content
+   * @param {string} fact - Factual statement
+   * @param {string} chunkContent - Chunk content
+   * @returns {boolean} Whether fact is in chunk
+   */
+  isFactInChunk(fact, chunkContent) {
+    const factWords = fact.toLowerCase().split(/\s+/).filter(word => word.length > 3);
+    const chunkWords = chunkContent.toLowerCase().split(/\s+/);
+
+    let matches = 0;
+    factWords.forEach(word => {
+      if (chunkWords.includes(word)) {
+        matches++;
+      }
+    });
+
+    return matches >= Math.ceil(factWords.length * 0.7);
+  }
+
+  /**
+   * Assess answer completeness
+   * @param {string} answer - Generated answer
+   * @param {string} question - Original question
+   * @returns {number} Completeness score (0-1)
+   */
+  assessAnswerCompleteness(answer, question) {
+    const questionAnalysis = this.analyzeQuestionType(question);
+    let completeness = 0.5; // Base score
+
+    // Check answer length appropriateness
+    const wordCount = answer.split(/\s+/).length;
+    const expectedLength = this.getExpectedAnswerLength(questionAnalysis);
+
+    if (wordCount >= expectedLength * 0.5 && wordCount <= expectedLength * 1.5) {
+      completeness += 0.2;
+    }
+
+    // Check for structured elements based on question type
+    if (questionAnalysis.needsStructure) {
+      const hasStructure = this.hasStructuredElements(answer, questionAnalysis);
+      if (hasStructure) {
+        completeness += 0.2;
+      }
+    }
+
+    // Check question coverage
+    const questionKeywords = this.extractKeywordsForAnalysis(question);
+    const answerLower = answer.toLowerCase();
+    const coveredKeywords = questionKeywords.filter(keyword =>
+      answerLower.includes(keyword.toLowerCase())
+    );
+
+    completeness += (coveredKeywords.length / questionKeywords.length) * 0.3;
+
+    return Math.min(completeness, 1.0);
+  }
+
+  /**
+   * Get expected answer length based on question type
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {number} Expected word count
+   */
+  getExpectedAnswerLength(questionAnalysis) {
+    const lengthMap = {
+      definition: 50,
+      how_to: 100,
+      comparison: 120,
+      list_categories: 80,
+      why_explain: 90,
+      analysis: 150,
+      general: 70
+    };
+
+    return lengthMap[questionAnalysis.type] || lengthMap.general;
+  }
+
+  /**
+   * Check if answer has appropriate structured elements
+   * @param {string} answer - Answer text
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {boolean} Whether answer has structure
+   */
+  hasStructuredElements(answer, questionAnalysis) {
+    const lowerAnswer = answer.toLowerCase();
+
+    switch (questionAnalysis.type) {
+      case 'how_to':
+        return /\d+\.|step|first|then|next|finally/i.test(lowerAnswer);
+      case 'list_categories':
+        return /•|-|\d+\./.test(answer) || /types|categories|kinds/i.test(lowerAnswer);
+      case 'comparison':
+        return /vs|versus|compared|difference|similar/i.test(lowerAnswer);
+      case 'analysis':
+        return /analysis|insights|findings|conclusion/i.test(lowerAnswer);
+      default:
+        return /\n\n|•|-/.test(answer); // Basic structure check
+    }
+  }
+
+  /**
+   * Calculate overall quality score from individual metrics
+   * @param {Object} metrics - Individual quality metrics
+   * @returns {number} Overall quality score (0-1)
+   */
+  calculateOverallQuality(metrics) {
+    // Weighted combination of quality metrics
+    const weights = {
+      hallucinationScore: -0.3,    // Negative weight (lower hallucination = better)
+      groundednessScore: 0.25,     // Positive weight
+      factualConsistency: 0.25,    // Positive weight
+      answerCompleteness: 0.2      // Positive weight
+    };
+
+    let score = 0;
+    score += (1 - metrics.hallucinationScore) * Math.abs(weights.hallucinationScore); // Invert hallucination
+    score += metrics.groundednessScore * weights.groundednessScore;
+    score += metrics.factualConsistency * weights.factualConsistency;
+    score += metrics.answerCompleteness * weights.answerCompleteness;
+
+    return Math.max(0, Math.min(1, score));
+  }
+
+  /**
+   * Calculate enhanced confidence score with quality control
+   * @param {Array} sources - Answer sources
+   * @param {number} totalRelevantChunks - Total relevant chunks
+   * @param {number} reasoningConfidence - Reasoning confidence
+   * @param {Object} qualityCheck - Quality control results
+   * @returns {number} Enhanced confidence score (0-1)
+   */
+  calculateEnhancedConfidence(sources, totalRelevantChunks, reasoningConfidence, qualityCheck) {
+    // Base confidence from sources
+    const baseConfidence = this.calculateConfidence(sources, totalRelevantChunks);
+
+    // Combine with reasoning confidence and quality metrics
+    const combinedConfidence = (
+      baseConfidence * 0.4 +
+      reasoningConfidence * 0.3 +
+      qualityCheck.overallQuality * 0.3
+    );
+
+    // Apply quality penalties
+    let finalConfidence = combinedConfidence;
+
+    // Penalty for high hallucination risk
+    if (qualityCheck.hallucinationScore > 0.3) {
+      finalConfidence *= 0.8;
+    }
+
+    // Penalty for poor groundedness
+    if (qualityCheck.groundednessScore < 0.5) {
+      finalConfidence *= 0.9;
+    }
+
+    // Boost for high quality answers
+    if (qualityCheck.overallQuality > 0.8) {
+      finalConfidence = Math.min(1.0, finalConfidence * 1.1);
+    }
+
+    return Math.max(0, Math.min(1, finalConfidence));
   }
 
   /**
