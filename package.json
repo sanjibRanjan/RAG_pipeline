@@ -23,6 +23,8 @@
     "test:full": "node test-runner.js --full",
     "test:llm": "node test-llm.js",
     "demo:gemini": "node demo-gemini.js",
+    "test:qa": "node test_qa_service.js",
+    "test:quota-safe": "DISABLE_QUERY_REWRITING=true TEST_CONNECTION=false node test_qa_service.js",
     "chromadb:start": "docker run -d --name chromadb -p 8000:8000 chromadb/chroma",
     "chromadb:stop": "docker stop chromadb && docker rm chromadb",
     "chromadb:status": "docker ps | grep chromadb || echo 'ChromaDB is not running'",

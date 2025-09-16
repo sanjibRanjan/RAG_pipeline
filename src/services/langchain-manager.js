@@ -50,8 +50,12 @@ export class LangChainManager {
           throw new Error(`Unsupported LLM provider: ${this.provider}`);
       }
 
-      // Test the connection
-      await this.testConnection();
+      // Skip connection test in development to save API quota
+      if (process.env.NODE_ENV === 'production' || process.env.TEST_CONNECTION === 'true') {
+        await this.testConnection();
+      } else {
+        console.log(`⏭️ Skipping connection test in development mode (set TEST_CONNECTION=true to enable)`);
+      }
 
       this.isInitialized = true;
       console.log(`✅ ${this.provider} LLM client initialized successfully`);
@@ -148,7 +152,8 @@ export class LangChainManager {
    * @returns {Promise<Object>} Generated answer with metadata
    */
   async generateAnswer(question, relevantChunks, questionAnalysis, conversationHistory = [], options = {}) {
-    const maxRetries = options.maxRetries || 2;
+    // Reduce retries to save API quota - use 0 for development, can be overridden
+    const maxRetries = options.maxRetries !== undefined ? options.maxRetries : (process.env.NODE_ENV === 'production' ? 1 : 0);
     let lastError = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -738,3 +743,4 @@ For general questions:
 }
 
 export default LangChainManager;
+    

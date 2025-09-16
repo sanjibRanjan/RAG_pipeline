@@ -62,7 +62,9 @@ function App() {
             flexDirection: 'column',
             maxWidth: '1200px',
             mx: 'auto',
-            width: '100%'
+            width: '100%',
+            height: '100%',
+            p: 2
           }}>
             <ChatInterface
               messages={messages}

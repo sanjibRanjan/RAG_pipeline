@@ -303,7 +303,8 @@ const ChatInterface = ({
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        height: '100%'
       }}
     >
       {/* Messages Area */}
@@ -313,8 +314,7 @@ const ChatInterface = ({
           overflow: 'auto',
           p: 2,
           bgcolor: 'background.default',
-          minHeight: 400,
-          maxHeight: 600
+          minHeight: 400
         }}
       >
         {messages.map((message) => (
@@ -514,7 +514,9 @@ const ChatInterface = ({
       {/* Input Area */}
       <Box
         sx={{
-          p: 2,
+          px: 2,
+          pt: 2,
+          pb: 0,
           borderTop: 1,
           borderColor: 'divider',
           bgcolor: 'background.paper',

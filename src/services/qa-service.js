@@ -74,12 +74,12 @@ export class QAService {
 
     console.log(`🤔 Processing question: "${question.substring(0, 100)}${question.length > 100 ? '...' : ''}"`);
 
-    // Apply query expansion for better retrieval
-    const expandedQuery = this.expandQuery(question);
-    console.log(`🔍 Expanded query: "${expandedQuery.substring(0, 150)}${expandedQuery.length > 150 ? '...' : ''}"`);
+    // Rewrite query for better retrieval using LLM
+    const rewrittenQuestion = await this.rewriteQueryForRetrieval(question);
+    console.log(`🔍 Using rewritten query for retrieval: "${rewrittenQuestion}"`);
 
-    // Generate embedding for the expanded question
-    const questionEmbedding = await this.embeddingService.generateSingleEmbedding(expandedQuery);
+    // Generate embedding for the rewritten question
+    const questionEmbedding = await this.embeddingService.generateSingleEmbedding(rewrittenQuestion);
 
     // Perform mixed retrieval (semantic + keyword + metadata)
     const searchResults = await this.performMixedRetrieval(questionEmbedding, question);
@@ -109,11 +109,8 @@ export class QAService {
       // Extract sources from relevant chunks
       const sources = this.extractSources(relevantChunks, searchResults);
 
-      // Apply quality control and hallucination detection
-      const qualityCheck = await this.performQualityControl(answer, question, relevantChunks);
-
-      // Calculate enhanced confidence score
-      const confidence = this.calculateEnhancedConfidence(sources, relevantChunks.length, reasoningResult.confidence, qualityCheck);
+      // Calculate simplified confidence score
+      const confidence = this.calculateSimplifiedConfidence(sources, relevantChunks.length, reasoningResult.confidence);
 
       console.log(`✅ Generated answer with ${sources.length} sources, confidence: ${(confidence * 100).toFixed(1)}%`);
 
@@ -544,55 +541,7 @@ export class QAService {
    * @param {Object} questionAnalysis - Question type analysis
    * @returns {Object} Structured answer components
    */
-  extractAnswerComponents(relevantChunks, question, questionAnalysis) {
-    try {
-      // Ensure we have valid inputs
-      if (!relevantChunks || relevantChunks.length === 0) {
-        return this.getEmptyComponents();
-      }
 
-      const allText = relevantChunks
-        .filter(chunk => chunk && chunk.content)
-        .map(chunk => chunk.content)
-        .join(" ");
-
-      if (!allText || allText.trim().length === 0) {
-        return this.getEmptyComponents();
-      }
-
-      // Extract different types of content based on question type
-      const components = {
-        mainDefinition: this.extractMainDefinition(allText, question) || null,
-        categories: this.extractCategories(allText, questionAnalysis) || [],
-        examples: this.extractExamples(allText, questionAnalysis) || [],
-        applications: this.extractApplications(allText, questionAnalysis) || [],
-        keyPoints: this.extractKeyPoints(allText, question, questionAnalysis) || [],
-        supportingDetails: this.extractSupportingDetails(relevantChunks, questionAnalysis) || { sources: 0, topDocuments: [], confidence: 0, topics: [] },
-        conclusion: this.generateConclusion(questionAnalysis) || null
-      };
-
-      return components;
-    } catch (error) {
-      console.error("❌ Error in extractAnswerComponents:", error);
-      return this.getEmptyComponents();
-    }
-  }
-
-  /**
-   * Get empty components structure for fallback
-   * @returns {Object} Empty components object
-   */
-  getEmptyComponents() {
-    return {
-      mainDefinition: null,
-      categories: [],
-      examples: [],
-      applications: [],
-      keyPoints: [],
-      supportingDetails: { sources: 0, topDocuments: [], confidence: 0, topics: [] },
-      conclusion: null
-    };
-  }
 
   /**
    * Extract main definition or core answer
@@ -1001,178 +950,9 @@ export class QAService {
     return result;
   }
 
-  /**
-   * Expand query with synonyms and related terms for better retrieval
-   * @param {string} originalQuery - Original user question
-   * @returns {string} Expanded query with additional terms
-   */
-  expandQuery(originalQuery) {
-    let expandedQuery = originalQuery;
 
-    // Apply multiple expansion strategies
-    expandedQuery = this.applySynonymExpansion(expandedQuery);
-    expandedQuery = this.applyQuestionTypeExpansion(expandedQuery);
-    expandedQuery = this.applyContextualExpansion(expandedQuery);
 
-    // Remove duplicates and clean up
-    expandedQuery = this.cleanExpandedQuery(expandedQuery);
 
-    return expandedQuery;
-  }
-
-  /**
-   * Apply synonym expansion based on common terms
-   * @param {string} query - Query to expand
-   * @returns {string} Query with synonyms added
-   */
-  applySynonymExpansion(query) {
-    const synonymMap = {
-      // Technical terms
-      'code': ['programming', 'script', 'function', 'algorithm'],
-      'data': ['information', 'dataset', 'records', 'content'],
-      'file': ['document', 'resource', 'asset'],
-      'process': ['workflow', 'procedure', 'method', 'approach'],
-      'system': ['platform', 'framework', 'infrastructure'],
-      'user': ['person', 'individual', 'customer', 'client'],
-      'error': ['issue', 'problem', 'bug', 'failure'],
-      'result': ['output', 'outcome', 'response', 'answer'],
-
-      // Question words
-      'what': ['what', 'which', 'describe', 'explain'],
-      'how': ['how', 'what is the process', 'steps', 'procedure'],
-      'why': ['why', 'reason', 'purpose', 'cause'],
-      'when': ['when', 'time', 'schedule', 'period'],
-      'where': ['where', 'location', 'place', 'position'],
-
-      // Common concepts
-      'create': ['create', 'build', 'develop', 'implement', 'generate'],
-      'find': ['find', 'search', 'locate', 'discover', 'identify'],
-      'change': ['change', 'modify', 'update', 'alter', 'transform'],
-      'connect': ['connect', 'link', 'integrate', 'join', 'associate'],
-      'manage': ['manage', 'handle', 'control', 'organize', 'administer'],
-
-      // Domain-specific (can be customized based on your use case)
-      'api': ['api', 'interface', 'endpoint', 'service'],
-      'database': ['database', 'storage', 'data store', 'repository'],
-      'server': ['server', 'host', 'machine', 'instance'],
-      'client': ['client', 'application', 'frontend', 'consumer']
-    };
-
-    let expandedQuery = query;
-    const queryLower = query.toLowerCase();
-
-    // Add synonyms for matched words
-    Object.entries(synonymMap).forEach(([key, synonyms]) => {
-      if (queryLower.includes(key)) {
-        // Add 2-3 most relevant synonyms (avoid making query too long)
-        const relevantSynonyms = synonyms.slice(0, 2);
-        expandedQuery += ' ' + relevantSynonyms.join(' ');
-      }
-    });
-
-    return expandedQuery;
-  }
-
-  /**
-   * Apply expansion based on question type
-   * @param {string} query - Query to expand
-   * @returns {string} Query with type-specific expansions
-   */
-  applyQuestionTypeExpansion(query) {
-    const queryLower = query.toLowerCase();
-    let expandedQuery = query;
-
-    // Question type detection and expansion
-    if (queryLower.startsWith('what') || queryLower.includes('what is')) {
-      expandedQuery += ' definition description meaning explanation';
-    }
-
-    if (queryLower.startsWith('how') || queryLower.includes('how to') || queryLower.includes('how do')) {
-      expandedQuery += ' steps procedure process tutorial guide instructions';
-    }
-
-    if (queryLower.startsWith('why') || queryLower.includes('why does') || queryLower.includes('why is')) {
-      expandedQuery += ' reason purpose cause explanation benefit';
-    }
-
-    if (queryLower.startsWith('when') || queryLower.includes('when should') || queryLower.includes('when do')) {
-      expandedQuery += ' time schedule timing period duration';
-    }
-
-    if (queryLower.startsWith('where') || queryLower.includes('where is') || queryLower.includes('where can')) {
-      expandedQuery += ' location place position address path';
-    }
-
-    if (queryLower.includes('error') || queryLower.includes('problem') || queryLower.includes('issue')) {
-      expandedQuery += ' troubleshooting solution fix resolution debug';
-    }
-
-    if (queryLower.includes('example') || queryLower.includes('sample')) {
-      expandedQuery += ' instance case scenario demonstration illustration';
-    }
-
-    return expandedQuery;
-  }
-
-  /**
-   * Apply contextual expansion based on query patterns
-   * @param {string} query - Query to expand
-   * @returns {string} Query with contextual expansions
-   */
-  applyContextualExpansion(query) {
-    const queryLower = query.toLowerCase();
-    let expandedQuery = query;
-
-    // Technical context patterns
-    if (queryLower.includes('install') || queryLower.includes('setup')) {
-      expandedQuery += ' installation configuration deployment prerequisites requirements';
-    }
-
-    if (queryLower.includes('performance') || queryLower.includes('speed') || queryLower.includes('slow')) {
-      expandedQuery += ' optimization efficiency speed performance bottleneck latency';
-    }
-
-    if (queryLower.includes('security') || queryLower.includes('safe') || queryLower.includes('protect')) {
-      expandedQuery += ' security protection authentication authorization encryption';
-    }
-
-    if (queryLower.includes('test') || queryLower.includes('testing')) {
-      expandedQuery += ' testing validation verification unit test integration test';
-    }
-
-    // Length-based expansion (don't expand very short queries too much)
-    if (query.split(' ').length <= 3) {
-      expandedQuery += ' information details overview summary guide';
-    }
-
-    return expandedQuery;
-  }
-
-  /**
-   * Clean expanded query by removing duplicates and excessive length
-   * @param {string} query - Expanded query to clean
-   * @returns {string} Cleaned query
-   */
-  cleanExpandedQuery(query) {
-    // Split into words and remove duplicates (case insensitive)
-    const words = query.split(/\s+/);
-    const seen = new Set();
-    const uniqueWords = [];
-
-    words.forEach(word => {
-      const lowerWord = word.toLowerCase();
-      if (!seen.has(lowerWord) && word.length > 1) {
-        seen.add(lowerWord);
-        uniqueWords.push(word);
-      }
-    });
-
-    // Limit query length to prevent excessive expansion
-    const maxWords = 20; // Reasonable limit for embedding models
-    const limitedWords = uniqueWords.slice(0, maxWords);
-
-    return limitedWords.join(' ');
-  }
 
   /**
    * Perform mixed retrieval combining multiple search strategies
@@ -1563,649 +1343,77 @@ export class QAService {
   async applyAdvancedReasoning(question, relevantChunks, conversationHistory) {
     const questionAnalysis = this.analyzeQuestionType(question);
 
-    // Check if LLM is available - use it as primary reasoning method
+    // Use LLM for all reasoning - no fallback needed
     if (this.langChainManager) {
       try {
         console.log(`🤖 Using LLM for answer generation (${this.llmProvider})`);
-        const llmResult = await this.langChainManager.generateAnswer(
-          question,
-          relevantChunks,
-          questionAnalysis,
-          conversationHistory
-        );
+
+        // Use the zero tolerance structured generation instead of the general LangChain prompt
+        const answer = await this.generateDirectAnswer(relevantChunks, question, questionAnalysis);
+        
+        // Check if answer is null or empty (LLM failed)
+        if (!answer || answer.trim().length < 10) {
+          throw new Error('LLM returned empty or invalid response');
+        }
 
         return {
-          answer: llmResult.answer,
-          reasoningStrategy: 'llm_generation',
+          answer: answer,
+          reasoningStrategy: 'zero_tolerance_json',
           reasoningSteps: [],
-          confidence: llmResult.confidence,
+          confidence: this.calculateSimplifiedConfidence([], relevantChunks.length, 0.5),
           questionAnalysis,
-          llmMetadata: llmResult.metadata
+          llmMetadata: {
+            provider: this.llmProvider,
+            model: 'gemini-1.5-flash',
+            contextChunks: relevantChunks.length,
+            structuredGeneration: true
+          }
         };
       } catch (error) {
-        console.warn(`⚠️ LLM generation failed, falling back to rule-based approach: ${error.message}`);
-
-        // Fallback to rule-based approach
-        return await this.applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis);
-      }
-    }
-
-    // No LLM available, use rule-based reasoning
-    return await this.applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis);
-  }
-
-  /**
-   * Apply rule-based reasoning when LLM is not available
-   * @param {string} question - User's question
-   * @param {Array} relevantChunks - Relevant chunks
-   * @param {Array} conversationHistory - Conversation history
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {Object} Reasoning result
-   */
-  async applyRuleBasedReasoning(question, relevantChunks, conversationHistory, questionAnalysis) {
-    // Choose reasoning strategy based on question type and complexity
-    let reasoningStrategy = 'standard';
-
-    if (this.requiresChainOfThought(question, questionAnalysis)) {
-      reasoningStrategy = 'chain_of_thought';
-    } else if (this.requiresSelfConsistency(question, relevantChunks)) {
-      reasoningStrategy = 'self_consistency';
-    } else if (this.isComplexReasoningQuestion(question)) {
-      reasoningStrategy = 'multi_step_reasoning';
-    }
-
-    console.log(`🧠 Applying ${reasoningStrategy} reasoning strategy`);
-
-    let answer;
-    let reasoningSteps = [];
-    let confidence = 0;
-
-    switch (reasoningStrategy) {
-      case 'chain_of_thought':
-        const cotResult = await this.applyChainOfThought(question, relevantChunks, questionAnalysis);
-        answer = cotResult.answer;
-        reasoningSteps = cotResult.steps;
-        confidence = cotResult.confidence;
-        break;
-
-      case 'self_consistency':
-        const scResult = await this.applySelfConsistency(question, relevantChunks);
-        answer = scResult.answer;
-        confidence = scResult.confidence;
-        break;
-
-      case 'multi_step_reasoning':
-        const msResult = await this.applyMultiStepReasoning(question, relevantChunks, questionAnalysis);
-        answer = msResult.answer;
-        reasoningSteps = msResult.steps;
-        confidence = msResult.confidence;
-        break;
-
-      default:
-        answer = this.generateAnswer(question, relevantChunks, conversationHistory);
-        confidence = 0.7; // Standard confidence
-    }
-
-    return {
-      answer,
-      reasoningStrategy,
-      reasoningSteps,
-      confidence,
-      questionAnalysis
-    };
-  }
-
-  /**
-   * Determine if question requires chain-of-thought reasoning
-   * @param {string} question - User's question
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {boolean} Whether CoT is needed
-   */
-  requiresChainOfThought(question, questionAnalysis) {
-    const questionLower = question.toLowerCase();
-
-    // Questions that benefit from step-by-step reasoning
-    const cotIndicators = [
-      'how to', 'why does', 'explain', 'analyze', 'compare',
-      'what happens when', 'what if', 'solve', 'calculate',
-      'reason', 'because', 'therefore', 'consequently'
-    ];
-
-    const hasCotIndicators = cotIndicators.some(indicator => questionLower.includes(indicator));
-
-    // Complex question types that benefit from CoT
-    const complexTypes = ['analysis', 'comparison', 'why_explain'];
-    const isComplexType = complexTypes.includes(questionAnalysis.type);
-
-    // Long questions or questions with multiple parts
-    const isLongQuestion = question.split(' ').length > 12;
-    const hasMultipleParts = (questionLower.match(/\?/) || []).length > 1;
-
-    return hasCotIndicators || isComplexType || isLongQuestion || hasMultipleParts;
-  }
-
-  /**
-   * Determine if question requires self-consistency checking
-   * @param {string} question - User's question
-   * @param {Array} relevantChunks - Relevant chunks
-   * @returns {boolean} Whether self-consistency is needed
-   */
-  requiresSelfConsistency(question, relevantChunks) {
-    // Use self-consistency for questions where multiple interpretations are possible
-    const ambiguousTerms = ['best', 'better', 'optimal', 'recommended', 'preferred'];
-    const hasAmbiguousTerms = ambiguousTerms.some(term =>
-      question.toLowerCase().includes(term)
-    );
-
-    // Use self-consistency when we have many relevant chunks (potential for conflicting info)
-    const hasManyChunks = relevantChunks.length > 5;
-
-    return hasAmbiguousTerms || hasManyChunks;
-  }
-
-  /**
-   * Check if question requires complex multi-step reasoning
-   * @param {string} question - User's question
-   * @returns {boolean} Whether multi-step reasoning is needed
-   */
-  isComplexReasoningQuestion(question) {
-    const questionLower = question.toLowerCase();
-
-    const complexPatterns = [
-      'relationship between', 'interaction', 'impact of',
-      'influence', 'effect', 'consequence', 'trade-off',
-      'pros and cons', 'advantages and disadvantages'
-    ];
-
-    return complexPatterns.some(pattern => questionLower.includes(pattern));
-  }
-
-  /**
-   * Apply chain-of-thought reasoning to generate answer
-   * @param {string} question - User's question
-   * @param {Array} relevantChunks - Relevant chunks
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {Object} Chain-of-thought result
-   */
-  async applyChainOfThought(question, relevantChunks, questionAnalysis) {
-    console.log("🔗 Applying Chain-of-Thought reasoning");
-
-    const steps = [];
-    let currentAnswer = "";
-    let confidence = 0.8;
-
-    // Step 1: Understand the question
-    steps.push({
-      step: 1,
-      type: 'understanding',
-      content: `Understanding question: "${question}" - Type: ${questionAnalysis.type}, Complexity: ${questionAnalysis.complexity}`
-    });
-
-    // Step 2: Gather relevant information
-    const keyInformation = this.extractKeyInformation(relevantChunks, question);
-    steps.push({
-      step: 2,
-      type: 'information_gathering',
-      content: `Found ${keyInformation.length} key pieces of information relevant to the question`
-    });
-
-    // Step 3: Analyze and synthesize information
-    const analysis = this.analyzeInformation(keyInformation, question, questionAnalysis);
-    steps.push({
-      step: 3,
-      type: 'analysis',
-      content: `Analyzed information: ${analysis.mainPoints.length} main points identified`
-    });
-
-    // Step 4: Generate structured answer
-    currentAnswer = this.generateStructuredAnswer(keyInformation, analysis, questionAnalysis);
-    steps.push({
-      step: 4,
-      type: 'synthesis',
-      content: `Synthesized comprehensive answer based on analysis`
-    });
-
-    // Step 5: Validate answer quality
-    const validation = this.validateAnswerQuality(currentAnswer, question, relevantChunks);
-    if (!validation.isValid) {
-      console.log("⚠️ Answer validation failed, attempting correction");
-      currentAnswer = this.correctAnswer(currentAnswer, validation.issues);
-      confidence -= 0.1;
-    }
-    steps.push({
-      step: 5,
-      type: 'validation',
-      content: `Validated answer quality: ${validation.isValid ? 'Passed' : 'Corrected'}`
-    });
-
-    return {
-      answer: currentAnswer,
-      steps,
-      confidence
-    };
-  }
-
-  /**
-   * Apply self-consistency checking for reliable answers
-   * @param {string} question - User's question
-   * @param {Array} relevantChunks - Relevant chunks
-   * @returns {Object} Self-consistency result
-   */
-  async applySelfConsistency(question, relevantChunks) {
-    console.log("🔄 Applying Self-Consistency checking");
-
-    // Generate multiple answer variations
-    const answerVariations = [];
-    const numVariations = Math.min(3, relevantChunks.length);
-
-    for (let i = 0; i < numVariations; i++) {
-      const subset = this.selectChunkSubset(relevantChunks, i);
-      const variation = this.generateAnswer(question, subset, []);
-      answerVariations.push(variation);
-    }
-
-    // Find the most consistent answer
-    const consistencyResult = this.findMostConsistentAnswer(answerVariations);
-
-    return {
-      answer: consistencyResult.answer,
-      confidence: consistencyResult.consistencyScore
-    };
-  }
-
-  /**
-   * Apply multi-step reasoning for complex questions
-   * @param {string} question - User's question
-   * @param {Array} relevantChunks - Relevant chunks
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {Object} Multi-step reasoning result
-   */
-  async applyMultiStepReasoning(question, relevantChunks, questionAnalysis) {
-    console.log("🔀 Applying Multi-Step Reasoning");
-
-    const steps = [];
-    let currentContext = "";
-    let confidence = 0.75;
-
-    // Break down complex question into sub-questions
-    const subQuestions = this.breakDownQuestion(question, questionAnalysis);
-
-    steps.push({
-      step: 0,
-      type: 'decomposition',
-      content: `Decomposed question into ${subQuestions.length} sub-questions`
-    });
-
-    // Answer each sub-question sequentially, building context
-    for (let i = 0; i < subQuestions.length; i++) {
-      const subQuestion = subQuestions[i];
-      const subAnswer = this.generateAnswer(subQuestion, relevantChunks, []);
-
-      steps.push({
-        step: i + 1,
-        type: 'sub_reasoning',
-        content: `Sub-question ${i + 1}: ${subQuestion}`
-      });
-
-      currentContext += ` ${subAnswer}`;
-    }
-
-    // Synthesize final answer from sub-answers
-    const finalAnswer = this.synthesizeMultiStepAnswer(subQuestions, currentContext, question);
-
-    steps.push({
-      step: subQuestions.length + 1,
-      type: 'synthesis',
-      content: 'Synthesized final answer from sub-question responses'
-    });
-
-    return {
-      answer: finalAnswer,
-      steps,
-      confidence
-    };
-  }
-
-  /**
-   * Extract key information from chunks for reasoning
-   * @param {Array} chunks - Relevant chunks
-   * @param {string} question - Original question
-   * @returns {Array} Key information pieces
-   */
-  extractKeyInformation(chunks, question) {
-    const questionKeywords = this.extractKeywordsForAnalysis(question);
-    const keyInfo = [];
-
-    chunks.forEach(chunk => {
-      const sentences = chunk.content.split(/[.!?]+/);
-      sentences.forEach(sentence => {
-        const trimmed = sentence.trim();
-        if (trimmed.length > 10) {
-          const matches = questionKeywords.filter(keyword =>
-            trimmed.toLowerCase().includes(keyword.toLowerCase())
-          );
-
-          if (matches.length > 0) {
-            keyInfo.push({
-              text: trimmed,
-              relevance: matches.length,
-              source: chunk.metadata.documentName || 'Unknown'
-            });
+        console.error(`❌ LLM generation failed: ${error.message}`);
+        // Use improved fallback that extracts relevant content from chunks
+        const fallbackAnswer = this.generateFallbackAnswer(relevantChunks, question);
+        return {
+          answer: fallbackAnswer,
+          reasoningStrategy: 'llm_fallback_with_content',
+          reasoningSteps: [],
+          confidence: this.calculateSimplifiedConfidence([], relevantChunks.length, 0.3),
+          questionAnalysis,
+          llmMetadata: {
+            provider: this.llmProvider,
+            model: 'gemini-1.5-flash',
+            contextChunks: relevantChunks.length,
+            fallback: true,
+            error: error.message
           }
-        }
-      });
-    });
-
-    return keyInfo.sort((a, b) => b.relevance - a.relevance);
-  }
-
-  /**
-   * Analyze information for patterns and relationships
-   * @param {Array} keyInfo - Key information pieces
-   * @param {string} question - Original question
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {Object} Analysis results
-   */
-  analyzeInformation(keyInfo, question, questionAnalysis) {
-    const mainPoints = [];
-    const relationships = [];
-    const contradictions = [];
-
-    // Extract main points
-    keyInfo.slice(0, 5).forEach(info => {
-      mainPoints.push(info.text);
-    });
-
-    // Look for relationships and contradictions
-    for (let i = 0; i < keyInfo.length - 1; i++) {
-      for (let j = i + 1; j < keyInfo.length; j++) {
-        const relation = this.analyzeRelationship(keyInfo[i].text, keyInfo[j].text);
-        if (relation.type !== 'unrelated') {
-          relationships.push({
-            items: [keyInfo[i].text, keyInfo[j].text],
-            type: relation.type,
-            description: relation.description
-          });
-        }
+        };
       }
     }
 
+    // No LLM available - provide simple fallback
+    console.warn("⚠️ No LLM available, using simple fallback response");
+    const fallbackAnswer = this.generateFallbackAnswer(relevantChunks, question);
     return {
-      mainPoints,
-      relationships,
-      contradictions,
-      questionType: questionAnalysis.type
+      answer: fallbackAnswer,
+      reasoningStrategy: 'no_llm_fallback',
+      reasoningSteps: [],
+      confidence: this.calculateSimplifiedConfidence([], relevantChunks.length, 0.2),
+      questionAnalysis,
+      llmMetadata: null
     };
   }
 
-  /**
-   * Analyze relationship between two pieces of information
-   * @param {string} text1 - First text
-   * @param {string} text2 - Second text
-   * @returns {Object} Relationship analysis
-   */
-  analyzeRelationship(text1, text2) {
-    const text1Lower = text1.toLowerCase();
-    const text2Lower = text2.toLowerCase();
 
-    // Check for causal relationships
-    if ((text1Lower.includes('because') || text1Lower.includes('therefore')) &&
-        text2Lower.includes('because') || text2Lower.includes('therefore')) {
-      return { type: 'causal', description: 'Causal relationship detected' };
-    }
 
-    // Check for comparative relationships
-    if ((text1Lower.includes('better') || text1Lower.includes('worse')) &&
-        (text2Lower.includes('better') || text2Lower.includes('worse'))) {
-      return { type: 'comparative', description: 'Comparative relationship detected' };
-    }
 
-    // Check for sequential relationships
-    if ((text1Lower.includes('first') || text1Lower.includes('then') || text1Lower.includes('next')) &&
-        (text2Lower.includes('first') || text2Lower.includes('then') || text2Lower.includes('next'))) {
-      return { type: 'sequential', description: 'Sequential relationship detected' };
-    }
 
-    return { type: 'unrelated', description: 'No clear relationship' };
-  }
 
-  /**
-   * Generate structured answer from analysis
-   * @param {Array} keyInfo - Key information
-   * @param {Object} analysis - Analysis results
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {string} Structured answer
-   */
-  generateStructuredAnswer(keyInfo, analysis, questionAnalysis) {
-    const sections = [];
 
-    // Title section
-    const title = this.generateAnswerTitle(question, questionAnalysis);
-    if (title) {
-      sections.push(`🔍 ${title}`);
-    }
 
-    // Main points section
-    if (analysis.mainPoints.length > 0) {
-      sections.push(`📋 **Key Information:**\n${analysis.mainPoints.map(point => `• ${point}`).join('\n')}`);
-    }
 
-    // Relationships section (if any found)
-    if (analysis.relationships.length > 0) {
-      const relationText = analysis.relationships.map(rel =>
-        `• ${rel.description}: ${rel.items[0].substring(0, 50)}... ↔ ${rel.items[1].substring(0, 50)}...`
-      ).join('\n');
-      sections.push(`🔗 **Relationships Found:**\n${relationText}`);
-    }
 
-    // Conclusion based on question type
-    const conclusion = this.generateReasoningConclusion(analysis, questionAnalysis);
-    if (conclusion) {
-      sections.push(`🔹 **Conclusion:** ${conclusion}`);
-    }
 
-    return sections.join('\n\n');
-  }
 
-  /**
-   * Generate conclusion based on reasoning analysis
-   * @param {Object} analysis - Analysis results
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {string} Conclusion text
-   */
-  generateReasoningConclusion(analysis, questionAnalysis) {
-    const conclusions = {
-      definition: "This analysis provides a comprehensive understanding of the concept and its key characteristics.",
-      how_to: "Based on the available information, this step-by-step approach provides a clear path forward.",
-      comparison: "The analysis reveals distinct differences and similarities that should guide decision-making.",
-      why_explain: "The reasoning shows clear causal relationships and contributing factors.",
-      analysis: "This detailed analysis uncovers important insights and patterns in the information.",
-      general: "The reasoning process has identified the most relevant and reliable information available."
-    };
-
-    return conclusions[questionAnalysis.type] || conclusions.general;
-  }
-
-  /**
-   * Validate answer quality and identify issues
-   * @param {string} answer - Generated answer
-   * @param {string} question - Original question
-   * @param {Array} chunks - Source chunks
-   * @returns {Object} Validation result
-   */
-  validateAnswerQuality(answer, question, chunks) {
-    const issues = [];
-    let isValid = true;
-
-    // Check if answer addresses the question
-    const questionKeywords = this.extractKeywordsForAnalysis(question);
-    const answerLower = answer.toLowerCase();
-    const matchedKeywords = questionKeywords.filter(keyword =>
-      answerLower.includes(keyword.toLowerCase())
-    );
-
-    if (matchedKeywords.length < questionKeywords.length * 0.5) {
-      issues.push('Answer may not fully address the question');
-      isValid = false;
-    }
-
-    // Check for hallucinations (content not in source chunks)
-    const sentences = answer.split(/[.!?]+/);
-    for (const sentence of sentences) {
-      if (sentence.trim().length > 20) {
-        const foundInChunks = chunks.some(chunk =>
-          chunk.content.toLowerCase().includes(sentence.toLowerCase().substring(0, 30))
-        );
-        if (!foundInChunks) {
-          issues.push('Potential hallucination detected');
-          isValid = false;
-          break;
-        }
-      }
-    }
-
-    // Check answer length appropriateness
-    if (answer.length < 50) {
-      issues.push('Answer too short');
-      isValid = false;
-    }
-
-    return { isValid, issues };
-  }
-
-  /**
-   * Correct identified issues in the answer
-   * @param {string} answer - Original answer
-   * @param {Array} issues - Identified issues
-   * @returns {string} Corrected answer
-   */
-  correctAnswer(answer, issues) {
-    let correctedAnswer = answer;
-
-    issues.forEach(issue => {
-      if (issue === 'Answer too short') {
-        correctedAnswer += '\n\nFor more detailed information, please provide additional context or ask follow-up questions.';
-      }
-    });
-
-    return correctedAnswer;
-  }
-
-  /**
-   * Select subset of chunks for self-consistency checking
-   * @param {Array} chunks - All chunks
-   * @param {number} index - Subset index
-   * @returns {Array} Chunk subset
-   */
-  selectChunkSubset(chunks, index) {
-    const subsetSize = Math.max(2, Math.floor(chunks.length * 0.6));
-    const start = (index * subsetSize) % chunks.length;
-    return chunks.slice(start, start + subsetSize);
-  }
-
-  /**
-   * Find most consistent answer from variations
-   * @param {Array} variations - Answer variations
-   * @returns {Object} Most consistent answer
-   */
-  findMostConsistentAnswer(variations) {
-    if (variations.length === 1) {
-      return { answer: variations[0], consistencyScore: 0.8 };
-    }
-
-    // Simple consistency check based on text similarity
-    let bestAnswer = variations[0];
-    let bestConsistency = 0;
-
-    for (let i = 0; i < variations.length; i++) {
-      let consistency = 0;
-      for (let j = 0; j < variations.length; j++) {
-        if (i !== j) {
-          const similarity = this.calculateTextSimilarity(variations[i], variations[j]);
-          consistency += similarity;
-        }
-      }
-      consistency /= (variations.length - 1);
-
-      if (consistency > bestConsistency) {
-        bestConsistency = consistency;
-        bestAnswer = variations[i];
-      }
-    }
-
-    return {
-      answer: bestAnswer,
-      consistencyScore: Math.min(bestConsistency + 0.3, 1.0) // Boost confidence for consistency
-    };
-  }
-
-  /**
-   * Break down complex question into sub-questions
-   * @param {string} question - Complex question
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {Array} Sub-questions
-   */
-  breakDownQuestion(question, questionAnalysis) {
-    const subQuestions = [];
-
-    if (questionAnalysis.type === 'comparison') {
-      // For comparison questions, create sub-questions for each item
-      const items = this.extractComparisonItems(question);
-      items.forEach(item => {
-        subQuestions.push(`What are the characteristics of ${item}?`);
-      });
-      subQuestions.push(`How do these items compare in terms of key factors?`);
-    } else if (questionAnalysis.type === 'analysis') {
-      // For analysis questions, break into components
-      subQuestions.push(`What are the main components involved?`);
-      subQuestions.push(`How do these components interact?`);
-      subQuestions.push(`What are the key outcomes or implications?`);
-    } else {
-      // General decomposition for complex questions
-      const parts = question.split(/and|or|but|however|therefore/i);
-      parts.forEach(part => {
-        if (part.trim().length > 10) {
-          subQuestions.push(part.trim());
-        }
-      });
-    }
-
-    return subQuestions.slice(0, 4); // Limit to 4 sub-questions
-  }
-
-  /**
-   * Extract items being compared from comparison question
-   * @param {string} question - Comparison question
-   * @returns {Array} Items being compared
-   */
-  extractComparisonItems(question) {
-    const questionLower = question.toLowerCase();
-    const items = [];
-
-    // Look for common comparison patterns
-    const vsPattern = questionLower.split(/\bvs\b|\bversus\b|\bcompared to\b/i);
-    if (vsPattern.length > 1) {
-      vsPattern.forEach(part => {
-        const words = part.trim().split(/\s+/);
-        if (words.length > 0) {
-          items.push(words.slice(-2).join(' ')); // Take last 2 words as item
-        }
-      });
-    }
-
-    return items.length > 0 ? items : ['item1', 'item2']; // Fallback
-  }
-
-  /**
-   * Synthesize final answer from multi-step reasoning
-   * @param {Array} subQuestions - Sub-questions
-   * @param {string} context - Accumulated context
-   * @param {string} originalQuestion - Original question
-   * @returns {string} Synthesized answer
-   */
-  synthesizeMultiStepAnswer(subQuestions, context, originalQuestion) {
-    return `Based on multi-step analysis addressing: ${subQuestions.join('; ')}\n\n${context}\n\nThis comprehensive analysis provides a complete answer to: "${originalQuestion}"`;
-  }
 
   /**
    * Generate comprehensive, structured answer based on retrieved chunks
@@ -2219,21 +1427,12 @@ export class QAService {
       // Analyze question type and content depth
       const questionAnalysis = this.analyzeQuestionType(question);
 
-      // Get comprehensive information from chunks
-      const answerComponents = this.extractAnswerComponents(relevantChunks, question, questionAnalysis);
+      // Use LLM for direct answer generation from relevant chunks
+      let answer = this.generateDirectAnswer(relevantChunks, question, questionAnalysis);
 
-      // Generate structured answer based on question type
-      let answer = this.buildStructuredAnswer(question, answerComponents, questionAnalysis);
-
-      // Fallback 1: If structured answer is too short or empty, try direct chunk content
-      if (!answer || answer.trim().length < 50) {
-        console.log("🔄 Structured answer too short, using fallback approach");
-        answer = this.generateFallbackAnswer(relevantChunks, question);
-      }
-
-      // Fallback 2: If still no answer, use the most relevant chunk directly
+      // Simple fallback: use most relevant chunk if LLM fails
       if (!answer || answer.trim().length < 20) {
-        console.log("🔄 Fallback answer insufficient, using raw chunk content");
+        console.log("🔄 Direct answer generation failed, using raw chunk content");
         if (relevantChunks.length > 0) {
           const topChunk = relevantChunks[0];
           answer = `Based on the documents, here's the most relevant information:\n\n${topChunk.content.substring(0, 800)}${topChunk.content.length > 800 ? '...' : ''}`;
@@ -2440,391 +1639,94 @@ export class QAService {
     return sources;
   }
 
-  /**
-   * Perform comprehensive quality control on generated answer
-   * @param {string} answer - Generated answer
-   * @param {string} question - Original question
-   * @param {Array} chunks - Source chunks
-   * @returns {Object} Quality control results
-   */
-  async performQualityControl(answer, question, chunks) {
-    const qualityMetrics = {
-      hallucinationScore: 0,
-      groundednessScore: 1.0,
-      factualConsistency: 1.0,
-      answerCompleteness: 0.8,
-      overallQuality: 0.8
-    };
 
-    try {
-      // 1. Hallucination Detection
-      qualityMetrics.hallucinationScore = this.detectHallucinations(answer, chunks);
 
-      // 2. Groundedness Check
-      qualityMetrics.groundednessScore = this.checkGroundedness(answer, chunks);
 
-      // 3. Factual Consistency
-      qualityMetrics.factualConsistency = this.checkFactualConsistency(answer, chunks);
 
-      // 4. Answer Completeness
-      qualityMetrics.answerCompleteness = this.assessAnswerCompleteness(answer, question);
-
-      // 5. Overall Quality Score
-      qualityMetrics.overallQuality = this.calculateOverallQuality(qualityMetrics);
-
-      console.log(`🛡️ Quality Control Results: Hallucination: ${(qualityMetrics.hallucinationScore * 100).toFixed(1)}%, Groundedness: ${(qualityMetrics.groundednessScore * 100).toFixed(1)}%, Overall: ${(qualityMetrics.overallQuality * 100).toFixed(1)}%`);
-
-      return qualityMetrics;
-    } catch (error) {
-      console.warn("Quality control failed:", error.message);
-      return qualityMetrics; // Return default scores on failure
-    }
-  }
 
   /**
-   * Detect potential hallucinations in the answer
-   * @param {string} answer - Generated answer
-   * @param {Array} chunks - Source chunks
-   * @returns {number} Hallucination score (0-1, higher = more hallucinations)
-   */
-  detectHallucinations(answer, chunks) {
-    let hallucinationScore = 0;
-    const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 10);
-    const allChunkText = chunks.map(chunk => chunk.content).join(' ').toLowerCase();
-
-    for (const sentence of sentences) {
-      const trimmed = sentence.trim().toLowerCase();
-
-      // Skip very short sentences
-      if (trimmed.length < 20) continue;
-
-      // Check if sentence contains factual claims not supported by sources
-      const hasFactualClaims = this.containsFactualClaims(trimmed);
-      if (hasFactualClaims) {
-        // Check if this factual claim exists in source chunks
-        const claimSupported = this.isClaimSupported(trimmed, allChunkText);
-
-        if (!claimSupported) {
-          hallucinationScore += 0.2; // Increment for unsupported claims
-        }
-      }
-
-      // Check for contradictory information
-      const hasContradictions = this.detectContradictions(trimmed, allChunkText);
-      if (hasContradictions) {
-        hallucinationScore += 0.15;
-      }
-    }
-
-    return Math.min(hallucinationScore, 1.0);
-  }
-
-  /**
-   * Check if text contains factual claims
-   * @param {string} text - Text to analyze
-   * @returns {boolean} Whether text contains factual claims
-   */
-  containsFactualClaims(text) {
-    const factualIndicators = [
-      'is ', 'are ', 'was ', 'were ', 'has ', 'have ', 'contains ',
-      'includes ', 'requires ', 'needs ', 'must ', 'should ', 'can ',
-      'cannot ', 'will ', 'would ', 'does ', 'do ', 'did '
-    ];
-
-    const lowerText = text.toLowerCase();
-    return factualIndicators.some(indicator => lowerText.includes(indicator));
-  }
-
-  /**
-   * Check if a factual claim is supported by source text
-   * @param {string} claim - Factual claim
-   * @param {string} sourceText - Combined source text
-   * @returns {boolean} Whether claim is supported
-   */
-  isClaimSupported(claim, sourceText) {
-    // Extract key terms from the claim
-    const claimWords = claim.toLowerCase()
-      .split(/\s+/)
-      .filter(word => word.length > 3 && !this.isStopWord(word))
-      .slice(0, 5); // Take first 5 significant words
-
-    if (claimWords.length === 0) return true; // Can't verify very short claims
-
-    // Check if source contains similar wording
-    const sourceWords = sourceText.split(/\s+/);
-    let matches = 0;
-
-    claimWords.forEach(claimWord => {
-      if (sourceWords.some(sourceWord =>
-        this.calculateLevenshteinDistance(claimWord, sourceWord.toLowerCase()) <= 2
-      )) {
-        matches++;
-      }
-    });
-
-    return matches >= Math.ceil(claimWords.length * 0.6); // 60% of key terms should match
-  }
-
-  /**
-   * Detect contradictions between answer and source text
-   * @param {string} answerText - Answer text
-   * @param {string} sourceText - Source text
-   * @returns {boolean} Whether contradictions detected
-   */
-  detectContradictions(answerText, sourceText) {
-    // Simple contradiction detection based on negations
-    const negations = ['not', 'never', 'no', 'none', 'nothing', 'nobody', 'nowhere'];
-    const answerWords = answerText.split(/\s+/);
-    const sourceWords = sourceText.split(/\s+/);
-
-    // Check for direct contradictions
-    for (const negation of negations) {
-      if (answerWords.includes(negation)) {
-        // Look for the word being negated in source
-        const negatedIndex = answerWords.indexOf(negation);
-        if (negatedIndex > 0) {
-          const negatedWord = answerWords[negatedIndex - 1];
-          if (sourceWords.some(word => word.toLowerCase() === negatedWord.toLowerCase())) {
-            return true; // Potential contradiction
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Check how well the answer is grounded in source material
-   * @param {string} answer - Generated answer
-   * @param {Array} chunks - Source chunks
-   * @returns {number} Groundedness score (0-1)
-   */
-  checkGroundedness(answer, chunks) {
-    const answerLower = answer.toLowerCase();
-    let totalGroundedWords = 0;
-    let totalWords = 0;
-
-    const answerWords = answerLower.split(/\s+/).filter(word => word.length > 2);
-    totalWords = answerWords.length;
-
-    // Check each answer word against all chunks
-    answerWords.forEach(word => {
-      let foundInChunk = false;
-      for (const chunk of chunks) {
-        if (chunk.content.toLowerCase().includes(word)) {
-          foundInChunk = true;
-          break;
-        }
-      }
-      if (foundInChunk) {
-        totalGroundedWords++;
-      }
-    });
-
-    return totalWords > 0 ? totalGroundedWords / totalWords : 0;
-  }
-
-  /**
-   * Check factual consistency across sources
-   * @param {string} answer - Generated answer
-   * @param {Array} chunks - Source chunks
-   * @returns {number} Consistency score (0-1)
-   */
-  checkFactualConsistency(answer, chunks) {
-    if (chunks.length <= 1) return 1.0; // No consistency issues with single source
-
-    const facts = this.extractFactsFromAnswer(answer);
-    let consistentFacts = 0;
-
-    facts.forEach(fact => {
-      let factSupported = 0;
-      chunks.forEach(chunk => {
-        if (this.isFactInChunk(fact, chunk.content)) {
-          factSupported++;
-        }
-      });
-
-      // Fact is consistent if supported by majority of chunks
-      if (factSupported >= Math.ceil(chunks.length * 0.5)) {
-        consistentFacts++;
-      }
-    });
-
-    return facts.length > 0 ? consistentFacts / facts.length : 1.0;
-  }
-
-  /**
-   * Extract factual statements from answer
-   * @param {string} answer - Answer text
-   * @returns {Array} Array of factual statements
-   */
-  extractFactsFromAnswer(answer) {
-    const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 15);
-    return sentences.filter(sentence => this.containsFactualClaims(sentence));
-  }
-
-  /**
-   * Check if a fact is present in chunk content
-   * @param {string} fact - Factual statement
-   * @param {string} chunkContent - Chunk content
-   * @returns {boolean} Whether fact is in chunk
-   */
-  isFactInChunk(fact, chunkContent) {
-    const factWords = fact.toLowerCase().split(/\s+/).filter(word => word.length > 3);
-    const chunkWords = chunkContent.toLowerCase().split(/\s+/);
-
-    let matches = 0;
-    factWords.forEach(word => {
-      if (chunkWords.includes(word)) {
-        matches++;
-      }
-    });
-
-    return matches >= Math.ceil(factWords.length * 0.7);
-  }
-
-  /**
-   * Assess answer completeness
-   * @param {string} answer - Generated answer
-   * @param {string} question - Original question
-   * @returns {number} Completeness score (0-1)
-   */
-  assessAnswerCompleteness(answer, question) {
-    const questionAnalysis = this.analyzeQuestionType(question);
-    let completeness = 0.5; // Base score
-
-    // Check answer length appropriateness
-    const wordCount = answer.split(/\s+/).length;
-    const expectedLength = this.getExpectedAnswerLength(questionAnalysis);
-
-    if (wordCount >= expectedLength * 0.5 && wordCount <= expectedLength * 1.5) {
-      completeness += 0.2;
-    }
-
-    // Check for structured elements based on question type
-    if (questionAnalysis.needsStructure) {
-      const hasStructure = this.hasStructuredElements(answer, questionAnalysis);
-      if (hasStructure) {
-        completeness += 0.2;
-      }
-    }
-
-    // Check question coverage
-    const questionKeywords = this.extractKeywordsForAnalysis(question);
-    const answerLower = answer.toLowerCase();
-    const coveredKeywords = questionKeywords.filter(keyword =>
-      answerLower.includes(keyword.toLowerCase())
-    );
-
-    completeness += (coveredKeywords.length / questionKeywords.length) * 0.3;
-
-    return Math.min(completeness, 1.0);
-  }
-
-  /**
-   * Get expected answer length based on question type
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {number} Expected word count
-   */
-  getExpectedAnswerLength(questionAnalysis) {
-    const lengthMap = {
-      definition: 50,
-      how_to: 100,
-      comparison: 120,
-      list_categories: 80,
-      why_explain: 90,
-      analysis: 150,
-      general: 70
-    };
-
-    return lengthMap[questionAnalysis.type] || lengthMap.general;
-  }
-
-  /**
-   * Check if answer has appropriate structured elements
-   * @param {string} answer - Answer text
-   * @param {Object} questionAnalysis - Question analysis
-   * @returns {boolean} Whether answer has structure
-   */
-  hasStructuredElements(answer, questionAnalysis) {
-    const lowerAnswer = answer.toLowerCase();
-
-    switch (questionAnalysis.type) {
-      case 'how_to':
-        return /\d+\.|step|first|then|next|finally/i.test(lowerAnswer);
-      case 'list_categories':
-        return /•|-|\d+\./.test(answer) || /types|categories|kinds/i.test(lowerAnswer);
-      case 'comparison':
-        return /vs|versus|compared|difference|similar/i.test(lowerAnswer);
-      case 'analysis':
-        return /analysis|insights|findings|conclusion/i.test(lowerAnswer);
-      default:
-        return /\n\n|•|-/.test(answer); // Basic structure check
-    }
-  }
-
-  /**
-   * Calculate overall quality score from individual metrics
-   * @param {Object} metrics - Individual quality metrics
-   * @returns {number} Overall quality score (0-1)
-   */
-  calculateOverallQuality(metrics) {
-    // Weighted combination of quality metrics
-    const weights = {
-      hallucinationScore: -0.3,    // Negative weight (lower hallucination = better)
-      groundednessScore: 0.25,     // Positive weight
-      factualConsistency: 0.25,    // Positive weight
-      answerCompleteness: 0.2      // Positive weight
-    };
-
-    let score = 0;
-    score += (1 - metrics.hallucinationScore) * Math.abs(weights.hallucinationScore); // Invert hallucination
-    score += metrics.groundednessScore * weights.groundednessScore;
-    score += metrics.factualConsistency * weights.factualConsistency;
-    score += metrics.answerCompleteness * weights.answerCompleteness;
-
-    return Math.max(0, Math.min(1, score));
-  }
-
-  /**
-   * Calculate enhanced confidence score with quality control
+   * Calculate simplified confidence score based on sources and reasoning
    * @param {Array} sources - Answer sources
-   * @param {number} totalRelevantChunks - Total relevant chunks
-   * @param {number} reasoningConfidence - Reasoning confidence
-   * @param {Object} qualityCheck - Quality control results
-   * @returns {number} Enhanced confidence score (0-1)
+   * @param {number} totalRelevantChunks - Total relevant chunks found
+   * @param {number} reasoningConfidence - Confidence from reasoning process
+   * @returns {number} Simplified confidence score (0-1)
    */
-  calculateEnhancedConfidence(sources, totalRelevantChunks, reasoningConfidence, qualityCheck) {
+  calculateSimplifiedConfidence(sources, totalRelevantChunks, reasoningConfidence) {
     // Base confidence from sources
     const baseConfidence = this.calculateConfidence(sources, totalRelevantChunks);
 
-    // Combine with reasoning confidence and quality metrics
-    const combinedConfidence = (
-      baseConfidence * 0.4 +
-      reasoningConfidence * 0.3 +
-      qualityCheck.overallQuality * 0.3
-    );
+    // Simple combination of source confidence and reasoning confidence
+    const combinedConfidence = (baseConfidence * 0.6) + (reasoningConfidence * 0.4);
 
-    // Apply quality penalties
-    let finalConfidence = combinedConfidence;
+    return Math.max(0, Math.min(1, combinedConfidence));
+  }
 
-    // Penalty for high hallucination risk
-    if (qualityCheck.hallucinationScore > 0.3) {
-      finalConfidence *= 0.8;
+  /**
+   * Simple LLM-based verification of answer quality
+   * @param {string} answer - Generated answer
+   * @param {string} question - Original question
+   * @param {Array} relevantChunks - Source chunks used
+   * @returns {number} Verification score (0-1, higher = better)
+   */
+  async verifyAnswerQuality(answer, question, relevantChunks) {
+    if (!this.langChainManager) {
+      console.log("⚠️ No LLM available for verification, returning default score");
+      return 0.8; // Default neutral score
     }
 
-    // Penalty for poor groundedness
-    if (qualityCheck.groundednessScore < 0.5) {
-      finalConfidence *= 0.9;
-    }
+    try {
+      // Combine all relevant chunks into source text
+      const sourceText = relevantChunks
+        .map(chunk => chunk.content)
+        .join('\n\n')
+        .substring(0, 4000); // Limit to avoid token limits
 
-    // Boost for high quality answers
-    if (qualityCheck.overallQuality > 0.8) {
-      finalConfidence = Math.min(1.0, finalConfidence * 1.1);
-    }
+      const verificationQuestion = `Verify if this answer is fully supported by the source text. Check for:
+1. Factual accuracy - all claims supported by sources
+2. No hallucinations - no information not present in sources
+3. Completeness - addresses the original question
+4. Groundedness - based on provided context
 
-    return Math.max(0, Math.min(1, finalConfidence));
+Source text: ${sourceText}
+Answer: ${answer}
+Question: ${question}
+
+Return only: VALID or INVALID with a brief explanation (max 50 words)`;
+
+      // Create a simple question analysis for verification
+      const verificationAnalysis = {
+        type: 'general',
+        complexity: 'simple',
+        keywords: ['verify', 'valid', 'supported']
+      };
+
+      // Create verification chunks from the source text
+      const verificationChunks = [{
+        content: sourceText,
+        metadata: { documentName: 'verification_source' }
+      }];
+
+      const verificationResult = await this.langChainManager.generateAnswer(
+        verificationQuestion,
+        verificationChunks,
+        verificationAnalysis,
+        []
+      );
+
+      // Simple scoring based on response
+      const response = verificationResult.answer.toLowerCase();
+      if (response.includes('valid')) {
+        return 0.9; // High confidence for valid answers
+      } else if (response.includes('invalid')) {
+        return 0.4; // Lower confidence for invalid answers
+      } else {
+        return 0.7; // Neutral score for unclear responses
+      }
+
+    } catch (error) {
+      console.warn("❌ Verification failed:", error.message);
+      return 0.7; // Return neutral score on failure
+    }
   }
 
   /**
@@ -2908,6 +1810,328 @@ export class QAService {
       console.error("❌ QA Service health check failed:", error);
       return false;
     }
+  }
+
+  /**
+   * Generate direct answer using LLM from relevant chunks
+   * @param {Array} relevantChunks - Relevant document chunks
+   * @param {string} question - User's question
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {string} Generated answer
+   */
+  async generateDirectAnswer(relevantChunks, question, questionAnalysis) {
+    if (!this.langChainManager) {
+      console.warn("⚠️ No LLM available for direct answer generation");
+      return this.generateFallbackAnswer(relevantChunks, question);
+    }
+
+    try {
+      // Prepare context from chunks
+      const context = relevantChunks
+        .map(chunk => chunk.content)
+        .join('\n\n')
+        .substring(0, 3000); // Limit context to avoid token limits
+
+      // Create enhanced prompt for direct answer generation
+      const directPrompt = `You are a highly specialized AI assistant that transforms raw text into a structured JSON object. Your ONLY function is to answer the user's question by generating a JSON response based on the provided CONTEXT.
+
+Follow these rules with zero tolerance for deviation:
+1.  Your entire output MUST be a single, valid JSON object and NOTHING else. Do not include any text, explanations, or markdown before or after the JSON object.
+2.  You are strictly forbidden from using any knowledge outside of the \`CONTEXT\`.
+3.  For any field in the JSON schema where you cannot find relevant information in the \`CONTEXT\`, you are STRICTLY REQUIRED to return an empty array \`[]\` for array fields or an empty string \`""\` for text fields.
+4.  It is a failure to write a descriptive sentence like "Examples can be found..." or "This section covers...". If the information is not in the \`CONTEXT\`, the field MUST be empty.
+5.  NEVER include source citations, references, or citations like [Source X] in any field. Focus only on the content itself.
+
+Here is the mandatory JSON structure:
+{
+  "title": "A concise, descriptive title for the answer, directly related to the user's question.",
+  "definitionAndPurpose": "A synthesized paragraph defining the topic and explaining its purpose, based on the context.",
+  "keyPoints": [
+    "An array of at least 3 distinct, synthesized bullet points that are critical to understanding the topic."
+  ],
+  "keyCategories": [
+    "An array of key categories or types mentioned in the context. If no categories are explicitly listed, you MUST return an empty array []."
+  ],
+  "examples": [
+    "An array of specific, real-world examples found in the text. If no examples are found, you MUST return an empty array []."
+  ],
+  "conclusion": "A brief, one-sentence concluding summary synthesized from the key points."
+}
+
+---
+CONTEXT:
+${context}
+---
+USER QUESTION:
+${question}
+---
+
+JSON_OUTPUT:`;
+
+      const directAnalysis = {
+        type: 'general',
+        complexity: 'simple',
+        keywords: ['answer', 'question', 'information']
+      };
+
+      const verificationChunks = [{
+        content: context,
+        metadata: { documentName: 'direct_answer_context' }
+      }];
+
+      const result = await this.langChainManager.generateAnswer(
+        directPrompt,
+        verificationChunks,
+        directAnalysis,
+        []
+      );
+
+      // Check if the result is a fallback response (indicates LLM failure)
+      if (result.answer.includes('I encountered an issue generating a detailed answer') ||
+          result.answer.includes('All LLM generation attempts failed') ||
+          result.answer.includes('fallback answer')) {
+        console.warn("❌ LLM returned fallback response, using content-based fallback");
+        return this.generateFallbackAnswer(relevantChunks, question);
+      }
+
+      // Parse and format the JSON response
+      try {
+        const jsonResponse = JSON.parse(result.answer.trim());
+
+        // Format the structured response into clean, readable text
+        let formattedAnswer = '';
+
+        // Add title if meaningful
+        if (jsonResponse.title && jsonResponse.title.trim()) {
+          formattedAnswer += `${jsonResponse.title}\n\n`;
+        }
+
+        // Add definition and purpose
+        if (jsonResponse.definitionAndPurpose && jsonResponse.definitionAndPurpose.trim()) {
+          formattedAnswer += `${jsonResponse.definitionAndPurpose}\n\n`;
+        }
+
+        // Add key points if available
+        if (jsonResponse.keyPoints && jsonResponse.keyPoints.length > 0 && jsonResponse.keyPoints[0].trim()) {
+          formattedAnswer += `Key Points:\n`;
+          jsonResponse.keyPoints.forEach(point => {
+            if (point && point.trim()) {
+              formattedAnswer += `• ${point.trim()}\n`;
+            }
+          });
+          formattedAnswer += `\n`;
+        }
+
+        // Add key categories only if they contain actual content (not placeholders)
+        if (jsonResponse.keyCategories && jsonResponse.keyCategories.length > 0 &&
+            jsonResponse.keyCategories[0].trim() &&
+            !jsonResponse.keyCategories[0].toLowerCase().includes('response covers') &&
+            !jsonResponse.keyCategories[0].toLowerCase().includes('categories including')) {
+          formattedAnswer += `Key Categories:\n`;
+          jsonResponse.keyCategories.forEach(category => {
+            if (category && category.trim()) {
+              formattedAnswer += `• ${category.trim()}\n`;
+            }
+          });
+          formattedAnswer += `\n`;
+        }
+
+        // Add examples only if they contain actual examples (not placeholders)
+        if (jsonResponse.examples && jsonResponse.examples.length > 0 &&
+            jsonResponse.examples[0].trim() &&
+            !jsonResponse.examples[0].toLowerCase().includes('practical examples') &&
+            !jsonResponse.examples[0].toLowerCase().includes('demonstrate these concepts')) {
+          formattedAnswer += `Examples:\n`;
+          jsonResponse.examples.forEach(example => {
+            if (example && example.trim()) {
+              formattedAnswer += `• ${example.trim()}\n`;
+            }
+          });
+          formattedAnswer += `\n`;
+        }
+
+        // Add conclusion if meaningful
+        if (jsonResponse.conclusion && jsonResponse.conclusion.trim() &&
+            !jsonResponse.conclusion.toLowerCase().includes('provides a solid foundation') &&
+            !jsonResponse.conclusion.toLowerCase().includes('understanding and working')) {
+          formattedAnswer += `${jsonResponse.conclusion.trim()}`;
+        }
+
+        // Clean the output: remove source citations and extra whitespace
+        formattedAnswer = this.cleanStructuredOutput(formattedAnswer);
+
+        return formattedAnswer.trim();
+
+      } catch (parseError) {
+        console.warn("❌ Failed to parse JSON response, falling back to raw answer:", parseError.message);
+        // Fallback: return the raw response if JSON parsing fails
+        return result.answer;
+      }
+
+    } catch (error) {
+      console.warn("❌ Direct answer generation failed:", error.message);
+      return this.generateFallbackAnswer(relevantChunks, question);
+    }
+  }
+
+  /**
+   * Generate fallback answer when LLM fails
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {string} Fallback answer
+   */
+  generateFallbackAnswer(relevantChunks, question) {
+    if (relevantChunks.length === 0) {
+      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+    }
+
+    // Combine all chunk content
+    const allText = relevantChunks.map(chunk => chunk.content).join(" ");
+
+    // Extract sentences that might be relevant
+    const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    const questionLower = question.toLowerCase();
+
+    // Find sentences that contain question keywords
+    const relevantSentences = sentences.filter(sentence => {
+      const sentenceLower = sentence.toLowerCase();
+      // Check if sentence contains important words from the question
+      const questionWords = questionLower.split(/\s+/).filter(word => word.length > 3);
+      return questionWords.some(word => sentenceLower.includes(word));
+    });
+
+    if (relevantSentences.length > 0) {
+      // Return top 3-5 relevant sentences
+      const topSentences = relevantSentences.slice(0, Math.min(5, relevantSentences.length));
+      return `🔍 Answer based on document content:\n\n${topSentences.join('. ')}.`;
+    }
+
+    // If no specific sentences match, return the beginning of the most relevant chunk
+    const topChunk = relevantChunks[0];
+    const previewLength = Math.min(600, topChunk.content.length);
+    return `🔍 Here's relevant information from the documents:\n\n${topChunk.content.substring(0, previewLength)}${topChunk.content.length > previewLength ? '...' : ''}`;
+  }
+
+  /**
+   * Clean structured output by removing source citations and improving readability
+   * @param {string} output - Raw formatted output
+   * @returns {string} Cleaned output
+   */
+  cleanStructuredOutput(output) {
+    let cleaned = output;
+
+    // Remove source citations like [Source 1], [Source 2], etc.
+    cleaned = cleaned.replace(/\[Source \d+\]/g, '');
+
+    // Remove excessive whitespace and empty lines
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+
+    // Clean up any remaining artifacts
+    cleaned = cleaned.replace(/\s+$/gm, ''); // Remove trailing spaces from each line
+
+    return cleaned.trim();
+  }
+
+  /**
+   * Rewrite query for better retrieval using LLM
+   * @param {string} originalQuestion - The user's original question
+   * @returns {string} Rewritten query optimized for semantic search
+   */
+  // Cache for query rewrites to avoid repeated API calls
+  queryRewriteCache = new Map();
+
+  async rewriteQueryForRetrieval(originalQuestion) {
+    // Allow disabling query rewriting to save API quota
+    if (process.env.DISABLE_QUERY_REWRITING === 'true') {
+      console.log("🔄 Query rewriting disabled, using original question");
+      return originalQuestion;
+    }
+
+    // If no LLM available, return original question
+    if (!this.langChainManager) {
+      console.log("🔄 No LLM available for query rewriting, using original question");
+      return originalQuestion;
+    }
+
+    // Check cache first
+    if (this.queryRewriteCache.has(originalQuestion)) {
+      console.log(`📋 Using cached query rewrite: "${originalQuestion}" → "${this.queryRewriteCache.get(originalQuestion)}"`);
+      return this.queryRewriteCache.get(originalQuestion);
+    }
+
+    // Only rewrite queries that might benefit from expansion
+    if (!this.shouldRewriteQuery(originalQuestion)) {
+      console.log(`🔄 Query doesn't need rewriting: "${originalQuestion}"`);
+      this.queryRewriteCache.set(originalQuestion, originalQuestion);
+      return originalQuestion;
+    }
+
+    try {
+      // Create query rewriting prompt
+      const rewritePrompt = `The user's query is: "${originalQuestion}".
+
+Rewrite this query to be more descriptive for a semantic search. Expand any acronyms and add context. For example, "what is CA" should become "What is Conversation Analysis (CA)". Respond ONLY with the rewritten query.`;
+
+      // Use a simple analysis for the rewrite task
+      const rewriteAnalysis = {
+        type: 'general',
+        complexity: 'simple',
+        keywords: ['rewrite', 'query', 'search']
+      };
+
+      // Create a minimal context chunk for the rewrite task
+      const rewriteChunks = [{
+        content: 'Query rewriting task - expand acronyms and add context for better semantic search.',
+        metadata: { documentName: 'query_rewrite_context' }
+      }];
+
+      const result = await this.langChainManager.generateAnswer(
+        rewritePrompt,
+        rewriteChunks,
+        rewriteAnalysis,
+        []
+      );
+
+      const rewrittenQuery = result.answer.trim();
+
+      // Validate the rewritten query
+      if (rewrittenQuery && rewrittenQuery.length > 0 && rewrittenQuery !== originalQuestion) {
+        console.log(`✨ Query rewritten: "${originalQuestion}" → "${rewrittenQuery}"`);
+        this.queryRewriteCache.set(originalQuestion, rewrittenQuery);
+        return rewrittenQuery;
+      } else {
+        console.log(`🔄 Query rewrite returned same or empty result, using original: "${originalQuestion}"`);
+        this.queryRewriteCache.set(originalQuestion, originalQuestion);
+        return originalQuestion;
+      }
+
+    } catch (error) {
+      console.warn("❌ Query rewriting failed, using original question:", error.message);
+      this.queryRewriteCache.set(originalQuestion, originalQuestion);
+      return originalQuestion;
+    }
+  }
+
+  /**
+   * Determine if a query should be rewritten
+   * @param {string} query - The query to check
+   * @returns {boolean} Whether the query should be rewritten
+   */
+  shouldRewriteQuery(query) {
+    const queryLower = query.toLowerCase().trim();
+
+    // Only rewrite short queries or those with potential acronyms
+    if (queryLower.length < 10) return true;
+
+    // Check for common acronym patterns
+    const acronymPattern = /\b[A-Z]{2,5}\b/g;
+    if (acronymPattern.test(query)) return true;
+
+    // Check for questions that start with "what is" followed by short terms
+    const whatIsPattern = /^what is\s+\w{1,5}(\?|$)/i;
+    if (whatIsPattern.test(queryLower)) return true;
+
+    return false;
   }
 }
 
