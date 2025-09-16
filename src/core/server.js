@@ -28,6 +28,7 @@ if (!fs.existsSync(uploadsDir)) {
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -1373,7 +1374,7 @@ const startServer = async () => {
     await initializeServices();
 
     // Start the server
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, HOST, () => {
       const startupTime = serverPerfTracker.end({
         port: PORT,
         environment: process.env.NODE_ENV || 'development'
@@ -1381,11 +1382,12 @@ const startServer = async () => {
 
       logger.info(`✅ RAG Pipeline API server started successfully`, {
         port: PORT,
+        host: HOST,
         startupTime: `${startupTime}ms`,
         endpoints: [
-          `http://localhost:${PORT}/health`,
-          `http://localhost:${PORT}/api/documents/upload`,
-          `http://localhost:${PORT}/api/qa/ask`
+          `http://${HOST}:${PORT}/health`,
+          `http://${HOST}:${PORT}/api/documents/upload`,
+          `http://${HOST}:${PORT}/api/qa/ask`
         ]
       });
 
