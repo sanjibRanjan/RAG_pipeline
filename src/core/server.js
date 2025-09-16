@@ -84,47 +84,96 @@ const upload = multer({
   },
 });
 
-// Initialize services
-const documentProcessor = new DocumentProcessor();
-const embeddingService = new EmbeddingService();
-const vectorStore = new VectorStore();
-const conversationManager = new ConversationManager();
-const qaService = new QAService(embeddingService, vectorStore);
+// Initialize services (with error handling)
+let documentProcessor, embeddingService, vectorStore, conversationManager, qaService;
+
+try {
+  console.log("🔧 Creating service instances...");
+  documentProcessor = new DocumentProcessor();
+  embeddingService = new EmbeddingService();
+  vectorStore = new VectorStore();
+  conversationManager = new ConversationManager();
+  qaService = new QAService(embeddingService, vectorStore);
+  console.log("✅ Service instances created successfully");
+} catch (error) {
+  console.error("❌ Failed to create service instances:", error);
+  // In production, continue with null services
+  if (process.env.NODE_ENV === 'production') {
+    console.warn("⚠️ Continuing with null services - some features will be disabled");
+  } else {
+    throw error;
+  }
+}
 
 // Initialize services on startup
 async function initializeServices() {
   const perfTracker = performanceLogger.start('service_initialization');
 
   try {
+    console.log("🔧 Initializing RAG Pipeline services...");
     logger.info("🔧 Initializing RAG Pipeline services...");
 
+    let servicesInitialized = 0;
+
     // Initialize embedding service
-    const embeddingPerf = performanceLogger.start('embedding_service_init');
-    await embeddingService.initialize();
-    embeddingPerf.end();
-    healthLogger.service('EmbeddingService', 'healthy');
+    if (embeddingService) {
+      try {
+        console.log("🤖 Initializing embedding service...");
+        const embeddingPerf = performanceLogger.start('embedding_service_init');
+        await embeddingService.initialize();
+        embeddingPerf.end();
+        healthLogger.service('EmbeddingService', 'healthy');
+        servicesInitialized++;
+        console.log("✅ Embedding service initialized");
+      } catch (error) {
+        console.error("❌ Embedding service failed:", error.message);
+        logger.error("❌ Embedding service initialization failed:", error);
+      }
+    }
 
     // Initialize vector store
-    const vectorPerf = performanceLogger.start('vector_store_init');
-    await vectorStore.initialize();
-    vectorPerf.end();
-    healthLogger.service('VectorStore', 'healthy');
+    if (vectorStore) {
+      try {
+        console.log("🗄️ Initializing vector store...");
+        const vectorPerf = performanceLogger.start('vector_store_init');
+        await vectorStore.initialize();
+        vectorPerf.end();
+        healthLogger.service('VectorStore', 'healthy');
+        servicesInitialized++;
+        console.log("✅ Vector store initialized");
+      } catch (error) {
+        console.error("❌ Vector store failed:", error.message);
+        logger.error("❌ Vector store initialization failed:", error);
+      }
+    }
 
     // Initialize QA service
-    const qaPerf = performanceLogger.start('qa_service_init');
-    await qaService.initialize();
-    qaPerf.end();
-    healthLogger.service('QAService', 'healthy');
+    if (qaService) {
+      try {
+        console.log("💬 Initializing QA service...");
+        const qaPerf = performanceLogger.start('qa_service_init');
+        await qaService.initialize();
+        qaPerf.end();
+        healthLogger.service('QAService', 'healthy');
+        servicesInitialized++;
+        console.log("✅ QA service initialized");
+      } catch (error) {
+        console.error("❌ QA service failed:", error.message);
+        logger.error("❌ QA service initialization failed:", error);
+      }
+    }
 
     perfTracker.end({
-      servicesInitialized: 3,
+      servicesInitialized,
       environment: process.env.NODE_ENV || 'development'
     });
 
-    logger.info("✅ All RAG Pipeline services initialized successfully");
+    console.log(`✅ ${servicesInitialized} services initialized successfully`);
+    logger.info(`✅ ${servicesInitialized} services initialized successfully`);
     serviceLogger.info('server', 'RAG Pipeline ready to accept requests');
   } catch (error) {
     perfTracker.fail(error);
+    console.error("❌ Failed to initialize services:", error);
     logger.error("❌ Failed to initialize services:", {
       error: error.message,
       stack: error.stack
@@ -133,6 +182,7 @@ async function initializeServices() {
     
     // In production, don't exit - let the server start and handle errors gracefully
     if (process.env.NODE_ENV === 'production') {
+      console.warn("⚠️ Continuing with degraded service - some features may not work");
       logger.warn("⚠️ Continuing with degraded service - some features may not work");
     } else {
       process.exit(1);
@@ -1427,15 +1477,27 @@ const startServer = async () => {
   const serverPerfTracker = performanceLogger.start('server_startup');
 
   try {
-    logger.info("🚀 Starting RAG Pipeline API server...", {
+    console.log("🚀 Starting RAG Pipeline API server...");
+    console.log("📊 Environment:", {
       port: PORT,
+      host: HOST,
       environment: process.env.NODE_ENV || 'development',
       nodeVersion: process.version
     });
 
+    logger.info("🚀 Starting RAG Pipeline API server...", {
+      port: PORT,
+      host: HOST,
+      environment: process.env.NODE_ENV || 'development',
+      nodeVersion: process.version
+    });
+
+    console.log("🔧 Initializing services...");
     // Initialize services first
     await initializeServices();
+    console.log("✅ Services initialized successfully");
 
+    console.log(`🌐 Starting server on ${HOST}:${PORT}...`);
     // Start the server
     const server = app.listen(PORT, HOST, () => {
       const startupTime = serverPerfTracker.end({
@@ -1487,12 +1549,33 @@ const startServer = async () => {
 
   } catch (error) {
     serverPerfTracker.fail(error);
+    console.error("❌ Failed to start server:", error);
     logger.error("❌ Failed to start server:", {
       error: error.message,
       stack: error.stack,
-      port: PORT
+      port: PORT,
+      host: HOST
     });
-    process.exit(1);
+    
+    // In production, don't exit immediately - let Railway handle it
+    if (process.env.NODE_ENV === 'production') {
+      console.error("⚠️ Server failed to start, but continuing for Railway healthcheck...");
+      // Start a minimal server for healthcheck
+      const minimalApp = express();
+      minimalApp.get('/', (req, res) => {
+        res.status(500).json({
+          status: "error",
+          message: "Server failed to start properly",
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      });
+      minimalApp.listen(PORT, HOST, () => {
+        console.log(`⚠️ Minimal server started on ${HOST}:${PORT} for healthcheck`);
+      });
+    } else {
+      process.exit(1);
+    }
   }
 };
 

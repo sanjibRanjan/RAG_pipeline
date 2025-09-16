@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/core/server.js",
+    "start:test": "node test-server.js",
     "frontend": "cd frontend && npm start",
     "dev": "concurrently \"npm start\" \"npm run frontend\"",
     "dev:backend": "npm start",
