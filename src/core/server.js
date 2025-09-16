@@ -111,7 +111,7 @@ async function initializeServices() {
 
 // Configure middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
+  origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? false : "*"),
   credentials: true
 }));
 

@@ -53,7 +53,7 @@ const ChatInterface = ({
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/qa/ask', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || ''}/api/qa/ask`, {
         question: userMessage.content,
         sessionId: sessionId,
       });
@@ -124,7 +124,7 @@ const ChatInterface = ({
       const formData = new FormData();
       formData.append('document', file);
 
-      const uploadResponse = await axios.post('/api/documents/upload', formData, {
+      const uploadResponse = await axios.post(`${process.env.REACT_APP_API_URL || ''}/api/documents/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -137,7 +137,7 @@ const ChatInterface = ({
       const uploadData = uploadResponse.data.data;
 
       // Ingest document
-      const ingestResponse = await axios.post('/api/documents/ingest', {
+      const ingestResponse = await axios.post(`${process.env.REACT_APP_API_URL || ''}/api/documents/ingest`, {
         filePath: uploadData.uploadPath,
         originalName: uploadData.originalName,
       });
