@@ -2,7 +2,7 @@
 nixPkgs = ['nodejs', 'npm']
 
 [phases.install]
-cmds = ['npm ci --only=production']
+cmds = ['npm ci --omit=dev --legacy-peer-deps']
 
 [phases.build]
 cmds = ['npm run build || echo "No build script found, skipping..."']
