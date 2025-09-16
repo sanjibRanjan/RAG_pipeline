@@ -1,4 +1,4 @@
-import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+import { HfInference } from "@huggingface/inference";
 
 export class EmbeddingService {
   constructor() {
@@ -19,14 +19,14 @@ export class EmbeddingService {
 
       const model = process.env.HF_MODEL || "sentence-transformers/all-MiniLM-L6-v2";
 
-      this.embeddings = new HuggingFaceInferenceEmbeddings({
-        model: model,
-        apiKey: apiKey,
-      });
+      this.embeddings = new HfInference(apiKey);
 
       // Test the connection directly (bypass isInitialized check during init)
       console.log("🔍 Testing embedding service connection...");
-      const testEmbedding = await this.embeddings.embedQuery("test");
+      const testEmbedding = await this.embeddings.featureExtraction({
+        model: model,
+        inputs: "test"
+      });
       console.log(`✅ Test embedding generated with ${testEmbedding.length} dimensions`);
 
       this.isInitialized = true;
@@ -54,7 +54,18 @@ export class EmbeddingService {
       }
 
       console.log(`🤖 Generating embeddings for ${texts.length} texts...`);
-      const embeddings = await this.embeddings.embedDocuments(texts);
+      const model = process.env.HF_MODEL || "sentence-transformers/all-MiniLM-L6-v2";
+      
+      const embeddings = await Promise.all(
+        texts.map(async (text) => {
+          const embedding = await this.embeddings.featureExtraction({
+            model: model,
+            inputs: text
+          });
+          return embedding;
+        })
+      );
+      
       console.log(`✅ Generated ${embeddings.length} embeddings`);
 
       return embeddings;
@@ -80,7 +91,11 @@ export class EmbeddingService {
       }
 
       console.log("🔍 Generating single embedding...");
-      const embedding = await this.embeddings.embedQuery(text);
+      const model = process.env.HF_MODEL || "sentence-transformers/all-MiniLM-L6-v2";
+      const embedding = await this.embeddings.featureExtraction({
+        model: model,
+        inputs: text
+      });
       console.log(`✅ Generated embedding with ${embedding.length} dimensions`);
 
       return embedding;

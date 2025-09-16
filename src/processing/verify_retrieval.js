@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { ChromaClient } from 'chromadb';
-import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+import { HfInference } from "@huggingface/inference";
 
 const COLLECTION_NAME = process.env.CHROMA_COLLECTION_NAME || 'rag_documents';
 const CHROMA_DB_URL = process.env.CHROMA_DB_URL || 'http://localhost:8000';
