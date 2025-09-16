@@ -19,6 +19,30 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 dotenv.config();
 
+// Validate required environment variables
+function validateEnvironment() {
+  const requiredVars = [];
+  const optionalVars = ['HF_API_KEY', 'GOOGLE_API_KEY', 'ANTHROPIC_API_KEY'];
+  
+  // Check for at least one LLM API key
+  const hasLLMKey = optionalVars.some(key => process.env[key]);
+  if (!hasLLMKey) {
+    console.warn("⚠️ No LLM API key found. Set one of: HF_API_KEY, GOOGLE_API_KEY, or ANTHROPIC_API_KEY");
+  }
+  
+  console.log("🔍 Environment validation:", {
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    PORT: process.env.PORT || 3001,
+    HOST: process.env.HOST || '0.0.0.0',
+    hasLLMKey,
+    hasHFKey: !!process.env.HF_API_KEY,
+    hasGoogleKey: !!process.env.GOOGLE_API_KEY,
+    hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY
+  });
+}
+
+validateEnvironment();
+
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -106,7 +130,13 @@ async function initializeServices() {
       stack: error.stack
     });
     healthLogger.service('ServiceInitialization', 'failed', { error: error.message });
-    process.exit(1);
+    
+    // In production, don't exit - let the server start and handle errors gracefully
+    if (process.env.NODE_ENV === 'production') {
+      logger.warn("⚠️ Continuing with degraded service - some features may not work");
+    } else {
+      process.exit(1);
+    }
   }
 }
 
@@ -125,13 +155,46 @@ app.use(requestLoggingMiddleware);
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
 
+// Simple startup check endpoint (for Railway healthcheck)
+app.get("/", (req, res) => {
+  res.json({
+    status: "running",
+    message: "RAG Pipeline API is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Basic health check endpoint
 app.get("/health", (req, res) => {
-  res.json({
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    service: "RAG Pipeline API"
-  });
+  try {
+    // Basic health check - server is running
+    const healthStatus = {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      service: "RAG Pipeline API",
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: "1.0.0"
+    };
+
+    // Add service status if available
+    if (embeddingService && embeddingService.isInitialized) {
+      healthStatus.services = {
+        embedding: "healthy",
+        vectorStore: vectorStore ? "healthy" : "unknown",
+        qaService: qaService ? "healthy" : "unknown"
+      };
+    }
+
+    res.status(200).json(healthStatus);
+  } catch (error) {
+    res.status(500).json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      service: "RAG Pipeline API",
+      error: error.message
+    });
+  }
 });
 
 // File upload endpoint
