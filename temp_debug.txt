@@ -1,9 +1,0 @@
-# Test Document
-
-This is a simple test document to debug metadata issues.
-
-## Section 1
-This section contains some test content.
-
-## Section 2
-This section contains more test content.

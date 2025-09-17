@@ -182,31 +182,45 @@ export class VectorStore {
       // Filter arrays to only include valid child chunks
       const filteredData = this.filterValidChunks(documents, embeddings, metadatas, ids, validationResult);
 
-      // Cleanse metadata to ensure all values are string, number, boolean, or null
+      // Remap metadata to only include known-safe fields to prevent ChromaDB 422 errors
       const cleansedMetadatas = filteredData.metadatas.map(metadata => {
-        const cleansed = {};
-        for (const [key, value] of Object.entries(metadata)) {
-          if (['string', 'number', 'boolean'].includes(typeof value) || value === null) {
-            cleansed[key] = value;
-          } else if (typeof value === 'object' && value !== null) {
-            // Handle objects by converting to JSON string or skipping problematic fields
-            if (key === 'loc' && value.lines) {
-              // Special handling for loc object - extract meaningful info
-              cleansed[key] = `lines_${value.lines.from}_${value.lines.to}`;
+        const safeMetadata = {};
+        
+        // Map only the specified safe fields, ensuring they are simple string/number values
+        const safeFields = ['source', 'chunk_id', 'parent_id', 'chunk_type', 'document_version'];
+        
+        safeFields.forEach(field => {
+          if (metadata[field] !== undefined) {
+            const value = metadata[field];
+            // Ensure the value is a simple type (string, number, boolean, or null)
+            if (['string', 'number', 'boolean'].includes(typeof value) || value === null) {
+              safeMetadata[field] = value;
             } else {
-              // For other objects, try to convert to JSON, fallback to skipping
-              try {
-                cleansed[key] = JSON.stringify(value);
-              } catch (e) {
-                console.warn(`⚠️ Skipping problematic metadata field: ${key}`);
-                // Skip this field entirely
-              }
+              // Convert complex values to strings to ensure compatibility
+              safeMetadata[field] = String(value);
             }
-          } else {
-            cleansed[key] = String(value);
           }
+        });
+        
+        // Also include some essential fields that might be needed, but with safe mapping
+        if (metadata.documentName !== undefined) {
+          safeMetadata.source = metadata.documentName || String(metadata.documentName);
         }
-        return cleansed;
+        
+        if (metadata.chunkIndex !== undefined) {
+          safeMetadata.chunk_id = metadata.chunkIndex || String(metadata.chunkIndex);
+        }
+        
+        if (metadata.chunkType !== undefined) {
+          safeMetadata.chunk_type = metadata.chunkType || String(metadata.chunkType);
+        }
+        
+        if (metadata.version !== undefined) {
+          safeMetadata.document_version = metadata.version || String(metadata.version);
+        }
+        
+        console.log(`🔧 Sanitized metadata for ChromaDB: ${Object.keys(safeMetadata).join(', ')}`);
+        return safeMetadata;
       });
 
       await this.collection.add({

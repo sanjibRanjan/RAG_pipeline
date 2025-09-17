@@ -23,6 +23,29 @@ This RAG (Retrieval-Augmented Generation) pipeline answers questions from PDF do
 - Node.js (v18 or higher)
 - Docker (for running ChromaDB locally)
 
+### 🔧 Troubleshooting: ChromaDB Reset
+
+If you encounter ChromaConnectionError (status: 422) or data mismatch errors when switching between different embedding models, use the reset script to clear the database:
+
+```bash
+# Option 1: Direct script execution
+node reset_chromadb.js
+
+# Option 2: Using npm script
+npm run reset:chromadb
+```
+
+**When to use this script:**
+- Switching from Hugging Face models to Google models (or vice versa)
+- Getting dimension mismatch errors (e.g., 384 vs 3072 dimensions)
+- ChromaDB collections have incompatible embedding configurations
+- Starting fresh with a new embedding model
+
+**What it does:**
+- Connects to your ChromaDB instance
+- Deletes all existing collections and their data
+- Allows your application to start fresh with the new embedding model
+
 ### 1. Install Dependencies
 ```bash
 npm install

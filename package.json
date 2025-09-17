@@ -36,7 +36,8 @@
     "test:chromadb:simple": "node test-chromadb-simple.js",
     "test:chromadb:comprehensive": "node test-chromadb-comprehensive.js",
     "test:api-fix": "node test-api-fix.js",
-    "test:small-doc": "node test-small-document.js"
+    "test:small-doc": "node test-small-document.js",
+    "reset:chromadb": "node reset_chromadb.js"
   },
   "keywords": [],
   "author": "",
