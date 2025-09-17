@@ -3,6 +3,13 @@ import pdf from "pdf-parse";
 import crypto from "crypto";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
+// Phase 1: Hierarchical chunking configuration
+const CHILD_CHUNK_SIZE = 256;
+const CHILD_CHUNK_OVERLAP = 32;
+const PARENT_CHUNK_SIZE = 1024;
+const PARENT_CHUNK_OVERLAP = 128;
+
+// Legacy configuration (kept for backward compatibility)
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;
 
@@ -34,6 +41,17 @@ export class DocumentProcessor {
     this.textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: this.chunkSize,
       chunkOverlap: this.chunkOverlap,
+    });
+    
+    // Phase 1: Hierarchical chunking splitters
+    this.childSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: CHILD_CHUNK_SIZE,
+      chunkOverlap: CHILD_CHUNK_OVERLAP,
+    });
+    
+    this.parentSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: PARENT_CHUNK_SIZE,
+      chunkOverlap: PARENT_CHUNK_OVERLAP,
     });
   }
 
@@ -95,8 +113,9 @@ export class DocumentProcessor {
         }
       }
 
-      // Split text into chunks
-      const chunks = await this.splitTextIntoChunks(text);
+      // Phase 1: Generate hierarchical chunks (child and parent)
+      const hierarchicalChunks = await this.generateHierarchicalChunks(text);
+      const chunks = hierarchicalChunks.childChunks; // Use child chunks for backward compatibility
 
       // Extract comprehensive metadata
       const comprehensiveMetadata = await this.extractMetadata(filePath, originalName, text);
@@ -108,6 +127,7 @@ export class DocumentProcessor {
         metadata: {
           ...comprehensiveMetadata,
           chunkCount: chunks.length,
+          parentChunkCount: hierarchicalChunks.parentChunks.length,
           version: currentVersion,
           versionType,
           previousVersions: existingVersions,
@@ -115,15 +135,20 @@ export class DocumentProcessor {
           processing: {
             ...comprehensiveMetadata.processing,
             chunkCount: chunks.length,
+            parentChunkCount: hierarchicalChunks.parentChunks.length,
             averageChunkSize: chunks.length > 0 ?
               chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) / chunks.length : 0,
+            averageParentChunkSize: hierarchicalChunks.parentChunks.length > 0 ?
+              hierarchicalChunks.parentChunks.reduce((sum, chunk) => sum + chunk.content.length, 0) / hierarchicalChunks.parentChunks.length : 0,
             processingTime: Date.now() - new Date(comprehensiveMetadata.processedAt).getTime(),
-            processor: 'DocumentProcessor v1.0'
+            processor: 'DocumentProcessor v2.0 (Hierarchical)'
           }
         },
+        // Phase 1: Include parent chunks in response
+        parentChunks: hierarchicalChunks.parentChunks,
       };
 
-      console.log(`✅ Document processed: ${originalName} v${currentVersion} (${versionType}) - ${chunks.length} chunks, ${text.length} characters`);
+      console.log(`✅ Document processed: ${originalName} v${currentVersion} (${versionType}) - ${chunks.length} child chunks, ${hierarchicalChunks.parentChunks.length} parent chunks, ${text.length} characters`);
 
       return processedDoc;
     } catch (error) {
@@ -160,6 +185,188 @@ export class DocumentProcessor {
     } catch (error) {
       throw new Error(`TXT file reading failed: ${error.message}`);
     }
+  }
+
+  /**
+   * Phase 1: Generate hierarchical chunks (child and parent)
+   * @param {string} text - Text to split
+   * @returns {Object} Object containing childChunks and parentChunks arrays
+   */
+  async generateHierarchicalChunks(text) {
+    try {
+      console.log("🔧 Generating hierarchical chunks (child + parent)...");
+      
+      // Generate parent chunks first
+      const parentChunks = await this.generateParentChunks(text);
+      
+      // Generate child chunks with parent_id references
+      const childChunks = await this.generateChildChunks(text, parentChunks);
+      
+      // Phase 3: Add linked list functionality to chunks
+      console.log("🔗 Adding linked list metadata to chunks...");
+      const linkedChildChunks = this.addChunkLinking(childChunks);
+      const linkedParentChunks = this.addChunkLinking(parentChunks);
+      
+      console.log(`📋 Hierarchical chunking complete: ${linkedChildChunks.length} child chunks, ${linkedParentChunks.length} parent chunks (with linked list metadata)`);
+      
+      return {
+        childChunks: linkedChildChunks,
+        parentChunks: linkedParentChunks
+      };
+    } catch (error) {
+      console.warn("Hierarchical chunking failed, falling back to basic chunking:", error.message);
+      // Fallback to basic chunking
+      const basicChunks = await this.basicChunking(text);
+      const linkedBasicChunks = this.addChunkLinking(basicChunks);
+      return {
+        childChunks: linkedBasicChunks,
+        parentChunks: []
+      };
+    }
+  }
+
+  /**
+   * Generate parent chunks (1024 chars, 128 overlap)
+   * @param {string} text - Text to split
+   * @returns {Array} Array of parent chunk objects
+   */
+  async generateParentChunks(text) {
+    try {
+      const docs = await this.parentSplitter.createDocuments([text]);
+      return docs.map((doc, index) => ({
+        id: `parent_${Date.now()}_${index}`,
+        content: doc.pageContent,
+        metadata: {
+          ...doc.metadata,
+          chunkIndex: index,
+          contentLength: doc.pageContent.length,
+          chunkingStrategy: 'parent_hierarchical',
+          chunkType: 'parent',
+          contentType: this.detectContentType(doc.pageContent),
+          windowSize: PARENT_CHUNK_SIZE,
+          windowOverlap: PARENT_CHUNK_OVERLAP,
+          // Phase 3: Prepare for linked list (will be enhanced by addChunkLinking)
+          linked_list_ready: true,
+        },
+      }));
+    } catch (error) {
+      throw new Error(`Parent chunk generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generate child chunks (256 chars, 32 overlap) with parent_id references
+   * @param {string} text - Text to split
+   * @param {Array} parentChunks - Array of parent chunks
+   * @returns {Array} Array of child chunk objects with parent_id metadata
+   */
+  async generateChildChunks(text, parentChunks) {
+    try {
+      const docs = await this.childSplitter.createDocuments([text]);
+      
+      return docs.map((doc, index) => {
+        // Find the parent chunk that contains this child chunk
+        const parentId = this.findParentChunkForChild(doc.pageContent, parentChunks);
+        
+        return {
+          id: `child_${Date.now()}_${index}`,
+          content: doc.pageContent,
+          metadata: {
+            ...doc.metadata,
+            chunkIndex: index,
+            contentLength: doc.pageContent.length,
+            chunkingStrategy: 'child_hierarchical',
+            chunkType: 'child',
+            contentType: this.detectContentType(doc.pageContent),
+            windowSize: CHILD_CHUNK_SIZE,
+            windowOverlap: CHILD_CHUNK_OVERLAP,
+            parent_id: parentId, // Link to parent chunk
+            // Phase 3: Prepare for linked list (will be enhanced by addChunkLinking)
+            linked_list_ready: true,
+          },
+        };
+      });
+    } catch (error) {
+      throw new Error(`Child chunk generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Find the parent chunk that best contains a child chunk
+   * @param {string} childContent - Child chunk content
+   * @param {Array} parentChunks - Array of parent chunks
+   * @returns {string} Parent chunk ID
+   */
+  findParentChunkForChild(childContent, parentChunks) {
+    // Simple strategy: find parent chunk with highest content overlap
+    let bestParent = parentChunks[0];
+    let maxOverlap = 0;
+    
+    for (const parent of parentChunks) {
+      const overlap = this.calculateContentOverlap(childContent, parent.content);
+      if (overlap > maxOverlap) {
+        maxOverlap = overlap;
+        bestParent = parent;
+      }
+    }
+    
+    return bestParent.id;
+  }
+
+  /**
+   * Calculate content overlap between child and parent chunks
+   * @param {string} childContent - Child chunk content
+   * @param {string} parentContent - Parent chunk content
+   * @returns {number} Overlap score
+   */
+  calculateContentOverlap(childContent, parentContent) {
+    // Simple word-based overlap calculation
+    const childWords = new Set(childContent.toLowerCase().split(/\s+/));
+    const parentWords = new Set(parentContent.toLowerCase().split(/\s+/));
+    
+    const intersection = new Set([...childWords].filter(word => parentWords.has(word)));
+    return intersection.size / childWords.size;
+  }
+
+  /**
+   * Phase 3: Add linked list functionality to chunks
+   * Adds previous_chunk_id and next_chunk_id to each chunk's metadata
+   * @param {Array} chunks - Array of chunk objects
+   * @returns {Array} Array of chunks with linked list metadata
+   */
+  addChunkLinking(chunks) {
+    if (!chunks || chunks.length === 0) {
+      return chunks;
+    }
+
+    console.log(`🔗 Adding linked list metadata to ${chunks.length} chunks...`);
+
+    return chunks.map((chunk, index) => {
+      const enhancedChunk = {
+        ...chunk,
+        metadata: {
+          ...chunk.metadata,
+          // Add linked list metadata
+          previous_chunk_id: index > 0 ? chunks[index - 1].id || `chunk_${index - 1}` : null,
+          next_chunk_id: index < chunks.length - 1 ? chunks[index + 1].id || `chunk_${index + 1}` : null,
+          // Add position information
+          position_in_document: index,
+          total_chunks_in_document: chunks.length,
+          is_first_chunk: index === 0,
+          is_last_chunk: index === chunks.length - 1,
+          // Add linking metadata
+          linked_list_enabled: true,
+          linking_strategy: 'sequential'
+        }
+      };
+
+      // Ensure chunk has an ID for linking
+      if (!enhancedChunk.id) {
+        enhancedChunk.id = `chunk_${Date.now()}_${index}`;
+      }
+
+      return enhancedChunk;
+    });
   }
 
   /**
@@ -205,6 +412,7 @@ export class DocumentProcessor {
     try {
       const docs = await this.textSplitter.createDocuments([text]);
       return docs.map((doc, index) => ({
+        id: `basic_${Date.now()}_${index}`,
         content: doc.pageContent,
         metadata: {
           ...doc.metadata,
@@ -212,6 +420,8 @@ export class DocumentProcessor {
           contentLength: doc.pageContent.length,
           chunkingStrategy: 'basic',
           contentType: this.detectContentType(doc.pageContent),
+          // Phase 3: Prepare for linked list (will be enhanced by addChunkLinking)
+          linked_list_ready: true,
         },
       }));
     } catch (error) {

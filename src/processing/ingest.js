@@ -5,7 +5,7 @@ import 'dotenv/config';
 import { readdir } from 'fs/promises';
 import path from 'path';
 
-const DATA_DIR = './data/docs';
+const DATA_DIR = './uploads';
 const COLLECTION_NAME = process.env.CHROMA_COLLECTION_NAME || 'rag_documents';
 
 async function runIngestion() {

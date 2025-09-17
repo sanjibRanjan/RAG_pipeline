@@ -9,6 +9,7 @@ import { DocumentProcessor } from "../services/document-processor.js";
 import { EmbeddingService } from "../services/embedding-service.js";
 import { VectorStore } from "../services/vector-store.js";
 import { ConversationManager } from "../services/conversation-manager.js";
+import { DocumentStore } from "../services/document-store.js";
 import { QAService } from "../services/qa-service.js";
 import logger, { requestLoggingMiddleware, serviceLogger, healthLogger, performanceLogger } from "../utils/logger.js";
 
@@ -85,7 +86,7 @@ const upload = multer({
 });
 
 // Initialize services (with error handling)
-let documentProcessor, embeddingService, vectorStore, conversationManager, qaService;
+let documentProcessor, embeddingService, vectorStore, conversationManager, documentStore, qaService;
 
 try {
   console.log("🔧 Creating service instances...");
@@ -93,7 +94,8 @@ try {
   embeddingService = new EmbeddingService();
   vectorStore = new VectorStore();
   conversationManager = new ConversationManager();
-  qaService = new QAService(embeddingService, vectorStore);
+  documentStore = new DocumentStore(); // Phase 1: DocumentStore for parent chunks
+  qaService = new QAService(embeddingService, vectorStore, documentStore);
   console.log("✅ Service instances created successfully");
 } catch (error) {
   console.error("❌ Failed to create service instances:", error);
@@ -352,25 +354,41 @@ app.post("/api/documents/ingest", async (req, res) => {
       textLength: processedDoc.metadata.textLength
     });
 
-    // Generate embeddings for chunks
+    // Generate embeddings for chunks using batch processing
     const embedPerf = performanceLogger.start('embedding_generation');
-    const texts = processedDoc.chunks.map((chunk) => chunk.content);
-    const embeddings = await embeddingService.generateEmbeddings(texts);
+    
+    // Limit chunks for large documents to prevent API overload
+    const maxChunks = parseInt(process.env.MAX_CHUNKS_PER_DOCUMENT) || 100;
+    const chunksToProcess = processedDoc.chunks.slice(0, maxChunks);
+    
+    if (processedDoc.chunks.length > maxChunks) {
+      console.log(`⚠️ Document has ${processedDoc.chunks.length} chunks, processing only first ${maxChunks} chunks`);
+    }
+    
+    const texts = chunksToProcess.map((chunk) => chunk.content);
+    
+    // Use batch processing to avoid API timeouts
+    const batchSize = Math.min(2, texts.length); // Ultra-small batch size to avoid timeouts
+    console.log(`🔄 Generating embeddings for ${texts.length} chunks in batches of ${batchSize}...`);
+    
+    const embeddings = await embeddingService.generateEmbeddingsBatch(texts, batchSize);
     embedPerf.end({
       chunksEmbedded: embeddings.length,
-      embeddingDimensions: embeddings[0]?.length || 0
+      embeddingDimensions: embeddings[0]?.length || 0,
+      batchSize: batchSize
     });
 
-    // Generate unique IDs
+    // Generate unique IDs for processed chunks
     const baseId = `doc_${Date.now()}_${originalName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const ids = processedDoc.chunks.map((_, index) => `${baseId}_chunk_${index}`);
+    const ids = chunksToProcess.map((_, index) => `${baseId}_chunk_${index}`);
 
-    // Prepare metadata
-    const metadatas = processedDoc.chunks.map((chunk, index) => ({
+    // Prepare metadata for processed chunks
+    const metadatas = chunksToProcess.map((chunk, index) => ({
       ...chunk.metadata,
       documentName: originalName,
       chunkIndex: index,
       totalChunks: processedDoc.chunks.length,
+      processedChunks: chunksToProcess.length,
       version: processedDoc.metadata.version,
       uploadedAt: processedDoc.metadata.processedAt,
       fileSize: processedDoc.metadata.fileSize,
@@ -386,6 +404,23 @@ app.post("/api/documents/ingest", async (req, res) => {
       chunksStored: texts.length,
       documentId: baseId
     });
+
+    // Phase 1: Store parent chunks in DocumentStore
+    if (processedDoc.parentChunks && processedDoc.parentChunks.length > 0) {
+      const parentStoragePerf = performanceLogger.start('parent_chunk_storage');
+      const parentChunkData = processedDoc.parentChunks.map(chunk => ({
+        id: chunk.id,
+        chunk: chunk
+      }));
+      
+      const parentStoreResult = documentStore.storeParentChunksBatch(parentChunkData);
+      parentStoragePerf.end({
+        parentChunksStored: parentStoreResult.successful,
+        documentId: baseId
+      });
+      
+      console.log(`📦 Stored ${parentStoreResult.successful}/${parentStoreResult.total} parent chunks in DocumentStore`);
+    }
 
     ingestionPerf.end({
       documentName: originalName,

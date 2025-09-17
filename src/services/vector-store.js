@@ -6,6 +6,10 @@ export class VectorStore {
     this.collection = null;
     this.isInitialized = false;
     this.collectionName = null;
+    
+    // Phase 1: Hierarchical chunking configuration
+    this.ALLOWED_CHUNK_TYPES = ['child', 'basic']; // Only allow child chunks and basic chunks
+    this.REJECTED_CHUNK_TYPES = ['parent']; // Explicitly reject parent chunks
   }
 
   /**
@@ -26,8 +30,16 @@ export class VectorStore {
 
       this.client = new ChromaClient({ host, port });
 
-      // Test connection and get/create collection
-      this.collection = await this.client.getOrCreateCollection({
+      // Test connection and create collection (delete existing if it exists)
+      try {
+        await this.client.deleteCollection({ name: this.collectionName });
+        console.log(`🗑️ Deleted existing collection: ${this.collectionName}`);
+      } catch (e) {
+        // Collection doesn't exist, that's fine
+        console.log(`ℹ️ No existing collection to delete: ${this.collectionName}`);
+      }
+      
+      this.collection = await this.client.createCollection({
         name: this.collectionName,
       });
 
@@ -44,7 +56,98 @@ export class VectorStore {
   }
 
   /**
-   * Add documents to the vector store
+   * Phase 1: Validate that only child chunks are being processed
+   * @param {Object[]} metadatas - Array of metadata objects
+   * @returns {Object} Validation result with filtered data
+   */
+  validateChunkTypes(metadatas) {
+    try {
+      const validationResult = {
+        validChunks: [],
+        rejectedChunks: [],
+        totalProcessed: metadatas.length,
+        validCount: 0,
+        rejectedCount: 0
+      };
+
+      metadatas.forEach((metadata, index) => {
+        const chunkType = metadata.chunkType || metadata.chunkingStrategy || 'basic';
+        
+        // Check if this is a parent chunk (should be rejected)
+        if (this.REJECTED_CHUNK_TYPES.includes(chunkType) || 
+            metadata.chunkingStrategy === 'parent_hierarchical') {
+          validationResult.rejectedChunks.push({
+            index,
+            chunkType,
+            chunkingStrategy: metadata.chunkingStrategy,
+            reason: 'Parent chunk detected - parent chunks should not be stored in vector store'
+          });
+          validationResult.rejectedCount++;
+        } else if (this.ALLOWED_CHUNK_TYPES.includes(chunkType) || 
+                   !metadata.chunkType) { // Allow chunks without explicit type (backward compatibility)
+          validationResult.validChunks.push(index);
+          validationResult.validCount++;
+        } else {
+          validationResult.rejectedChunks.push({
+            index,
+            chunkType,
+            chunkingStrategy: metadata.chunkingStrategy,
+            reason: `Unknown chunk type: ${chunkType}`
+          });
+          validationResult.rejectedCount++;
+        }
+      });
+
+      if (validationResult.rejectedCount > 0) {
+        console.log(`⚠️ Chunk validation: ${validationResult.rejectedCount}/${validationResult.totalProcessed} chunks rejected`);
+        validationResult.rejectedChunks.forEach(rejected => {
+          console.log(`   - Index ${rejected.index}: ${rejected.reason}`);
+        });
+      }
+
+      console.log(`✅ Chunk validation: ${validationResult.validCount}/${validationResult.totalProcessed} chunks approved for vector storage`);
+      return validationResult;
+    } catch (error) {
+      console.error('❌ Chunk validation failed:', error.message);
+      throw new Error(`Chunk validation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Phase 1: Filter arrays to only include valid child chunks
+   * @param {string[]} documents - Array of document texts
+   * @param {number[][]} embeddings - Array of embeddings
+   * @param {Object[]} metadatas - Array of metadata objects
+   * @param {string[]} ids - Array of unique IDs
+   * @param {Object} validationResult - Result from validateChunkTypes
+   * @returns {Object} Filtered arrays
+   */
+  filterValidChunks(documents, embeddings, metadatas, ids, validationResult) {
+    try {
+      const filteredData = {
+        documents: [],
+        embeddings: [],
+        metadatas: [],
+        ids: []
+      };
+
+      validationResult.validChunks.forEach(index => {
+        filteredData.documents.push(documents[index]);
+        filteredData.embeddings.push(embeddings[index]);
+        filteredData.metadatas.push(metadatas[index]);
+        filteredData.ids.push(ids[index]);
+      });
+
+      console.log(`🔧 Filtered data: ${filteredData.documents.length} valid chunks ready for storage`);
+      return filteredData;
+    } catch (error) {
+      console.error('❌ Chunk filtering failed:', error.message);
+      throw new Error(`Chunk filtering failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Add documents to the vector store (Phase 1: Child chunks only)
    * @param {string[]} documents - Array of document texts
    * @param {number[][]} embeddings - Array of embeddings
    * @param {Object[]} metadatas - Array of metadata objects
@@ -67,14 +170,38 @@ export class VectorStore {
         throw new Error("All arrays must have the same length");
       }
 
-      console.log(`📥 Adding ${documents.length} documents to vector store...`);
+      console.log(`📥 Phase 1: Processing ${documents.length} chunks for vector storage (child chunks only)...`);
+
+      // Phase 1: Validate chunk types and filter out parent chunks
+      const validationResult = this.validateChunkTypes(metadatas);
+      
+      if (validationResult.validCount === 0) {
+        throw new Error("No valid child chunks found for vector storage");
+      }
+
+      // Filter arrays to only include valid child chunks
+      const filteredData = this.filterValidChunks(documents, embeddings, metadatas, ids, validationResult);
 
       // Cleanse metadata to ensure all values are string, number, boolean, or null
-      const cleansedMetadatas = metadatas.map(metadata => {
+      const cleansedMetadatas = filteredData.metadatas.map(metadata => {
         const cleansed = {};
         for (const [key, value] of Object.entries(metadata)) {
           if (['string', 'number', 'boolean'].includes(typeof value) || value === null) {
             cleansed[key] = value;
+          } else if (typeof value === 'object' && value !== null) {
+            // Handle objects by converting to JSON string or skipping problematic fields
+            if (key === 'loc' && value.lines) {
+              // Special handling for loc object - extract meaningful info
+              cleansed[key] = `lines_${value.lines.from}_${value.lines.to}`;
+            } else {
+              // For other objects, try to convert to JSON, fallback to skipping
+              try {
+                cleansed[key] = JSON.stringify(value);
+              } catch (e) {
+                console.warn(`⚠️ Skipping problematic metadata field: ${key}`);
+                // Skip this field entirely
+              }
+            }
           } else {
             cleansed[key] = String(value);
           }
@@ -83,13 +210,14 @@ export class VectorStore {
       });
 
       await this.collection.add({
-        ids,
-        embeddings,
+        ids: filteredData.ids,
+        embeddings: filteredData.embeddings,
         metadatas: cleansedMetadatas,
-        documents,
+        documents: filteredData.documents,
       });
 
-      console.log(`✅ Successfully added ${documents.length} documents to vector store`);
+      console.log(`✅ Successfully added ${filteredData.documents.length} child chunks to vector store`);
+      console.log(`📊 Storage summary: ${validationResult.validCount} child chunks stored, ${validationResult.rejectedCount} parent chunks excluded`);
       return true;
     } catch (error) {
       console.error("❌ Error adding documents:", error);
@@ -188,7 +316,76 @@ export class VectorStore {
   }
 
   /**
-   * Get collection statistics
+   * Phase 1: Get chunk type statistics
+   * @returns {Promise<Object>} Chunk type statistics
+   */
+  async getChunkTypeStats() {
+    try {
+      if (!this.isInitialized || !this.collection) {
+        throw new Error("Vector store not initialized");
+      }
+
+      console.log(`📊 Analyzing chunk types in collection...`);
+
+      // Get all documents to analyze chunk types
+      const allDocs = await this.collection.get({ limit: 10000 });
+      
+      if (!allDocs.ids || allDocs.ids.length === 0) {
+        return {
+          totalChunks: 0,
+          chunkTypes: {},
+          hierarchicalChunks: {
+            childChunks: 0,
+            parentChunks: 0,
+            basicChunks: 0
+          },
+          lastAnalyzed: new Date().toISOString()
+        };
+      }
+
+      const chunkTypeStats = {
+        totalChunks: allDocs.ids.length,
+        chunkTypes: {},
+        hierarchicalChunks: {
+          childChunks: 0,
+          parentChunks: 0,
+          basicChunks: 0
+        },
+        lastAnalyzed: new Date().toISOString()
+      };
+
+      // Analyze each chunk
+      allDocs.metadatas.forEach((metadata, index) => {
+        const chunkType = metadata.chunkType || 'basic';
+        const chunkingStrategy = metadata.chunkingStrategy || 'basic';
+        
+        // Count by chunk type
+        chunkTypeStats.chunkTypes[chunkType] = (chunkTypeStats.chunkTypes[chunkType] || 0) + 1;
+        
+        // Count hierarchical chunks
+        if (chunkingStrategy === 'child_hierarchical' || chunkType === 'child') {
+          chunkTypeStats.hierarchicalChunks.childChunks++;
+        } else if (chunkingStrategy === 'parent_hierarchical' || chunkType === 'parent') {
+          chunkTypeStats.hierarchicalChunks.parentChunks++;
+        } else {
+          chunkTypeStats.hierarchicalChunks.basicChunks++;
+        }
+      });
+
+      console.log(`✅ Chunk analysis complete: ${chunkTypeStats.totalChunks} total chunks`);
+      console.log(`   - Child chunks: ${chunkTypeStats.hierarchicalChunks.childChunks}`);
+      console.log(`   - Parent chunks: ${chunkTypeStats.hierarchicalChunks.parentChunks}`);
+      console.log(`   - Basic chunks: ${chunkTypeStats.hierarchicalChunks.basicChunks}`);
+
+      return chunkTypeStats;
+    } catch (error) {
+      console.error("❌ Error getting chunk type stats:", error);
+      throw new Error(`Failed to get chunk type stats: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get collection statistics (Phase 1: Enhanced with chunk type info)
    * @returns {Promise<Object>} Collection stats
    */
   async getStats() {
@@ -200,10 +397,20 @@ export class VectorStore {
       const count = await this.collection.count();
       console.log(`📊 Collection stats - Documents: ${count}`);
 
+      // Get chunk type statistics
+      const chunkStats = await this.getChunkTypeStats();
+
       return {
         collectionName: this.collectionName,
         documentCount: count,
         lastUpdated: new Date().toISOString(),
+        // Phase 1: Include chunk type information
+        chunkTypeStats: chunkStats,
+        phase1Info: {
+          description: "Phase 1: Hierarchical chunking - only child chunks stored in vector store",
+          allowedChunkTypes: this.ALLOWED_CHUNK_TYPES,
+          rejectedChunkTypes: this.REJECTED_CHUNK_TYPES
+        }
       };
     } catch (error) {
       console.error("❌ Error getting stats:", error);

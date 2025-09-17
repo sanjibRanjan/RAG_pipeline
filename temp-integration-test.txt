@@ -1,0 +1,39 @@
+# RAG Pipeline Integration Test Document
+
+## Overview
+This document serves as a test case for the RAG (Retrieval-Augmented Generation) pipeline integration test. It contains various types of content to validate the system's ability to process, chunk, and retrieve information effectively.
+
+## Key Features
+The RAG pipeline includes several critical components:
+
+1. **Document Processing**: Converts documents into searchable chunks
+2. **Embedding Generation**: Creates vector representations using Hugging Face models
+3. **Vector Storage**: Stores embeddings in ChromaDB for similarity search
+4. **Document Storage**: Manages parent chunks in memory for hierarchical retrieval
+5. **Language Model Integration**: Uses Gemini API for answer generation
+6. **Question Answering**: Combines retrieval and generation for comprehensive responses
+
+## Technical Architecture
+The system uses a hierarchical chunking approach where:
+- Parent chunks (1024 characters) provide broader context
+- Child chunks (256 characters) enable precise retrieval
+- Vector store contains only child chunks for efficient similarity search
+- Document store maintains parent chunks for context expansion
+
+## Testing Scenarios
+This document enables testing of:
+- Document ingestion and processing
+- Chunk generation and storage
+- Vector similarity search
+- Context retrieval and expansion
+- Answer generation with confidence scoring
+
+## Expected Outcomes
+When processing this document, the system should:
+- Generate multiple parent and child chunks
+- Store embeddings in ChromaDB
+- Enable semantic search capabilities
+- Provide accurate answers to questions about the content
+
+## Conclusion
+This integration test validates the complete RAG pipeline functionality, ensuring all services work together harmoniously to deliver accurate, context-aware responses to user queries.

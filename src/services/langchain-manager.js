@@ -11,6 +11,11 @@ export class LangChainManager {
     this.maxTokens = options.maxTokens || parseInt(process.env.LLM_MAX_TOKENS) || 2000;
     this.isInitialized = false;
     this.llm = null;
+    
+    // Model tiering support - separate models for different tasks
+    this.preprocessingModel = null; // For query rewriting, HyDE, re-ranking
+    this.synthesisModel = null;     // For final answer generation
+    this.useModelTiering = options.useModelTiering !== false; // Default to true
   }
 
   getDefaultModelName() {
@@ -28,6 +33,36 @@ export class LangChainManager {
   }
 
   /**
+   * Get model names for tiered approach
+   * @returns {Object} Model configuration for different tasks
+   */
+  getTieredModelNames() {
+    switch (this.provider.toLowerCase()) {
+      case 'google':
+      case 'gemini':
+        return {
+          preprocessing: 'gemini-1.5-flash',  // Fast, cheap for preprocessing
+          synthesis: 'gemini-1.5-pro'        // Powerful for final synthesis
+        };
+      case 'openai':
+        return {
+          preprocessing: 'gpt-3.5-turbo',     // Fast, cheap for preprocessing
+          synthesis: 'gpt-4'                 // Powerful for final synthesis
+        };
+      case 'anthropic':
+        return {
+          preprocessing: 'claude-3-haiku-20240307',  // Fast, cheap for preprocessing
+          synthesis: 'claude-3-sonnet-20240229'      // Powerful for final synthesis
+        };
+      default:
+        return {
+          preprocessing: this.modelName,
+          synthesis: this.modelName
+        };
+    }
+  }
+
+  /**
    * Initialize the LLM client
    * @returns {Promise<boolean>} Success status
    */
@@ -35,19 +70,10 @@ export class LangChainManager {
     try {
       console.log(`🤖 Initializing ${this.provider} LLM client...`);
 
-      switch (this.provider.toLowerCase()) {
-        case 'openai':
-          this.initializeOpenAI();
-          break;
-        case 'anthropic':
-          this.initializeAnthropic();
-          break;
-        case 'google':
-        case 'gemini':
-          this.initializeGemini();
-          break;
-        default:
-          throw new Error(`Unsupported LLM provider: ${this.provider}`);
+      if (this.useModelTiering) {
+        await this.initializeTieredModels();
+      } else {
+        await this.initializeSingleModel();
       }
 
       // Skip connection test in development to save API quota
@@ -67,13 +93,91 @@ export class LangChainManager {
     }
   }
 
-  initializeOpenAI() {
+  /**
+   * Initialize tiered models for different tasks
+   * @returns {Promise<void>}
+   */
+  async initializeTieredModels() {
+    const modelNames = this.getTieredModelNames();
+    
+    console.log(`🔄 Initializing tiered models: ${modelNames.preprocessing} (preprocessing) + ${modelNames.synthesis} (synthesis)`);
+    
+    // Initialize preprocessing model (fast, cheap)
+    this.preprocessingModel = await this.createModelInstance(modelNames.preprocessing, 'preprocessing');
+    
+    // Initialize synthesis model (powerful, expensive)
+    this.synthesisModel = await this.createModelInstance(modelNames.synthesis, 'synthesis');
+    
+    // Set default model to synthesis for backward compatibility
+    this.llm = this.synthesisModel;
+    
+    console.log(`✅ Tiered models initialized successfully`);
+  }
+
+  /**
+   * Initialize single model (legacy approach)
+   * @returns {Promise<void>}
+   */
+  async initializeSingleModel() {
+    switch (this.provider.toLowerCase()) {
+      case 'openai':
+        this.initializeOpenAI();
+        break;
+      case 'anthropic':
+        this.initializeAnthropic();
+        break;
+      case 'google':
+      case 'gemini':
+        this.initializeGemini();
+        break;
+      default:
+        throw new Error(`Unsupported LLM provider: ${this.provider}`);
+    }
+  }
+
+  /**
+   * Create model instance for specific task
+   * @param {string} modelName - Model name
+   * @param {string} taskType - Task type (preprocessing/synthesis)
+   * @returns {Promise<Object>} Model instance
+   */
+  async createModelInstance(modelName, taskType) {
+    const originalModelName = this.modelName;
+    this.modelName = modelName;
+    
+    try {
+      let modelInstance;
+      
+      switch (this.provider.toLowerCase()) {
+        case 'openai':
+          modelInstance = this.createOpenAIModel();
+          break;
+        case 'anthropic':
+          modelInstance = this.createAnthropicModel();
+          break;
+        case 'google':
+        case 'gemini':
+          modelInstance = this.createGeminiModel();
+          break;
+        default:
+          throw new Error(`Unsupported LLM provider: ${this.provider}`);
+      }
+      
+      console.log(`✅ ${taskType} model (${modelName}) initialized`);
+      return modelInstance;
+      
+    } finally {
+      this.modelName = originalModelName;
+    }
+  }
+
+  createOpenAIModel() {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error("OPENAI_API_KEY environment variable is required");
     }
 
-    this.llm = new ChatOpenAI({
+    return new ChatOpenAI({
       openaiApiKey: apiKey,
       modelName: this.modelName,
       temperature: this.temperature,
@@ -81,13 +185,13 @@ export class LangChainManager {
     });
   }
 
-  initializeAnthropic() {
+  createAnthropicModel() {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error("ANTHROPIC_API_KEY environment variable is required");
     }
 
-    this.llm = new ChatAnthropic({
+    return new ChatAnthropic({
       anthropicApiKey: apiKey,
       modelName: this.modelName,
       temperature: this.temperature,
@@ -95,22 +199,34 @@ export class LangChainManager {
     });
   }
 
-  initializeGemini() {
+  createGeminiModel() {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GOOGLE_API_KEY or GEMINI_API_KEY environment variable is required");
     }
 
     // Use official Google Generative AI SDK
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.llm = this.genAI.getGenerativeModel({
+    const genAI = new GoogleGenerativeAI(apiKey);
+    return genAI.getGenerativeModel({
       model: this.modelName,
       generationConfig: {
         temperature: this.temperature,
         maxOutputTokens: this.maxTokens,
       }
     });
+  }
 
+  // Legacy methods for backward compatibility
+  initializeOpenAI() {
+    this.llm = this.createOpenAIModel();
+  }
+
+  initializeAnthropic() {
+    this.llm = this.createAnthropicModel();
+  }
+
+  initializeGemini() {
+    this.llm = this.createGeminiModel();
     console.log(`✅ Gemini model initialized: ${this.modelName}`);
   }
 
@@ -143,6 +259,80 @@ export class LangChainManager {
   }
 
   /**
+   * Get the appropriate model for a specific task
+   * @param {string} taskType - Task type ('preprocessing' or 'synthesis')
+   * @returns {Object} Model instance
+   */
+  getModelForTask(taskType) {
+    if (!this.useModelTiering) {
+      return this.llm;
+    }
+
+    switch (taskType) {
+      case 'preprocessing':
+        return this.preprocessingModel || this.llm;
+      case 'synthesis':
+        return this.synthesisModel || this.llm;
+      default:
+        return this.llm;
+    }
+  }
+
+  /**
+   * Generate preprocessing task (query rewriting, HyDE, re-ranking) using fast model
+   * @param {string} prompt - Task prompt
+   * @param {Object} options - Additional options
+   * @returns {Promise<string>} Generated response
+   */
+  async generatePreprocessing(prompt, options = {}) {
+    const model = this.getModelForTask('preprocessing');
+    const timeout = options.timeout || 15000; // Shorter timeout for preprocessing
+
+    try {
+      console.log(`🔄 Running preprocessing task with ${this.provider} (fast model)...`);
+      
+      if (this.provider === 'google' || this.provider === 'gemini') {
+        const chat = model.startChat({ history: [] });
+        const result = await chat.sendMessage(prompt);
+        return result.response.text();
+      } else {
+        const response = await model.invoke([new HumanMessage(prompt)]);
+        return response.content;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Preprocessing failed, falling back to synthesis model: ${error.message}`);
+      // Fallback to synthesis model if preprocessing fails
+      return this.generateSynthesis(prompt, options);
+    }
+  }
+
+  /**
+   * Generate synthesis task (final answer) using powerful model
+   * @param {string} prompt - Task prompt
+   * @param {Object} options - Additional options
+   * @returns {Promise<string>} Generated response
+   */
+  async generateSynthesis(prompt, options = {}) {
+    const model = this.getModelForTask('synthesis');
+    const timeout = options.timeout || 30000;
+
+    try {
+      console.log(`🧠 Running synthesis task with ${this.provider} (powerful model)...`);
+      
+      if (this.provider === 'google' || this.provider === 'gemini') {
+        const chat = model.startChat({ history: [] });
+        const result = await chat.sendMessage(prompt);
+        return result.response.text();
+      } else {
+        const response = await model.invoke([new HumanMessage(prompt)]);
+        return response.content;
+      }
+    } catch (error) {
+      throw new Error(`Synthesis generation failed: ${error.message}`);
+    }
+  }
+
+  /**
    * Generate an answer using retrieved chunks and question context
    * @param {string} question - User's question
    * @param {Array} relevantChunks - Retrieved relevant chunks
@@ -165,13 +355,16 @@ export class LangChainManager {
         console.log(`🧠 Generating answer using ${this.provider} ${this.modelName} (attempt ${attempt}/${maxRetries})...`);
 
         // Prepare context from retrieved chunks
-        const context = this.prepareContext(relevantChunks);
+        const rawContext = this.prepareContext(relevantChunks);
+
+        // Compress context using preprocessing model to reduce token usage
+        const context = await this.compressContext(rawContext, question);
 
         // Create the prompt based on question type
         const prompt = this.createPrompt(question, context, questionAnalysis, conversationHistory);
 
-        // Generate answer using LLM with timeout
-        const response = await this.callLLMWithTimeout(prompt, options.timeout || 30000);
+        // Generate answer using synthesis model with timeout
+        const response = await this.callLLMWithTimeout(prompt, options.timeout || 30000, 'synthesis');
 
         const generatedAnswer = this.processLLMResponse(response);
 
@@ -217,13 +410,16 @@ export class LangChainManager {
    * Call LLM with timeout protection
    * @param {Object} prompt - Prompt object with system and user messages
    * @param {number} timeout - Timeout in milliseconds
+   * @param {string} taskType - Task type ('preprocessing' or 'synthesis')
    * @returns {Promise<Object>} LLM response
    */
-  async callLLMWithTimeout(prompt, timeout) {
+  async callLLMWithTimeout(prompt, timeout, taskType = 'synthesis') {
+    const model = this.getModelForTask(taskType);
+    
     if (this.provider === 'google' || this.provider === 'gemini') {
       // Use official Google SDK
       return Promise.race([
-        this.callGeminiLLM(prompt),
+        this.callGeminiLLM(prompt, model),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Gemini request timeout')), timeout)
         )
@@ -231,7 +427,7 @@ export class LangChainManager {
     } else {
       // Use LangChain interface for other providers
       return Promise.race([
-        this.llm.invoke([new SystemMessage(prompt.system), new HumanMessage(prompt.user)]),
+        model.invoke([new SystemMessage(prompt.system), new HumanMessage(prompt.user)]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error('LLM request timeout')), timeout)
         )
@@ -242,12 +438,14 @@ export class LangChainManager {
   /**
    * Call Gemini LLM using official SDK
    * @param {Object} prompt - Prompt object
+   * @param {Object} model - Model instance to use
    * @returns {Promise<Object>} Gemini response
    */
-  async callGeminiLLM(prompt) {
+  async callGeminiLLM(prompt, model = null) {
     const fullPrompt = `${prompt.system}\n\n${prompt.user}`;
+    const targetModel = model || this.llm;
 
-    const chat = this.llm.startChat({
+    const chat = targetModel.startChat({
       history: [],
     });
 
@@ -383,6 +581,57 @@ export class LangChainManager {
    */
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Compress context using preprocessing model to reduce token usage
+   * @param {string} context - Original context
+   * @param {string} question - User's question
+   * @returns {Promise<string>} Compressed context
+   */
+  async compressContext(context, question) {
+    if (!this.useModelTiering || !this.preprocessingModel) {
+      return context;
+    }
+
+    // Only compress if context is long enough to benefit from compression
+    if (context.length < 2000) {
+      return context;
+    }
+
+    try {
+      console.log(`🗜️ Compressing context (${context.length} chars) using preprocessing model...`);
+      
+      const compressionPrompt = `You are a context compression specialist. Your task is to extract only the key facts and statements from the provided text that are relevant to the user's question.
+
+USER QUESTION: ${question}
+
+CONTEXT TO COMPRESS:
+${context}
+
+INSTRUCTIONS:
+1. Extract only information directly relevant to answering the question
+2. Preserve important facts, numbers, dates, and specific details
+3. Remove redundant information and examples that don't add value
+4. Maintain the original meaning and context
+5. Keep the compressed text under 2000 characters
+6. Use clear, concise language
+
+COMPRESSED CONTEXT:`;
+
+      const compressedContext = await this.generatePreprocessing(compressionPrompt, { timeout: 10000 });
+      
+      if (compressedContext && compressedContext.length > 50 && compressedContext.length < context.length) {
+        console.log(`✅ Context compressed: ${context.length} → ${compressedContext.length} chars (${Math.round((1 - compressedContext.length / context.length) * 100)}% reduction)`);
+        return compressedContext.trim();
+      } else {
+        console.log(`⚠️ Context compression failed or didn't reduce size, using original context`);
+        return context;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Context compression failed: ${error.message}, using original context`);
+      return context;
+    }
   }
 
   /**
@@ -732,13 +981,27 @@ For general questions:
    * @returns {Object} Service statistics
    */
   getStats() {
-    return {
+    const baseStats = {
       initialized: this.isInitialized,
       provider: this.provider,
       model: this.modelName,
       temperature: this.temperature,
-      maxTokens: this.maxTokens
+      maxTokens: this.maxTokens,
+      useModelTiering: this.useModelTiering
     };
+
+    if (this.useModelTiering) {
+      const modelNames = this.getTieredModelNames();
+      return {
+        ...baseStats,
+        preprocessingModel: modelNames.preprocessing,
+        synthesisModel: modelNames.synthesis,
+        preprocessingModelAvailable: !!this.preprocessingModel,
+        synthesisModelAvailable: !!this.synthesisModel
+      };
+    }
+
+    return baseStats;
   }
 }
 
