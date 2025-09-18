@@ -236,6 +236,15 @@ export class QAService {
 
       console.log(`🤔 Processing question: "${question.substring(0, 100)}${question.length > 100 ? '...' : ''}"`);
 
+      // Performance mode: Enable fast mode if environment variable is set
+      const fastMode = process.env.QA_FAST_MODE === 'true';
+      if (fastMode) {
+        console.log('🚀 QA Fast Mode enabled - skipping expensive LLM operations');
+        process.env.DISABLE_QUERY_REWRITING = 'true';
+        process.env.DISABLE_LLM_RERANKING = 'true';
+        process.env.DISABLE_NARRATIVE_CONTEXT = 'true';
+      }
+
       // Check cache first - this is the main optimization
       const cachedAnswer = this.getCachedAnswer(question);
       if (cachedAnswer) {
@@ -255,8 +264,14 @@ export class QAService {
       // Phase 1: Perform hierarchical retrieval to get parent chunks
       const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question);
 
-      // Phase 2: LLM-based re-ranking of parent chunks
-      const reRankedChunks = await this._llmReRank(relevantChunks, question);
+      // Phase 2: LLM-based re-ranking of parent chunks (can be disabled for performance)
+      let reRankedChunks;
+      if (process.env.DISABLE_LLM_RERANKING === 'true') {
+        console.log('🚀 LLM re-ranking disabled for performance - using semantic ranking only');
+        reRankedChunks = relevantChunks; // Use original order from hierarchical retrieval
+      } else {
+        reRankedChunks = await this._llmReRank(relevantChunks, question);
+      }
 
       if (reRankedChunks.length === 0) {
         console.log("⚠️ No relevant documents found");
@@ -274,8 +289,17 @@ export class QAService {
         };
       }
 
-      // Phase 3: Build narrative context using linked list metadata
-      const narrativeContext = await this._buildNarrativeContext(reRankedChunks, question);
+      // Phase 3: Build narrative context using linked list metadata (can be disabled for performance)
+      let narrativeContext;
+      if (process.env.DISABLE_NARRATIVE_CONTEXT === 'true') {
+        console.log('🚀 Narrative context building disabled for performance');
+        narrativeContext = {
+          narrativeEnabled: false,
+          primaryChunk: reRankedChunks[0] || null
+        };
+      } else {
+        narrativeContext = await this._buildNarrativeContext(reRankedChunks, question);
+      }
       
       // Use narrative context for reasoning if available, otherwise fall back to re-ranked chunks
       const contextForReasoning = narrativeContext.narrativeEnabled ? 

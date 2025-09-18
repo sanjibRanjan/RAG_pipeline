@@ -234,6 +234,8 @@ async function initializeServices() {
 const corsWhitelist = [
   "http://localhost:3000",
   "http://localhost:3001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
   "https://rag-pipeline-front-mvy3654ul-sanjib-ranjans-projects.vercel.app"
 ];
 
@@ -365,7 +367,7 @@ app.get("/metrics", (req, res) => {
   try {
     const metrics = systemMonitor ? systemMonitor.getMetrics() : {};
     const performanceSummary = systemMonitor ? systemMonitor.getPerformanceSummary() : {};
-    
+
     res.json({
       timestamp: new Date().toISOString(),
       metrics,
@@ -377,6 +379,59 @@ app.get("/metrics", (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Failed to get metrics",
+      error: error.message
+    });
+  }
+});
+
+// Usage endpoint
+app.get("/api/usage", (req, res) => {
+  try {
+    const metrics = systemMonitor ? systemMonitor.getMetrics() : {};
+    const performanceSummary = systemMonitor ? systemMonitor.getPerformanceSummary() : {};
+    const conversationStats = conversationManager ? conversationManager.getStats() : {};
+
+    const usageData = {
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      services: {
+        embeddingService: embeddingService ? 'available' : 'unavailable',
+        vectorStore: vectorStore ? 'available' : 'unavailable',
+        qaService: qaService ? 'available' : 'unavailable',
+        conversationManager: conversationManager ? 'available' : 'unavailable'
+      },
+      requests: {
+        total: metrics.requests?.total || 0,
+        successful: metrics.requests?.successful || 0,
+        failed: metrics.requests?.failed || 0,
+        averageResponseTime: metrics.requests?.averageResponseTime || 0
+      },
+      conversations: {
+        total: conversationStats.totalConversations || 0,
+        active: conversationStats.activeConversations || 0,
+        totalMessages: conversationStats.totalMessages || 0
+      },
+      documents: {
+        totalProcessed: metrics.documents?.total || 0,
+        totalChunks: metrics.documents?.totalChunks || 0
+      },
+      embeddings: {
+        totalGenerated: metrics.embeddings?.total || 0,
+        averageGenerationTime: metrics.embeddings?.averageGenerationTime || 0
+      }
+    };
+
+    res.json({
+      success: true,
+      data: usageData,
+      message: "Usage statistics retrieved successfully"
+    });
+  } catch (error) {
+    console.error("Usage endpoint error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve usage statistics",
       error: error.message
     });
   }

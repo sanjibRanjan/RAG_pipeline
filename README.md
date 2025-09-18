@@ -14,8 +14,40 @@ A comprehensive Retrieval-Augmented Generation system with a modern chat UI for 
 - 🔍 **Advanced Search**: Full-text and metadata search
 - 📝 **Rich Metadata**: Automatic document metadata extraction
 - 📊 **Performance Monitoring**: Built-in logging and metrics API
+- ⚡ **Performance Optimization**: Fast mode for reduced latency (optional)
 
 This RAG (Retrieval-Augmented Generation) pipeline answers questions from PDF documents using vector embeddings and ChromaDB.
+
+## ⚡ Performance Optimization
+
+### Fast Mode
+For faster response times, you can enable Fast Mode which disables expensive LLM operations:
+
+```bash
+# Quick enable script
+./enable-fast-mode.sh
+
+# Or manually set environment variables
+export QA_FAST_MODE=true
+```
+
+**What Fast Mode disables:**
+- Query rewriting (uses original question)
+- LLM-based re-ranking (uses semantic similarity)
+- Narrative context building (uses direct chunks)
+
+**Performance impact:**
+- **Response time**: ~5-10x faster (from 11s to ~1-2s)
+- **Accuracy**: Slightly reduced (still very good for most use cases)
+- **API costs**: Significantly lower
+
+**When to use Fast Mode:**
+- High-traffic applications
+- Cost-sensitive deployments
+- Real-time chat applications
+- When speed is prioritized over maximum accuracy
+
+To disable Fast Mode, restart the server without the environment variables or set `QA_FAST_MODE=false`.
 
 ## 🚀 Quick Start
 
