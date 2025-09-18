@@ -204,12 +204,23 @@ export class QAService {
     // Initialize LLM if configured
     if (this.langChainManager) {
       try {
+        console.log(`🤖 Initializing LLM with provider: ${this.langChainManager.provider}, model: ${this.langChainManager.modelName}`);
         await this.langChainManager.initialize();
-        console.log("🤖 LLM integration enabled");
+        console.log("✅ LLM integration enabled successfully");
       } catch (error) {
-        console.warn("⚠️ LLM initialization failed, falling back to rule-based generation:", error.message);
+        console.error("❌ LLM initialization failed:", error.message);
+        console.error("❌ Full error details:", error);
+        console.warn("⚠️ Falling back to rule-based generation. Check your LLM configuration:");
+        console.warn("   - LLM_PROVIDER:", process.env.LLM_PROVIDER || 'not set');
+        console.warn("   - LLM_MODEL:", process.env.LLM_MODEL || 'not set');
+        console.warn("   - GOOGLE_API_KEY:", process.env.GOOGLE_API_KEY ? 'set' : 'not set');
+        console.warn("   - ANTHROPIC_API_KEY:", process.env.ANTHROPIC_API_KEY ? 'set' : 'not set');
+        console.warn("   - OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? 'set' : 'not set');
         this.langChainManager = null;
       }
+    } else {
+      console.warn("⚠️ No LLM provider configured (LLM_PROVIDER not set or set to 'none')");
+      console.warn("⚠️ System will use rule-based fallback generation");
     }
 
     this.isInitialized = true;

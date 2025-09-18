@@ -18,7 +18,7 @@ export class EmbeddingService {
     this.cache = new Map(); // In-memory cache for embeddings
     this.lastApiCallTime = 0; // Track last API call for rate limiting
     this.systemMonitor = systemMonitor; // System monitor for observability
-    
+
     // Enhanced metrics
     this.metrics = {
       totalRequests: 0,
@@ -45,7 +45,7 @@ export class EmbeddingService {
 
       const genAI = new GoogleGenerativeAI(apiKey);
       this.model = genAI.getGenerativeModel({ model: EMBEDDING_MODEL_NAME });
-      
+
       this.isInitialized = true;
       console.log(`✅ Embedding service initialized with model: ${EMBEDDING_MODEL_NAME}`);
       return true;
@@ -350,26 +350,26 @@ export class EmbeddingService {
     }
 
     console.log(`🔄 Processing ${texts.length} texts with controlled parallel sub-batches...`);
-    
+
     const allEmbeddings = [];
-    
+
     // Break the batch into smaller sub-batches of 20 texts each
     for (let i = 0; i < texts.length; i += SUB_BATCH_SIZE) {
       const subBatch = texts.slice(i, i + SUB_BATCH_SIZE);
       const subBatchNumber = Math.floor(i / SUB_BATCH_SIZE) + 1;
       const totalSubBatches = Math.ceil(texts.length / SUB_BATCH_SIZE);
-      
+
       console.log(`   📦 Sub-batch ${subBatchNumber}/${totalSubBatches} (${subBatch.length} texts)...`);
-      
+
       try {
         // Process the sub-batch in parallel
         const subBatchPromises = subBatch.map(text => this.model.embedContent(text));
         const subBatchResults = await Promise.all(subBatchPromises);
         const subBatchEmbeddings = subBatchResults.map(result => result.embedding.values);
-        
+
         allEmbeddings.push(...subBatchEmbeddings);
         console.log(`   ✅ Sub-batch ${subBatchNumber} completed`);
-        
+
         // Add throttling delay between sub-batches to prevent rate limiting
         if (i + SUB_BATCH_SIZE < texts.length) {
           await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay

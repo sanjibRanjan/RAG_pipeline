@@ -21,7 +21,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
-dotenv.config();
+const envResult = dotenv.config();
+if (envResult.error) {
+  console.warn("⚠️ Failed to load .env file:", envResult.error.message);
+  console.warn("⚠️ Trying to load from current directory...");
+  dotenv.config({ path: path.join(__dirname, '../../.env') });
+}
+
+console.log("🔧 Environment loaded:");
+console.log("   - LLM_PROVIDER:", process.env.LLM_PROVIDER || 'not set');
+console.log("   - GOOGLE_API_KEY:", process.env.GOOGLE_API_KEY ? 'set' : 'not set');
+console.log("   - NODE_ENV:", process.env.NODE_ENV || 'not set');
 
 // Validate required environment variables
 function validateEnvironment() {
