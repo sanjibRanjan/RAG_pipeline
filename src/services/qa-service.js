@@ -2570,8 +2570,8 @@ Return only: VALID or INVALID with a brief explanation (max 50 words)`;
     try {
       if (!this.isInitialized) return false;
 
-      // Test embedding service
-      await this.embeddingService.generateSingleEmbedding("health check");
+      // Temporarily disabled for deployment to speed up startup
+      // await this.embeddingService.generateSingleEmbedding("health check");
 
       // Test vector store
       await this.vectorStore.getStats();

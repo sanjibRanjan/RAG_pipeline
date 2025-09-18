@@ -11,6 +11,8 @@ import { VectorStore } from "../services/vector-store.js";
 import { ConversationManager } from "../services/conversation-manager.js";
 import { DocumentStore } from "../services/document-store.js";
 import { QAService } from "../services/qa-service.js";
+import EventManager from "./event-manager.js";
+import SystemMonitor from "./system-monitor.js";
 import logger, { requestLoggingMiddleware, serviceLogger, healthLogger, performanceLogger } from "../utils/logger.js";
 
 // Get current directory for ES modules
@@ -86,16 +88,25 @@ const upload = multer({
 });
 
 // Initialize services (with error handling)
-let documentProcessor, embeddingService, vectorStore, conversationManager, documentStore, qaService;
+let documentProcessor, embeddingService, vectorStore, conversationManager, documentStore, qaService, eventManager, systemMonitor;
 
 try {
   console.log("🔧 Creating service instances...");
+  
+  // Initialize system monitor first
+  systemMonitor = new SystemMonitor();
+  
+  // Initialize event manager
+  eventManager = new EventManager();
+  
+  // Initialize core services
   documentProcessor = new DocumentProcessor();
-  embeddingService = new EmbeddingService();
+  embeddingService = new EmbeddingService(systemMonitor); // Pass system monitor for observability
   vectorStore = new VectorStore();
   conversationManager = new ConversationManager();
   documentStore = new DocumentStore(); // Phase 1: DocumentStore for parent chunks
   qaService = new QAService(embeddingService, vectorStore, documentStore);
+  
   console.log("✅ Service instances created successfully");
 } catch (error) {
   console.error("❌ Failed to create service instances:", error);
@@ -122,14 +133,41 @@ async function initializeServices() {
       try {
         console.log("🤖 Initializing embedding service...");
         const embeddingPerf = performanceLogger.start('embedding_service_init');
-        await embeddingService.initialize();
+        const initialized = await embeddingService.initialize();
         embeddingPerf.end();
-        healthLogger.service('EmbeddingService', 'healthy');
-        servicesInitialized++;
-        console.log("✅ Embedding service initialized");
+        
+        if (initialized) {
+          healthLogger.service('EmbeddingService', 'healthy');
+          servicesInitialized++;
+          console.log("✅ Embedding service initialized");
+          
+          // Register health check for embedding service
+          if (systemMonitor) {
+            systemMonitor.registerHealthCheck('embedding-service', async () => {
+              try {
+                const isHealthy = await embeddingService.healthCheck();
+                return {
+                  healthy: isHealthy,
+                  message: isHealthy ? 'Embedding service is healthy' : 'Embedding service health check failed',
+                  metrics: embeddingService.getMetrics()
+                };
+              } catch (error) {
+                return {
+                  healthy: false,
+                  message: `Embedding service health check error: ${error.message}`,
+                  error: error.message
+                };
+              }
+            });
+          }
+        } else {
+          healthLogger.service('EmbeddingService', 'unhealthy');
+          console.log("⚠️ Embedding service initialization failed - continuing without embedding service");
+        }
       } catch (error) {
         console.error("❌ Embedding service failed:", error.message);
         logger.error("❌ Embedding service initialization failed:", error);
+        healthLogger.service('EmbeddingService', 'error');
       }
     }
 
@@ -204,6 +242,33 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Request logging middleware
 app.use(requestLoggingMiddleware);
 
+// Request metrics middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  
+  // Override res.end to capture response metrics
+  const originalEnd = res.end;
+  res.end = function(chunk, encoding) {
+    const responseTime = Date.now() - startTime;
+    
+    // Record request metrics
+    if (systemMonitor) {
+      systemMonitor.recordRequest({
+        success: res.statusCode < 400,
+        responseTime,
+        method: req.method,
+        url: req.url,
+        statusCode: res.statusCode
+      });
+    }
+    
+    // Call original end method
+    originalEnd.call(this, chunk, encoding);
+  };
+  
+  next();
+});
+
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
 
@@ -244,6 +309,82 @@ app.get("/health", (req, res) => {
       status: "unhealthy",
       timestamp: new Date().toISOString(),
       service: "RAG Pipeline API",
+      error: error.message
+    });
+  }
+});
+
+// Enhanced health check endpoint with system monitoring
+app.get("/health/detailed", (req, res) => {
+  try {
+    const healthStatus = systemMonitor ? systemMonitor.getHealthStatus() : { status: 'unknown' };
+    const metrics = systemMonitor ? systemMonitor.getMetrics() : {};
+    
+    res.json({
+      status: healthStatus.status,
+      timestamp: new Date().toISOString(),
+      service: "RAG Pipeline API",
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: "1.0.0",
+      health: healthStatus,
+      metrics: {
+        system: metrics.system,
+        requests: metrics.requests,
+        embeddings: metrics.embeddings,
+        documents: metrics.documents
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get detailed health status",
+      error: error.message
+    });
+  }
+});
+
+// Metrics endpoint
+app.get("/metrics", (req, res) => {
+  try {
+    const metrics = systemMonitor ? systemMonitor.getMetrics() : {};
+    const performanceSummary = systemMonitor ? systemMonitor.getPerformanceSummary() : {};
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      metrics,
+      performance: performanceSummary,
+      embeddingService: embeddingService ? embeddingService.getMetrics() : null,
+      eventManager: eventManager ? eventManager.getSystemMetrics() : null
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get metrics",
+      error: error.message
+    });
+  }
+});
+
+// Processing status endpoint
+app.get("/status/processing", (req, res) => {
+  try {
+    const processingStatuses = eventManager ? eventManager.getAllProcessingStatuses() : [];
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      processing: processingStatuses,
+      summary: {
+        total: processingStatuses.length,
+        processing: processingStatuses.filter(s => s.status === 'processing').length,
+        completed: processingStatuses.filter(s => s.status === 'completed').length,
+        failed: processingStatuses.filter(s => s.status === 'failed').length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get processing status",
       error: error.message
     });
   }
@@ -367,16 +508,61 @@ app.post("/api/documents/ingest", async (req, res) => {
     
     const texts = chunksToProcess.map((chunk) => chunk.content);
     
-    // Use batch processing to avoid API timeouts
-    const batchSize = Math.min(2, texts.length); // Ultra-small batch size to avoid timeouts
-    console.log(`🔄 Generating embeddings for ${texts.length} chunks in batches of ${batchSize}...`);
+    // Check if embedding service is available
+    if (!embeddingService.isInitialized) {
+      throw new Error("Embedding service is not available. Please check your Google API quota and try again.");
+    }
     
-    const embeddings = await embeddingService.generateEmbeddingsBatch(texts, batchSize);
+    // Generate document ID for event tracking
+    const documentId = `doc_${Date.now()}_${originalName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    
+    // Emit document upload event for event-driven processing
+    if (eventManager) {
+      eventManager.emit('document.uploaded', {
+        documentId,
+        filePath,
+        originalName
+      });
+    }
+    
+    // Use event-driven mini-batch processing with caching and rate limiting
+    console.log(`🔄 Generating embeddings for ${texts.length} chunks using event-driven mini-batch processing...`);
+    
+    let embeddings;
+    if (eventManager) {
+      // Use event-driven mini-batch processing
+      embeddings = await eventManager.processChunksInMiniBatches(
+        documentId, 
+        texts, 
+        async (chunks) => await embeddingService.processChunksInQueue(chunks)
+      );
+    } else {
+      // Fallback to direct processing
+      embeddings = await embeddingService.processChunksInQueue(texts);
+    }
     embedPerf.end({
       chunksEmbedded: embeddings.length,
       embeddingDimensions: embeddings[0]?.length || 0,
-      batchSize: batchSize
+      batchSize: texts.length
     });
+
+    // Record document processing metrics
+    if (systemMonitor) {
+      systemMonitor.recordDocument({
+        success: true,
+        processingTime: embedPerf.duration,
+        chunks: chunksToProcess.length
+      });
+    }
+
+    // Emit document processing completed event
+    if (eventManager) {
+      eventManager.emit('document.processing.completed', {
+        documentId,
+        chunks: chunksToProcess,
+        embeddings
+      });
+    }
 
     // Generate unique IDs for processed chunks
     const baseId = `doc_${Date.now()}_${originalName.replace(/[^a-zA-Z0-9]/g, '_')}`;
@@ -1086,9 +1272,14 @@ app.post("/api/documents/ingest/versioned", async (req, res) => {
       });
     }
 
-    // Generate embeddings and store in vector database
+    // Check if embedding service is available
+    if (!embeddingService.isInitialized) {
+      throw new Error("Embedding service is not available. Please check your Google API quota and try again.");
+    }
+
+    // Generate embeddings and store in vector database using robust queue processing
     const texts = processedDoc.chunks.map((chunk) => chunk.content);
-    const embeddings = await embeddingService.generateEmbeddings(texts);
+    const embeddings = await embeddingService.processChunksInQueue(texts);
 
     // Generate unique IDs for this version
     const baseId = `doc_${Date.now()}_${originalName.replace(/[^a-zA-Z0-9]/g, '_')}_v${processedDoc.metadata.version}`;

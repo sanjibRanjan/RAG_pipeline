@@ -30,7 +30,7 @@
     "chromadb:stop": "docker stop chromadb && docker rm chromadb",
     "chromadb:status": "docker ps | grep chromadb || echo 'ChromaDB is not running'",
     "chromadb:logs": "docker logs chromadb",
-    "chromadb:test": "node -e \"import { ChromaClient } from 'chromadb'; const client = new ChromaClient({ host: 'localhost', port: 8000 }); const collection = await client.getOrCreateCollection({ name: 'test_collection' }); console.log('✅ ChromaDB connection successful! Documents:', await collection.count());\"",
+    "chromadb:test": "node -e \"import { ChromaClient } from 'chromadb'; const url = new URL(process.env.CHROMA_DB_URL || 'http://localhost:8000'); const client = new ChromaClient({ host: url.hostname, port: parseInt(url.port) || 8000 }); const collection = await client.getOrCreateCollection({ name: 'test_collection' }); console.log('✅ ChromaDB connection successful! Documents:', await collection.count());\"",
     "test:chromadb": "node test-chromadb-minimal.js",
     "test:chromadb:quick": "node test-chromadb-quick.js",
     "test:chromadb:simple": "node test-chromadb-simple.js",
