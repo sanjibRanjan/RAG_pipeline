@@ -30,18 +30,17 @@ export class VectorStore {
 
       this.client = new ChromaClient({ host, port });
 
-      // Test connection and create collection (delete existing if it exists)
+      // Test connection and get or create collection (preserve existing data)
       try {
-        await this.client.deleteCollection({ name: this.collectionName });
-        console.log(`🗑️ Deleted existing collection: ${this.collectionName}`);
+        this.collection = await this.client.getCollection({ name: this.collectionName });
+        console.log(`📦 Found existing collection: ${this.collectionName} - preserving data`);
       } catch (e) {
-        // Collection doesn't exist, that's fine
-        console.log(`ℹ️ No existing collection to delete: ${this.collectionName}`);
+        // Collection doesn't exist, create new one
+        console.log(`ℹ️ Collection ${this.collectionName} doesn't exist, creating new one`);
+        this.collection = await this.client.createCollection({
+          name: this.collectionName,
+        });
       }
-      
-      this.collection = await this.client.createCollection({
-        name: this.collectionName,
-      });
 
       // Test the connection
       await this.collection.count();

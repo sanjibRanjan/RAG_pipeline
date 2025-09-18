@@ -1,0 +1,85 @@
+{
+  "parentChunks": [
+    [
+      "parent_1758186760947_0",
+      {
+        "id": "parent_1758186760947_0",
+        "content": "INTRODUCTION\nWeb vulnerabilities are weaknesses or flaws in a web application's design,\nimplementation, or configuration that can be exploited by attackers to\ncompromise the security of the application or the data it processes.\nUnderstanding common web vulnerabilities is crucial for developers to build\nsecure web applications and protect sensitive data from unauthorized access or\nmanipulation.\n\nCOMMON WEB VULNERABILITIES\nCommon  web  vulnerabilities  encompass  a  variety  of\nthreats:\nInjection attacks \nCross-Site Scripting (XSS) attacks \nCross-Site Request Forgery (CSRF) attacks\nSecurity misconfigurations \nBroken authentication \nInsecure deserialization vulnerabilities",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 3,
+              "to": 19
+            }
+          },
+          "chunkIndex": 0,
+          "contentLength": 678,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": null,
+          "next_chunk_id": "parent_1758186760947_1",
+          "position_in_document": 0,
+          "total_chunks_in_document": 2,
+          "is_first_chunk": true,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-18T09:12:48.486Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758186760947_1",
+      {
+        "id": "parent_1758186760947_1",
+        "content": "INJECTION ATTACKS\nInjection attacks  occur  when  an  attacker  sends\nmalicious  data  as  part  of  a  command  or  query  to\nexploit   vulnerabilities   in   an   application's   input\nvalidation mechanisms.\nExamples: SQL injection, XSS (Cross-Site Scripting),\nLDAP injection.\nImpact:   Injection   attacks   can   lead   to   data\nbreaches, unauthorized access, data manipulation,\nand even complete system compromise.\nPrevention:   Use   parameterized   queries,   input\nvalidation,   and   output   encoding   to   mitigate\ninjection vulnerabilities.",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 21,
+              "to": 33
+            }
+          },
+          "chunkIndex": 1,
+          "contentLength": 554,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758186760947_0",
+          "next_chunk_id": null,
+          "position_in_document": 1,
+          "total_chunks_in_document": 2,
+          "is_first_chunk": false,
+          "is_last_chunk": true,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-18T09:12:48.486Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ]
+  ],
+  "stats": {
+    "totalStored": 2,
+    "totalRetrieved": 0,
+    "totalDeleted": 0,
+    "cacheHits": 0,
+    "cacheMisses": 0,
+    "lastCleanup": null,
+    "lastSave": null,
+    "lastLoad": null,
+    "createdAt": "2025-09-18T09:12:30.132Z"
+  },
+  "savedAt": "2025-09-18T09:12:49.487Z",
+  "version": "2.1.0"
+}

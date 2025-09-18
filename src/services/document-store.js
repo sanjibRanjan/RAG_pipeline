@@ -1,23 +1,32 @@
 /**
  * DocumentStore Service
- * 
- * Phase 1: In-memory storage for parent chunks using JavaScript Map
- * Provides efficient storage and retrieval of parent chunks by their ID.
- * 
+ *
+ * Phase 1: Persistent storage for parent chunks using file system
+ * Stores parent chunks persistently across server restarts
+ *
  * @author RAG Pipeline Team
- * @version 2.0.0
+ * @version 2.1.0
  */
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class DocumentStore {
   constructor(options = {}) {
-    // In-memory Map for storing parent chunks
+    // In-memory Map for storing parent chunks (primary storage)
     this.parentChunks = new Map();
-    
+
     // Configuration options
     this.maxSize = options.maxSize || 10000; // Maximum number of parent chunks to store
     this.cleanupInterval = options.cleanupInterval || 30 * 60 * 1000; // 30 minutes
     this.enableCleanup = options.enableCleanup !== false; // Default to true
-    
+    this.enablePersistence = options.enablePersistence !== false; // Default to true
+    this.persistenceFile = options.persistenceFile || path.join(__dirname, '../../data/processed/document_store.json');
+
     // Statistics tracking
     this.stats = {
       totalStored: 0,
@@ -26,15 +35,26 @@ export class DocumentStore {
       cacheHits: 0,
       cacheMisses: 0,
       lastCleanup: null,
+      lastSave: null,
+      lastLoad: null,
       createdAt: new Date().toISOString()
     };
-    
+
+    // Ensure persistence directory exists
+    if (this.enablePersistence) {
+      const persistenceDir = path.dirname(this.persistenceFile);
+      if (!fs.existsSync(persistenceDir)) {
+        fs.mkdirSync(persistenceDir, { recursive: true });
+      }
+      this.loadFromDisk();
+    }
+
     // Start cleanup timer if enabled
     if (this.enableCleanup) {
       this.startCleanupTimer();
     }
-    
-    console.log("📦 DocumentStore initialized with in-memory Map storage");
+
+    console.log(`📦 DocumentStore initialized with ${this.enablePersistence ? 'persistent' : 'in-memory'} storage`);
   }
 
   /**
@@ -73,7 +93,10 @@ export class DocumentStore {
       
       this.parentChunks.set(parentId, enrichedChunk);
       this.stats.totalStored++;
-      
+
+      // Auto-save to disk if persistence is enabled
+      this.autoSave();
+
       console.log(`📦 Stored parent chunk: ${parentId} (${parentChunk.content.length} chars)`);
       return true;
       
@@ -150,6 +173,8 @@ export class DocumentStore {
       
       if (deleted) {
         this.stats.totalDeleted++;
+        // Auto-save to disk if persistence is enabled
+        this.autoSave();
         console.log(`📦 Deleted parent chunk: ${parentId}`);
         return true;
       } else {
@@ -195,6 +220,9 @@ export class DocumentStore {
         }
       });
       
+      // Auto-save to disk if persistence is enabled
+      this.autoSave();
+
       console.log(`📦 Batch storage complete: ${results.successful}/${results.total} successful`);
       return results;
       
@@ -258,7 +286,10 @@ export class DocumentStore {
     try {
       const count = this.parentChunks.size;
       this.parentChunks.clear();
-      
+
+      // Auto-save to disk if persistence is enabled
+      this.autoSave();
+
       console.log(`📦 Cleared ${count} parent chunks from store`);
       return count;
       
@@ -472,12 +503,109 @@ export class DocumentStore {
   }
 
   /**
+   * Load parent chunks from disk storage
+   * @returns {boolean} Success status
+   */
+  loadFromDisk() {
+    try {
+      if (!this.enablePersistence) {
+        console.log('📦 Persistence disabled, skipping disk load');
+        return false;
+      }
+
+      if (!fs.existsSync(this.persistenceFile)) {
+        console.log('📦 Persistence file does not exist, starting with empty store');
+        return false;
+      }
+
+      const data = fs.readFileSync(this.persistenceFile, 'utf8');
+      const parsedData = JSON.parse(data);
+
+      // Load parent chunks
+      if (parsedData.parentChunks && Array.isArray(parsedData.parentChunks)) {
+        parsedData.parentChunks.forEach(([key, value]) => {
+          this.parentChunks.set(key, value);
+        });
+        console.log(`📦 Loaded ${parsedData.parentChunks.length} parent chunks from disk`);
+      }
+
+      // Load statistics
+      if (parsedData.stats) {
+        Object.assign(this.stats, parsedData.stats);
+      }
+
+      this.stats.lastLoad = new Date().toISOString();
+      console.log(`✅ DocumentStore loaded from: ${this.persistenceFile}`);
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error loading DocumentStore from disk:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Save parent chunks to disk storage
+   * @returns {boolean} Success status
+   */
+  saveToDisk() {
+    try {
+      if (!this.enablePersistence) {
+        console.log('📦 Persistence disabled, skipping disk save');
+        return false;
+      }
+
+      const data = {
+        parentChunks: Array.from(this.parentChunks.entries()),
+        stats: this.stats,
+        savedAt: new Date().toISOString(),
+        version: '2.1.0'
+      };
+
+      fs.writeFileSync(this.persistenceFile, JSON.stringify(data, null, 2));
+      this.stats.lastSave = new Date().toISOString();
+
+      console.log(`💾 DocumentStore saved to: ${this.persistenceFile} (${this.parentChunks.size} parent chunks)`);
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error saving DocumentStore to disk:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Auto-save to disk (called after operations that modify data)
+   */
+  autoSave() {
+    if (this.enablePersistence) {
+      // Debounce saves to avoid excessive disk I/O
+      if (this.saveTimeout) {
+        clearTimeout(this.saveTimeout);
+      }
+      this.saveTimeout = setTimeout(() => {
+        this.saveToDisk();
+      }, 1000); // Save after 1 second of inactivity
+    }
+  }
+
+  /**
    * Destroy the document store and cleanup resources
    */
   destroy() {
     try {
+      // Final save before destroying
+      if (this.enablePersistence) {
+        this.saveToDisk();
+      }
+
       this.stopCleanupTimer();
       this.clearAllParentChunks();
+
+      if (this.saveTimeout) {
+        clearTimeout(this.saveTimeout);
+      }
+
       console.log('📦 DocumentStore destroyed');
     } catch (error) {
       console.error('❌ Error destroying DocumentStore:', error.message);
