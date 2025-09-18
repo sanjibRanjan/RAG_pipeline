@@ -230,9 +230,25 @@ async function initializeServices() {
   }
 }
 
+// Configure CORS whitelist
+const corsWhitelist = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://rag-pipeline-front-mvy3654ul-sanjib-ranjans-projects.vercel.app"
+];
+
 // Configure middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? false : "*"),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (corsWhitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
