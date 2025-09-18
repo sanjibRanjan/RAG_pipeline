@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { DocumentProcessor } from "../services/document-processor.js";
 import { EmbeddingService } from "../services/embedding-service.js";
 import { VectorStore } from "../services/vector-store.js";
+// import { MongoVectorStore } from "../services/mongo-vector-store.js";
 import { ConversationManager } from "../services/conversation-manager.js";
 import { DocumentStore } from "../services/document-store.js";
 import { QAService } from "../services/qa-service.js";
@@ -102,9 +103,13 @@ try {
   // Initialize core services
   documentProcessor = new DocumentProcessor();
   embeddingService = new EmbeddingService(systemMonitor); // Pass system monitor for observability
-  vectorStore = new VectorStore();
+
+  // Initialize vector store (MongoDB only)
+  vectorStore = new VectorStore(); // MongoDB implementation
+
   conversationManager = new ConversationManager();
   documentStore = new DocumentStore(); // Phase 1: DocumentStore for parent chunks
+
   qaService = new QAService(embeddingService, vectorStore, documentStore);
   
   console.log("✅ Service instances created successfully");
@@ -171,19 +176,19 @@ async function initializeServices() {
       }
     }
 
-    // Initialize vector store
+    // Initialize vector store (MongoDB only)
     if (vectorStore) {
       try {
-        console.log("🗄️ Initializing vector store...");
-        const vectorPerf = performanceLogger.start('vector_store_init');
+        console.log("🍃 Initializing MongoDB vector store...");
+        const vectorPerf = performanceLogger.start('mongodb_vector_store_init');
         await vectorStore.initialize();
         vectorPerf.end();
-        healthLogger.service('VectorStore', 'healthy');
+        healthLogger.service('MongoDBVectorStore', 'healthy');
         servicesInitialized++;
-        console.log("✅ Vector store initialized");
+        console.log("✅ MongoDB vector store initialized");
       } catch (error) {
-        console.error("❌ Vector store failed:", error.message);
-        logger.error("❌ Vector store initialization failed:", error);
+        console.error("❌ MongoDB vector store failed:", error.message);
+        logger.error("❌ MongoDB vector store initialization failed:", error);
       }
     }
 
@@ -316,7 +321,7 @@ app.get("/health", (req, res) => {
     if (embeddingService && embeddingService.isInitialized) {
       healthStatus.services = {
         embedding: "healthy",
-        vectorStore: vectorStore ? "healthy" : "unknown",
+        vectorStore: vectorStore && vectorStore.isInitialized ? "healthy" : "unavailable",
         qaService: qaService ? "healthy" : "unknown"
       };
     }
@@ -350,7 +355,8 @@ app.get("/health/detailed", (req, res) => {
         system: metrics.system,
         requests: metrics.requests,
         embeddings: metrics.embeddings,
-        documents: metrics.documents
+        documents: metrics.documents,
+        vectorStore: null
       }
     });
   } catch (error) {
@@ -397,7 +403,7 @@ app.get("/api/usage", (req, res) => {
       environment: process.env.NODE_ENV || 'development',
       services: {
         embeddingService: embeddingService ? 'available' : 'unavailable',
-        vectorStore: vectorStore ? 'available' : 'unavailable',
+        vectorStore: vectorStore && vectorStore.isInitialized ? 'available' : 'unavailable',
         qaService: qaService ? 'available' : 'unavailable',
         conversationManager: conversationManager ? 'available' : 'unavailable'
       },
@@ -654,7 +660,7 @@ app.post("/api/documents/ingest", async (req, res) => {
       ingestionTime: new Date().toISOString(),
     }));
 
-    // Store in vector database
+    // Store in primary vector database (MongoDB if configured)
     const storagePerf = performanceLogger.start('vector_storage');
     await vectorStore.addDocuments(texts, embeddings, metadatas, ids);
     storagePerf.end({
@@ -1371,7 +1377,7 @@ app.post("/api/documents/ingest/versioned", async (req, res) => {
       ingestionTime: new Date().toISOString(),
     }));
 
-    // Store in vector database
+    // Store in primary vector database (MongoDB if configured)
     await vectorStore.addDocuments(texts, embeddings, metadatas, ids);
 
     console.log(`✅ Versioned document ingested: ${originalName} v${processedDoc.metadata.version} (${processedDoc.metadata.versionType}) - ${processedDoc.chunks.length} chunks`);
@@ -1734,6 +1740,205 @@ app.get("/api/documents/metadata/stats", async (req, res) => {
       success: false,
       message: "Failed to retrieve metadata statistics",
       error: error.message,
+    });
+  }
+});
+
+
+// GET /api/performance/mongodb - Get MongoDB performance metrics
+app.get("/api/performance/mongodb", async (req, res) => {
+  try {
+    if (!vectorStore || !vectorStore.isInitialized) {
+      return res.status(400).json({
+        success: false,
+        message: "Vector store is not available"
+      });
+    }
+
+    const metrics = await vectorStore.getPerformanceMetrics();
+
+    res.json({
+      success: true,
+      data: metrics,
+      message: "MongoDB performance metrics retrieved successfully"
+    });
+  } catch (error) {
+    console.error("MongoDB performance metrics error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve MongoDB performance metrics",
+      error: error.message
+    });
+  }
+});
+
+// POST /api/performance/mongodb/optimize - Optimize MongoDB collection
+app.post("/api/performance/mongodb/optimize", async (req, res) => {
+  try {
+    if (!vectorStore || !vectorStore.isInitialized) {
+      return res.status(400).json({
+        success: false,
+        message: "Vector store is not available"
+      });
+    }
+
+    console.log("🔧 Starting collection optimization...");
+    const results = await vectorStore.optimizeCollection();
+
+    res.json({
+      success: true,
+      data: results,
+      message: "MongoDB collection optimization completed successfully"
+    });
+  } catch (error) {
+    console.error("MongoDB optimization error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to optimize MongoDB collection",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/performance/search-benchmark - Benchmark search performance
+app.get("/api/performance/search-benchmark", async (req, res) => {
+  try {
+    const { iterations = 5 } = req.query;
+
+    if (!vectorStore || !vectorStore.isInitialized) {
+      return res.status(400).json({
+        success: false,
+        message: "Vector store is not available"
+      });
+    }
+
+    console.log(`🏃 Starting search performance benchmark (${iterations} iterations)...`);
+
+    const results = [];
+    const testEmbedding = Array.from({ length: 384 }, () => Math.random()); // Mock embedding
+
+    for (let i = 0; i < parseInt(iterations); i++) {
+      const startTime = Date.now();
+
+      try {
+        const searchResults = await vectorStore.search(testEmbedding, 5);
+        const duration = Date.now() - startTime;
+
+        results.push({
+          iteration: i + 1,
+          duration,
+          resultsFound: searchResults.ids[0]?.length || 0,
+          success: true
+        });
+
+        console.log(`   Iteration ${i + 1}: ${duration}ms, ${searchResults.ids[0]?.length || 0} results`);
+      } catch (error) {
+        results.push({
+          iteration: i + 1,
+          duration: Date.now() - startTime,
+          error: error.message,
+          success: false
+        });
+      }
+
+      // Small delay between iterations
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const successfulResults = results.filter(r => r.success);
+    const avgDuration = successfulResults.length > 0
+      ? successfulResults.reduce((sum, r) => sum + r.duration, 0) / successfulResults.length
+      : 0;
+
+    const benchmark = {
+      summary: {
+        totalIterations: parseInt(iterations),
+        successfulIterations: successfulResults.length,
+        failedIterations: results.length - successfulResults.length,
+        averageDuration: Math.round(avgDuration),
+        totalDuration: results.reduce((sum, r) => sum + r.duration, 0)
+      },
+      results,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log(`✅ Benchmark completed: ${successfulResults.length}/${iterations} successful, avg ${Math.round(avgDuration)}ms`);
+
+    res.json({
+      success: true,
+      data: benchmark,
+      message: "Search performance benchmark completed"
+    });
+  } catch (error) {
+    console.error("Search benchmark error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to run search benchmark",
+      error: error.message
+    });
+  }
+});
+
+// POST /api/admin/clear-documents - Clear all documents from vector store
+app.post("/api/admin/clear-documents", async (req, res) => {
+  try {
+    if (!vectorStore || !vectorStore.isInitialized) {
+      return res.status(400).json({
+        success: false,
+        message: "Vector store is not available"
+      });
+    }
+
+    console.log("🗑️ Clearing all documents from vector store...");
+    const result = await vectorStore.clearAllDocuments();
+
+    res.json({
+      success: true,
+      data: result,
+      message: "All documents cleared successfully"
+    });
+  } catch (error) {
+    console.error("❌ Failed to clear documents:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear documents",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/performance/system - Get system performance metrics
+app.get("/api/performance/system", async (req, res) => {
+  try {
+    const systemMetrics = {
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      cpu: process.cpuUsage(),
+      platform: process.platform,
+      nodeVersion: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+    };
+
+    // Format memory values
+    systemMetrics.memory.formatted = {
+      rss: `${Math.round(systemMetrics.memory.rss / 1024 / 1024)} MB`,
+      heapTotal: `${Math.round(systemMetrics.memory.heapTotal / 1024 / 1024)} MB`,
+      heapUsed: `${Math.round(systemMetrics.memory.heapUsed / 1024 / 1024)} MB`,
+      external: `${Math.round(systemMetrics.memory.external / 1024 / 1024)} MB`
+    };
+
+    res.json({
+      success: true,
+      data: systemMetrics,
+      message: "System performance metrics retrieved successfully"
+    });
+  } catch (error) {
+    console.error("System metrics error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve system metrics",
+      error: error.message
     });
   }
 });

@@ -1,0 +1,1612 @@
+{
+  "metadata": {
+    "exportTimestamp": "2025-09-18T10:32:55.145Z",
+    "source": "chromadb",
+    "collectionName": "rag_documents",
+    "totalDocuments": 100,
+    "chromaUrl": "http://localhost:8000",
+    "version": "1.0.0"
+  },
+  "documents": [
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_0",
+      "content": "Conversation Analysis\n& Discourse Analysis\nA Comparative and Critical Introduction\nRobin Wooffitt\neBook covers_pj orange.indd   9726/4/08   16:04:36\n\nConversation\nAnalysis and \nDiscourse Analysis\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page i",
+      "metadata": {
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_id": "0",
+        "parent_id": "parent_1758190953755_0"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 0,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_1",
+      "content": "Woofitt-Prelims.qxd  2/16/2005  5:09 PM  Page ii",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_0",
+        "source": "CA and DA.pdf",
+        "chunk_id": 1,
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 1,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_2",
+      "content": "Conversation\nAnalysis and \nDiscourse Analysis\nA Comparative and Critical Introduction\nRobin Wooffitt\n●●\nSAGEPublications\nLondon    Thousand Oaks    New Delhi\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page iii",
+      "metadata": {
+        "chunk_id": 2,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_0",
+        "chunk_type": "child",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 2,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_3",
+      "content": "© Robin Wooffitt 2005\nFirst published 2005\nApart from any fair dealing for the purposes of research or\nprivate study, or criticism or review, as permitted under\nthe Copyright, Designs and Patents Act, 1988, this publication",
+      "metadata": {
+        "chunk_id": 3,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_1",
+        "chunk_type": "child",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 3,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_4",
+      "content": "may be reproduced, stored or transmitted in any form, or by\nany means, only with the prior permission in writing of the\npublishers, or in the case of reprographic reproduction, in\naccordance with the terms of licences issued by the Copyright",
+      "metadata": {
+        "chunk_id": 4,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_1"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 4,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_5",
+      "content": "Licensing Agency. Inquiries concerning reproduction outside\nthose terms should be sent to the publishers.\nSAGE Publications Ltd\n1 Oliver’s Yard\n55 City Road\nLondon EC1Y 1SP\nSAGE Publications Inc.\n2455 Teller Road\nThousand Oaks, California 91320",
+      "metadata": {
+        "parent_id": "parent_1758190953755_1",
+        "chunk_id": 5,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 5,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_6",
+      "content": "Thousand Oaks, California 91320\nSAGE Publications India Pvt Ltd\nB-42, Panchsheel Enclave\nPost Box 4109\nNew Delhi 110 017\nBritish Library Cataloguing in Publication data\nA catalogue record for this book is available from the British Library",
+      "metadata": {
+        "parent_id": "parent_1758190953755_1",
+        "document_version": 1,
+        "chunk_id": 6,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 6,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_7",
+      "content": "ISBN 0 7619 7425 3 \nISBN 0 7619 7426 1 (pbk)\nLibrary of Congress Control Number 2004099541\nTypeset by C&M Digitals (P) Ltd., Chennai, India\nPrinted on paper from sustainable resources\nPrinted in Great Britain by TJ International, Padstow, Cornwall",
+      "metadata": {
+        "parent_id": "parent_1758190953755_2",
+        "chunk_id": 7,
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 7,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_8",
+      "content": "Woofitt-Prelims.qxd  2/16/2005  5:09 PM  Page iv",
+      "metadata": {
+        "parent_id": "parent_1758190953755_2",
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 8,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 8,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_9",
+      "content": "For Wendy\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page v\n\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page vi",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_3",
+        "chunk_id": 9
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 9,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_10",
+      "content": "Contents\nAcknowledgementsix\nIntroduction1\n1\nOrigins and Orientations5\n2\nTwo Key Studies25\n3\nMethod and Critique46\n4\nSimilarities and Differences71\n5\nPersuasion and Authority: CA and the Rhetorical\nTurn in Discourse Studies92\n6Discursive Psychology 113",
+      "metadata": {
+        "parent_id": "parent_1758190953755_3",
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 10
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 10,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_11",
+      "content": "6Discursive Psychology 113\n7Critical Approaches to Discourse Analysis137\n8Methodological Disputes: How Should We\nAnalyse Talk?158\n9Conversation Analysis and Power186\nAppendix: Transcription Symbols211\nReferences213\nIndex229",
+      "metadata": {
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "chunk_id": 11,
+        "parent_id": "parent_1758190953755_3"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 11,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_12",
+      "content": "References213\nIndex229\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page vii",
+      "metadata": {
+        "parent_id": "parent_1758190953755_3",
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_type": "child",
+        "chunk_id": 12
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 12,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_13",
+      "content": "Woofitt-Prelims.qxd  2/16/2005  5:09 PM  Page viii",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 13,
+        "document_version": 1,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_3"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 13,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_14",
+      "content": "Acknowledgements\nI would like to thank my commissioning editor at Sage, Michael Carmichael.\nThroughout the period of writing this book, he has been extremely helpful and\nsupportive; we had numerous meetings at which we discussed the (occasion-",
+      "metadata": {
+        "parent_id": "parent_1758190953755_4",
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 14
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 14,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_15",
+      "content": "ally slow) progress of the manuscript, and he always exuded a quiet confidence\nin the project, which invariably fired my enthusiasm. He’s an excellent editor,\nand it has been a pleasure working with him. (He is also largely responsible for",
+      "metadata": {
+        "chunk_id": 15,
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_4",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 15,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_16",
+      "content": "this book, probably much more so than most editors, for it was he who adroitly\nsidestepped my initial proposal to write a book on an entirely different topic,\nand gently suggested that I might like to consider writing something about the",
+      "metadata": {
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_4",
+        "chunk_type": "child",
+        "chunk_id": 16,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 16,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_17",
+      "content": "relationship between CA and DA. So it's his fault, really.)\nThere is a community of scholars whose work has had an important influ-\nence  on  my  own, and  their  research  figures  prominently  in  the  pages  which",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_4",
+        "chunk_id": 17,
+        "document_version": 1,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 17,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_18",
+      "content": "follow;  and whose company at various conferences around the world has been\ngreat fun. You know who you are. To all of you, for providing such a supportive\nintellectual and (extended) social environment, I thank you.",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_type": "child",
+        "chunk_id": 18,
+        "parent_id": "parent_1758190953755_5"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 18,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_19",
+      "content": "Derek  Edwards  and  Jonathan  Potter  deserve  a  special  mention. They  read\nan  earlier  version  of  the  manuscript  and  made  numerous  suggestions, all  of\nwhich have made this a better piece of work.",
+      "metadata": {
+        "chunk_id": 19,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_5",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 19,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_20",
+      "content": "Finally, my debt to Wendy Tunnicliffe is enormous. For too long, I’ve been a\nperipheral presence at weekends and in the evenings, and she has put up with\nthat without complaint. The dedication of this book to her in no way settles",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_5",
+        "document_version": 1,
+        "chunk_id": 20
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 20,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_21",
+      "content": "the debt, but it’s a start.\nWoofitt-Prelims.qxd  2/16/2005  5:09 PM  Page ix",
+      "metadata": {
+        "parent_id": "parent_1758190953755_5",
+        "chunk_id": 21,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 21,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_22",
+      "content": "Woofitt-Prelims.qxd  2/16/2005  5:09 PM  Page x",
+      "metadata": {
+        "parent_id": "parent_1758190953755_6",
+        "chunk_id": 22,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 22,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_23",
+      "content": "Introduction\nThis  book  has  three  objectives. First, it  sets  out  to  introduce  conversation\nanalysis  (CA)  and  discourse  analysis  (DA)  as  methodological  approaches  to",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 23,
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_7"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 23,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_24",
+      "content": "the study of talk, both of which have far-reaching implications for our under-\nstanding of social interaction and the role of discourse and communication in\neveryday life.\nConversation  analysis  is  one  of  the  key  methodological  approaches  to  the",
+      "metadata": {
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "chunk_id": 24,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_7"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 24,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_25",
+      "content": "study  of  verbal  interaction, and  this  is  one  of  the  reasons  that  it  is  given  so\nmuch prominence in this book. But there are other approaches to the study\nof  discourse  and  communication  which  can  be  applied  to  face-to-face  or",
+      "metadata": {
+        "parent_id": "parent_1758190953755_7",
+        "source": "CA and DA.pdf",
+        "chunk_id": 25,
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 25,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_26",
+      "content": "telephone  interaction: of  course  there  is  discourse  analysis; but  there  is  also\ndiscursive  psychology, rhetorical  psychology, speech  act  theory, critical  dis-\ncourse analysis and Foucauldian forms of discourse analysis, or the analysis of",
+      "metadata": {
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_7",
+        "source": "CA and DA.pdf",
+        "chunk_id": 26
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 26,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_27",
+      "content": "discourses. This  burgeoning  range  of  empirical  methodologies, not  unsurpris-\ningly,  can  be  confusing  to  the  student  new  to  the  field:  In  what  ways  do\ndiscourse analysis and conversation analysis differ? Is critical discourse analysis",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 27,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_8",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 27,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_28",
+      "content": "the  same  as  Foucauldian  discourse  analysis?  Do  these  varied  approaches\nsimply  study  the  same  things, but  in  different  ways?  Or  do  their  theoretical\nassumptions  ensure  that  the  substantive  topics  of  their  enquiries  are  formu-",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_8",
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 28
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 28,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_29",
+      "content": "lated in radically different ways? The second objective of the book, then, is to\noutline the distinctive characteristics of each approach – to explain for each,\nwhat is studied, why it is studied and how it is studied – and chart some of the",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_8",
+        "chunk_id": 29
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 29,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_30",
+      "content": "complex relationships between them.\nThe  third  and  final  objective  of  the  book  is  to  make  a  case  for  the  power\nand scope of conversation analysis.\nThere  are  now  a  number  of  texts  which  either  focus  on  or  contain  intro-",
+      "metadata": {
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_8",
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 30
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 30,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_31",
+      "content": "ductions to discourse analysis (in its broadest sense) which offer an account of\nthe  various  ways  in  which  social  scientists  analyse  talk  and  texts, or  which\nillustrate  specific  methodological  approaches  (for  example,  Antaki,  1988;",
+      "metadata": {
+        "document_version": 1,
+        "chunk_id": 31,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_9"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 31,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_32",
+      "content": "Banister et  al, 1994; Burman  and  Parker, 1993a; Hayes, 1997; Phillips  and\nJørgensen, 2002; Richardson, 1996; Schiffrin, 1994; Smith, 2003; Willig, 1999,\n2001a, 2001b; Wood and Kroeger, 2000), or which illustrate traditions of work",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 32,
+        "parent_id": "parent_1758190953755_9"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 32,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_33",
+      "content": "in  discourse  and  interaction  (Jaworski  and  Coupland, 1999; Wetherell  et  al,\n2001a, 2001b). These texts are extremely helpful and practical guides to issues\nin studies of discourse. However, while many of them acknowledge the empirical",
+      "metadata": {
+        "chunk_id": 33,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_9",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 33,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_34",
+      "content": "Woofit-Introduction.qxd  2/15/2005  10:44 AM  Page 1",
+      "metadata": {
+        "chunk_type": "child",
+        "chunk_id": 34,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_9"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 34,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_35",
+      "content": "and  theoretical  variations  in  approaches  to  the  study  of  discourse,  few  \nsystematically focus on the tensions in the field, or argue for the value of one\napproach over others. And it is in this sense that this book departs from more",
+      "metadata": {
+        "parent_id": "parent_1758190953755_10",
+        "chunk_id": 35,
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 35,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_36",
+      "content": "conventional introductions. As will become apparent in later chapters,the argu-\nment  is  not  impartial, but  increasingly  makes  a  case  for  the  greater  value  of\nconversation  analysis  over  alternative  methodological  approaches  (a  value",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 36,
+        "chunk_type": "child",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_10"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 36,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_37",
+      "content": "which  is  reflected  by  its  increasing  influence  in  forms  of  discourse  analysis).\nThis is not because I believe other approaches have little or no value; on the\ncontrary, a cursory examination of the literature in critical discourse analysis",
+      "metadata": {
+        "parent_id": "parent_1758190953755_10",
+        "source": "CA and DA.pdf",
+        "chunk_id": 37,
+        "chunk_type": "child",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 37,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_38",
+      "content": "or Foucauldian discourse reveals committed, creative and thought-provoking\nresearch. And I am convinced that a researcher’s conceptual sophistication and\nanalytic skills can be increased by serious and sustained engagementwith alter-",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_10",
+        "document_version": 1,
+        "chunk_type": "child",
+        "chunk_id": 38
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 38,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_39",
+      "content": "native positions and methods. But what remains as the fundamental issue – for\nme at least – is this question: analytically, what is the best way to understand\neveryday communicative activities? And for reasons which will become clear,",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_11",
+        "document_version": 1,
+        "chunk_type": "child",
+        "chunk_id": 39
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 39,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_40",
+      "content": "I  believe  conversation  analysis  offers  the  most  sophisticated  and  robust\naccount of language in action.\nThere are tensions in writing a book which tries to outline in an objective",
+      "metadata": {
+        "parent_id": "parent_1758190953755_11",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 40,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 40,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_41",
+      "content": "and impartial way the similarities and differences between different method-\nologies, while at the same time crafting an argument which reflects a method-\nological  preference.  Throughout,  I  have  tried  to  make  the  argument  for",
+      "metadata": {
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_11",
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 41
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 41,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_42",
+      "content": "conversation analysis by showing that it offers extremely valuable accounts of\nthe  organisation  of  verbal  interaction, but  also  that  it  can  make  a  significant\ncontribution  to  research  issues  which  are  associated  with  scholars  in  other",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_id": 42,
+        "parent_id": "parent_1758190953755_11",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 42,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_43",
+      "content": "traditions. Only in one chapter (Chapter 8) is the argument for conversation\nanalysis  forged  out  of  a  direct  engagement  with  the  writings  and  empirical\npractices  of  other  perspectives.  But  even  here,  I  believe  the  argument  is",
+      "metadata": {
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_12",
+        "chunk_id": 43
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 43,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_44",
+      "content": "primarily responsive, in that it attempts to interrogate the adequacy of those\nmethodological practices by comparison to which CA’s own empirical stances\nare often held to be deficient. Here, as in the rest of the book, I have tried to",
+      "metadata": {
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 44,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_12"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 44,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_45",
+      "content": "be fair in my accounts of those perspectives about which I have some reser-\nvations; and at least the reader knows where I stand as they read what follows.\nBut  I  sincerely  hope  that  colleagues  who  work  in  other  traditions, and  who",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_12",
+        "chunk_id": 45,
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 45,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_46",
+      "content": "will  no  doubt  disagree  with  me, find  that  my  accounts  fairly  convey  their\nresearch practices and objectives.\nOverview of the book\nThe book is organised into three parts. Assuming no prior knowledge, the first",
+      "metadata": {
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_12",
+        "chunk_id": 46
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 46,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_47",
+      "content": "four chapters introduce students to the way in which conversation analysis has\ntransformed our understanding of how people interact together when they are\ntalking. There  will  be  a  historical  account  of  how  Sacks’  first  came  to  study",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 47,
+        "parent_id": "parent_1758190953755_13",
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 47,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_48",
+      "content": "conversational  interaction  and  a  brief  description  of  the  key  developments\n2CONVERSATION ANALYSIS AND DISCOURSE ANALYSIS\nWoofit-Introduction.qxd  2/15/2005  10:44 AM  Page 2",
+      "metadata": {
+        "parent_id": "parent_1758190953755_13",
+        "chunk_id": 48,
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 48,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_49",
+      "content": "within  the  field  since  then,  focusing  on  the  distinctive  character  of  CA’s\nmethodological  orientations.  These  chapters  emphasise  the  dynamic  and\naction-oriented  nature  of  utterances,  the  highly  patterned  nature  of  inter-",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 49,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_14",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 49,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_50",
+      "content": "actional  sequences, and  the  socially  organised  communicative  competencies\nwhich inform the way we conduct interaction.\nThese chapters also chart the historical emergence of the kind of work now",
+      "metadata": {
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_id": 50,
+        "parent_id": "parent_1758190953755_14"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 50,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_51",
+      "content": "known commonly as discourse analysis. The use of the term ‘discourse analysis’\nwill be traced back to Gilbert and Mulkay’s studies in the sociology of scien-\ntific  knowledge,  the  ethnomethodologically  informed  critique  of  cognitive",
+      "metadata": {
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_14",
+        "chunk_id": 51,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 51,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_52",
+      "content": "psychology of Derek Edwards, and the adoption of DA by Mulkay’s students,\nparticularly Jonathan Potter in his work in psychology. We discuss Potter and\nWetherell’s key text,Discourse and Social Psychology (1987), showing how the",
+      "metadata": {
+        "chunk_type": "child",
+        "chunk_id": 52,
+        "parent_id": "parent_1758190953755_14",
+        "document_version": 1,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 52,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_53",
+      "content": "method became more formalised and focused in their critique of broadly cog-\nnitivist approaches in social psychology. These chapters show how, even from\nits earliest days, conversation analytic findings and approaches were beginning",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 53,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_15",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 53,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_54",
+      "content": "to inform the focus of discourse analytic studies. The discussion will also highlight\nthe interdisciplinary roots of the method, and consider some of the reasons why\nit has been less successful in sociology, ostensibly its ‘host’ discipline.",
+      "metadata": {
+        "parent_id": "parent_1758190953755_15",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 54,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 54,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_55",
+      "content": "A feature of the book is that I have tried to trace the emergence and develop-\nment  of  CA  and  DA  comparatively:thus  in  each  of  the  first  four  chapters\nthere are discussions of aspects of both perspectives. This allows me to high-",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_15",
+        "chunk_id": 55,
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 55,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_56",
+      "content": "light  that  in  the  context  of  traditional  social  sciences, each  approach  can  be\nseen  as  a  fairly  radical  development. Moreover, it  allows  me  to  ground  later",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 56,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_15",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 56,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_57",
+      "content": "arguments  that  there  are  significant  differences  between  CA  and  DA. An\nassessment of points of convergence and divergence is offered in Chapter 4.\nThese  first  four  chapters  are  designed  for  undergraduates  with  no  prior",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_16",
+        "chunk_type": "child",
+        "chunk_id": 57
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 57,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_58",
+      "content": "knowledge of conversation or discourse analysis. To make these chapters more\neffective  pedagogically, I  focus  on  a  smaller  range  of  important  points. This\nnecessarily  means  that  some  important  topics  are  excluded  from  the  text.",
+      "metadata": {
+        "parent_id": "parent_1758190953755_16",
+        "source": "CA and DA.pdf",
+        "chunk_id": 58,
+        "chunk_type": "child",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 58,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_59",
+      "content": "Consequently, at the end of each of these first four chapters, there are recom-\nmendations for further reading to allow interested readers to develop a wider\nunderstanding  of  CA  and  DA. The  subsequent  chapters  build  on  the  earlier",
+      "metadata": {
+        "chunk_id": 59,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_16"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 59,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_60",
+      "content": "ones and assume a more knowledgeable reader, and a wider range of issues are\nincluded  in  the  text  (along  with  relevant  references), so  no  further  readings\nare provided.\nChapters 5 and 6 outline two foci for discourse analytic research since its",
+      "metadata": {
+        "parent_id": "parent_1758190953755_16",
+        "chunk_type": "child",
+        "chunk_id": 60,
+        "document_version": 1,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 60,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_61",
+      "content": "emergence in social psychology: the way that language can be used to produce\nfactual  or  authoritative  accounts; and  discursive  psychology, which  investi-\ngates the use of a psychological vocabulary, and the invocations of mental or",
+      "metadata": {
+        "document_version": 1,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_17",
+        "source": "CA and DA.pdf",
+        "chunk_id": 61
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 61,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_62",
+      "content": "cognitive  properties  or  attributes,  as  socially  organised  and  interactionally\noriented  discursive  activities. Chapter  7  departs  from  discourse  analysis  to\ncover critical discourse analysis and Foucauldian discourse analysis. However,",
+      "metadata": {
+        "chunk_id": 62,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_17",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 62,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_63",
+      "content": "I try to show the links between more Foucauldian DA and some of the goals\nof  discourse  analysis  as  it  was  developed  in  Potter  and  Wetherell’s  (1987)\nINTRODUCTION3\nWoofit-Introduction.qxd  2/15/2005  10:44 AM  Page 3",
+      "metadata": {
+        "document_version": 1,
+        "chunk_id": 63,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_17",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 63,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_64",
+      "content": "account. One  of  the  features  of  this  chapter  is  that  I  try  to  show  the  clear\ndifferences  between  conversation  analytic  research  and  the  assumptions  and\nmethods of more critical discourse studies. This discussion allows me to sketch",
+      "metadata": {
+        "chunk_id": 64,
+        "parent_id": "parent_1758190953755_18",
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 64,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_65",
+      "content": "some of the main criticisms of CA’s perspective on social interaction and its\nmethodology.\nIn  Chapters  8  and  9,  I  assess  the  strength  of  two  related  criticisms  of",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 65,
+        "parent_id": "parent_1758190953755_18",
+        "chunk_type": "child",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 65,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_66",
+      "content": "conversation  analysis:  that  its  methodological  practices  are  unnecessarily\nrestrictive, and  need  to  be  supplemented  by  reference  to  post-structuralist\nwritings on ‘subject positions’ in ‘discourses’; and second, that CA is unable to",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_18",
+        "chunk_type": "child",
+        "chunk_id": 66
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 66,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_67",
+      "content": "address  issues  which  motivate  more  traditional  social  sciences, such  as  the\noperation of power and injustices in social relationships. In Chapter 8, I argue\nthat  the  preferred  methodological  practices  of  CA’s  critics  are  themselves",
+      "metadata": {
+        "document_version": 1,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_18",
+        "source": "CA and DA.pdf",
+        "chunk_id": 67
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 67,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_68",
+      "content": "unsatisfactory, and  offer  no  obvious  benefit. And  in  Chapter  9, I  show  that\nconversation analysts are perfectly capable of addressing issues such as power;\nand  that  its  methodological  resources  have  proved  attractive  to  researchers",
+      "metadata": {
+        "chunk_id": 68,
+        "document_version": 1,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_19",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 68,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_69",
+      "content": "outside  CA  for  whom  matters  of  power  and  oppression  are  a  fundamental\nconcern.\n4CONVERSATION ANALYSIS AND DISCOURSE ANALYSIS\nWoofit-Introduction.qxd  2/15/2005  10:44 AM  Page 4",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_19",
+        "source": "CA and DA.pdf",
+        "chunk_id": 69,
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 69,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_70",
+      "content": "1\nOrigins and Orientations\nIn this chapter we will first examine the broader intellectual contexts in which\nconversation analysis (CA) and discourse analysis (DA) emerged. This provides",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_id": 70,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_20",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 70,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_71",
+      "content": "some  historical  background,  and  allows  us  to  identify  just  how  novel  and\nradical  these  developments  were: they  offered  new  ways  of  doing  sociology,\nand placed the empirical study of communication at the heart of the social sci-",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_20",
+        "chunk_id": 71,
+        "source": "CA and DA.pdf",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 71,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_72",
+      "content": "ence enterprise. We start with conversation analysis.\nConversation analysis\nThe mode of analysis which subsequently grew into CA began with a puzzle.\nThe style of work which has come to be known as conversation analysis",
+      "metadata": {
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 72,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_20"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 72,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_73",
+      "content": "is  associated  with  the  pioneering  research  of  Harvey  Sacks. As  Schegloff\nreports  in  his  introduction  to  the  published  collection  of  Sacks’  lectures\n(Schegloff, 1992a), Sacks  had  been  examining  a  corpus  of  recorded  tele-",
+      "metadata": {
+        "parent_id": "parent_1758190953755_20",
+        "source": "CA and DA.pdf",
+        "chunk_id": 73,
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 73,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_74",
+      "content": "phone calls to the Los Angeles Suicide Prevention Center. One of the tasks\nof the Center’s staff was to try to obtain the caller’s name; and on many\noccasions, if they gave their name, they found that the callers would then",
+      "metadata": {
+        "chunk_id": 74,
+        "parent_id": "parent_1758190953755_21",
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 74,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_75",
+      "content": "identify themselves in reply. In many cases, however, the Center’s staff had\ndifficulty getting callers to state who they were: either callers would not\nsay their name after the Center’s staff had introduced themselves; or later,",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_21",
+        "chunk_id": 75,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 75,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_76",
+      "content": "when explicitly asked for their name, they would refuse to disclose it. For\nthe Center, then, the problem was getting callers to reveal their names.\nSchegloff notes that for Sacks, however, a different issue became pressing.",
+      "metadata": {
+        "parent_id": "parent_1758190953755_21",
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 76,
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 76,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_77",
+      "content": "Displaying  the  original  and  distinctive  approach  that  came  to  characterise\nhis  work, Sacks  began  to  wonder  ‘where, in  the  course  of  the  conversation\ncould  you  tell  that  somebody  would  not  give  their  name’  (1992, vol. I: 3).",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_21",
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 77
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 77,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_78",
+      "content": "With this puzzle in mind, Sacks became interested in the following opening\nsection  from  one  of  the  calls, in  which  the  caller  (B)  seemed  to  be  having\ntrouble with the agent’s name.\nWoofit-01.qxd  2/16/2005  11:05 AM  Page 5",
+      "metadata": {
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_22",
+        "chunk_id": 78
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 78,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_79",
+      "content": "(1.1)(Sacks, 1992, vol. I: 3)\nA:   this is Mr. Smith, may I help you\nB:   I can’t hear you\nA:   This is Mr Smith\nB:   Smith\n(You will notice that in A’s second turn, the word ‘Smith’ is underlined. This",
+      "metadata": {
+        "parent_id": "parent_1758190953755_23",
+        "chunk_id": 79,
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 79,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_80",
+      "content": "indicates that the speaker has emphasised or stressed this word. In conversa-\ntion analysis, transcripts try to capture not only what was said, but also the way\nit was said. Consequently, a series of symbols, such as underlining, have been",
+      "metadata": {
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 80,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_23"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 80,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_81",
+      "content": "used to capture, amongst other things, the way words are pronounced. We will\ndiscuss  the  rationale  behind  CA’s  distinctive  approach  to  transcription  later\nin  this  chapter;  but  at  this  point,  it  is  advisable  that  readers  consult  the",
+      "metadata": {
+        "chunk_type": "child",
+        "chunk_id": 81,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_23"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 81,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_82",
+      "content": "Appendix, in which CA transcription symbols are explained.) \nSacks began to examine the caller’s utterance ‘I can’t hear you’. Instead of\ntreating it as a straightforward report of a communication problem, he exam-",
+      "metadata": {
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_23",
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_id": 82
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 82,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_83",
+      "content": "ined  it  to  reveal  what  it  might  be  doing. In  particular, he  wondered  if  this\nutterance  was  produced  so  as  to  allow  the  caller  to  avoid  giving  his  name,",
+      "metadata": {
+        "chunk_id": 83,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_24",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 83,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_84",
+      "content": "while not explicitly having to refuse to do so. With this question, Sacks raised\nthe possibility of investigating utterances as objects which speakers use to get\nthings done in the course of their interactions with others.",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_24",
+        "chunk_id": 84,
+        "chunk_type": "child",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 84,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_85",
+      "content": "Sacks observes that there are norms concerning where in conversation cer-\ntain kinds of activities should happen; and in conversation between strangers\nnames tend to be exchanged in initial turns. Developing this, Sacks argues that",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 85,
+        "parent_id": "parent_1758190953755_24",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 85,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_86",
+      "content": "the  caller  is  using  the  utterance  ‘I  can’t  hear  you’  to  fill  the  slot  in  the  con-\nversation where it would be expected that he return his name. However, he\nhas not had to refuse to give his name: instead he has used that slot to initiate",
+      "metadata": {
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 86,
+        "parent_id": "parent_1758190953755_24"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 86,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_87",
+      "content": "what is called a repair sequence, which is a short series of turns in which some\n‘trouble’  (in  this  case, ‘not  hearing’)  is  resolved. By  doing  ‘not  hearing’, the\ncaller has been able to move the conversation on from that point at which he",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 87,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_25"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 87,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_88",
+      "content": "might be expected to give his name. In this case, then, the caller’s expression\nof an apparent hearing difficulty is a method by which he could accomplish\nthe activity of ‘not giving a name’ without explicitly refusing to do so.",
+      "metadata": {
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_25",
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "chunk_id": 88
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 88,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_89",
+      "content": "Sacks was not claiming that on every occasion when someone says ‘I can’t\nhear  you’  they  are  avoiding  giving  their  name; nor  was  he  saying  that  doing\n‘not hearing’ was the only method of avoiding giving a name. He was simply",
+      "metadata": {
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 89,
+        "parent_id": "parent_1758190953755_25",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 89,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_90",
+      "content": "noting that it was possible to analyse how, in this instance, this particular utter-\nance  performed  this  particular  activity  in  this  particular  slot, or  place  in  the\ninteraction.",
+      "metadata": {
+        "chunk_id": 90,
+        "document_version": 1,
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_25",
+        "chunk_type": "child"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 90,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_91",
+      "content": "interaction.\nIt is  important to focus on the idea that there are slots in interaction where\nspecific kinds of actions are appropriate, or expected. This is because it allows",
+      "metadata": {
+        "chunk_id": 91,
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_26",
+        "chunk_type": "child",
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 91,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_92",
+      "content": "us  to  grasp  the  idea  that  verbal  interaction  has  a  structure, an  architecture,\nwhich can be formally described by reference to the relationship between the\nactions our utterances perform. To illustrate this further, think of the number",
+      "metadata": {
+        "parent_id": "parent_1758190953755_26",
+        "document_version": 1,
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "chunk_id": 92
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 92,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_93",
+      "content": "6CONVERSATION ANALYSIS AND DISCOURSE ANALYSIS\nWoofit-01.qxd  2/16/2005  11:05 AM  Page 6",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_26",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 93
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 93,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_94",
+      "content": "of  utterance  activities  that  seem  to  occur  in  pairs. As  Sacks  notes  in  his  very\nfirst lecture, there are paired units such as greetings (‘hi’ – ‘hi’); questions and",
+      "metadata": {
+        "parent_id": "parent_1758190953755_27",
+        "chunk_type": "child",
+        "chunk_id": 94,
+        "document_version": 1,
+        "source": "CA and DA.pdf"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 94,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_95",
+      "content": "answers; invitations and responses, and so on. We will discuss these paired units\nmore formally in a later chapter, but the point to remember is that these paired\nactions seem to go together: answers seem appropriate responses to questions",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "document_version": 1,
+        "chunk_id": 95,
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_27"
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 95,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_96",
+      "content": "and so on. So much so that if a question has been asked and an answer is not\noffered, there  seems  to  have  been  a  minor  breakdown  in  expectations  which\nunderpin interpersonal interaction. Look at the following data fragment which",
+      "metadata": {
+        "parent_id": "parent_1758190953755_27",
+        "chunk_type": "child",
+        "chunk_id": 96,
+        "source": "CA and DA.pdf",
+        "document_version": 1
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.145Z",
+        "sourceIndex": 96,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_97",
+      "content": "comes from a corpus of calls to the British Airways flight information service:\n(1.2)(From Wooffitt \net al, 1997: 80. ‘A’ is the (female) British Airways\nagent, ‘C’ is the (male) caller, a member of the public. Modified\ntranscript.)",
+      "metadata": {
+        "document_version": 1,
+        "parent_id": "parent_1758190953755_27",
+        "chunk_type": "child",
+        "source": "CA and DA.pdf",
+        "chunk_id": 97
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.146Z",
+        "sourceIndex": 97,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_98",
+      "content": "transcript.)\n1   A:   British Airways flight information\n2can I help you\n3(1.3)\n4   A:   hel↑lo\n5   C:   hello\n6   A:   can I help you at al l sir? \n7   C:oh yes (.) erm: I’ve got\n8a note here to sort of find out about ehm:\n9(1)\n10a flight from Gatwick",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "parent_id": "parent_1758190953755_28",
+        "chunk_type": "child",
+        "document_version": 1,
+        "chunk_id": 98
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.146Z",
+        "sourceIndex": 98,
+        "collectionName": "rag_documents"
+      }
+    },
+    {
+      "originalId": "doc_1758191090028_CA_and_DA_pdf_chunk_99",
+      "content": "9(1)\n10a flight from Gatwick\nThe BA agent has offered a service (‘can I help you?’) and the response is an\nacceptance or refusal; and as the caller has called the flight information service",
+      "metadata": {
+        "source": "CA and DA.pdf",
+        "chunk_type": "child",
+        "parent_id": "parent_1758190953755_28",
+        "document_version": 1,
+        "chunk_id": 99
+      },
+      "exportInfo": {
+        "exportedAt": "2025-09-18T10:32:55.146Z",
+        "sourceIndex": 99,
+        "collectionName": "rag_documents"
+      }
+    }
+  ]
+}

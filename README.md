@@ -18,6 +18,44 @@ A comprehensive Retrieval-Augmented Generation system with a modern chat UI for 
 
 This RAG (Retrieval-Augmented Generation) pipeline answers questions from PDF documents using vector embeddings and ChromaDB.
 
+## 🍃 MongoDB Migration Support
+
+**NEW!** This system now supports MongoDB as an alternative vector database with seamless migration capabilities.
+
+### Why MongoDB?
+- **Better Scalability**: Handles millions of documents efficiently
+- **Rich Querying**: Advanced filtering and aggregation capabilities
+- **ACID Transactions**: Better data consistency guarantees
+- **Enterprise Features**: Backup, monitoring, and security features
+- **Cloud Integration**: Native MongoDB Atlas support
+
+### Migration Features
+- ✅ **Gradual Migration**: Zero-downtime migration process
+- ✅ **Dual Store Support**: Run both ChromaDB and MongoDB simultaneously
+- ✅ **Runtime Switching**: Switch between stores without restart
+- ✅ **Migration Tools**: Complete export/import scripts
+- ✅ **Rollback Capability**: Easy rollback if needed
+- ✅ **Comprehensive Testing**: Full test suite for MongoDB functionality
+
+### Quick Migration Start
+```bash
+# 1. Test MongoDB connection
+npm run test:mongodb
+
+# 2. Export current ChromaDB data
+npm run migration:export
+
+# 3. Import to MongoDB
+npm run migration:import
+
+# 4. Switch to MongoDB
+curl -X POST http://localhost:3001/api/migration/switch \
+  -H "Content-Type: application/json" \
+  -d '{"targetStore": "mongodb", "confirm": true}'
+```
+
+📖 **[Complete Migration Guide](MONGODB_MIGRATION_GUIDE.md)** | 📊 **[Migration Status](MIGRATION_STATUS.md)**
+
 ## ⚡ Performance Optimization
 
 ### Fast Mode

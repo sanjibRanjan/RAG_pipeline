@@ -1,7 +1,7 @@
 /**
- * Vector Store Service (MongoDB Implementation)
+ * MongoDB Vector Store Service
  *
- * MongoDB-based vector store implementation with the same interface as the previous ChromaDB version
+ * MongoDB-based vector store implementation with the same interface as VectorStore
  * Supports vector similarity search, metadata filtering, and document versioning
  *
  * @author RAG Pipeline Team
@@ -11,7 +11,7 @@
 import { MongoClient } from 'mongodb';
 import crypto from 'crypto';
 
-export class VectorStore {
+export class MongoVectorStore {
   constructor() {
     this.client = null;
     this.db = null;
@@ -74,7 +74,7 @@ export class VectorStore {
       return true;
     } catch (error) {
       console.error("❌ MongoDB connection failed:", error);
-      throw new Error(`Failed to initialize vector store: ${error.message}`);
+      throw new Error(`Failed to initialize MongoDB vector store: ${error.message}`);
     }
   }
 
@@ -310,9 +310,10 @@ export class VectorStore {
    * Search for similar documents using vector similarity
    * @param {number[]} queryEmbedding - Query embedding vector
    * @param {number} nResults - Number of results to return
+   * @param {Object} filters - Optional metadata filters
    * @returns {Promise<Object>} Search results
    */
-  async search(queryEmbedding, nResults = 5) {
+  async search(queryEmbedding, nResults = 5, filters = {}) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("MongoDB vector store not initialized");
@@ -326,7 +327,7 @@ export class VectorStore {
 
       // Use manual cosine similarity calculation for local MongoDB
       // MongoDB Atlas Vector Search requires special configuration
-      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2);
+      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2, filters);
       console.log(`✅ Found ${results.length} relevant documents`);
       return this.formatSearchResults(results.slice(0, nResults));
     } catch (error) {
@@ -339,11 +340,21 @@ export class VectorStore {
    * Manual vector similarity search (fallback when Atlas Vector Search is not available)
    * @private
    */
-  async manualVectorSearch(queryEmbedding, limit) {
+  async manualVectorSearch(queryEmbedding, limit, filters = {}) {
     try {
-      // Get sample of documents for similarity calculation
+      // Build MongoDB query for filters
+      const mongoQuery = {};
+
+      // Apply metadata filters
+      if (Object.keys(filters).length > 0) {
+        Object.entries(filters).forEach(([key, value]) => {
+          mongoQuery[`metadata.${key}`] = value;
+        });
+      }
+
+      // Get filtered documents with performance limits
       const documents = await this.collection
-        .find({})
+        .find(mongoQuery)
         .limit(this.maxDocumentsPerQuery)
         .sort({ createdAt: -1 }) // Prefer newer documents
         .toArray();
@@ -433,34 +444,6 @@ export class VectorStore {
     } catch (error) {
       console.error("❌ Error getting document:", error);
       throw new Error(`Failed to get document: ${error.message}`);
-    }
-  }
-
-  /**
-   * Clear all documents from the vector store
-   * @returns {Promise<Object>} Clear result
-   */
-  async clearAllDocuments() {
-    try {
-      if (!this.isInitialized || !this.collection) {
-        throw new Error("Vector store not initialized");
-      }
-
-      console.log("🗑️ Clearing all documents from vector store...");
-
-      // Delete all documents
-      const result = await this.collection.deleteMany({});
-
-      console.log(`✅ Cleared ${result.deletedCount} documents from vector store`);
-
-      return {
-        success: true,
-        deletedCount: result.deletedCount,
-        message: `Successfully cleared ${result.deletedCount} documents`
-      };
-    } catch (error) {
-      console.error("❌ Failed to clear documents:", error);
-      throw new Error(`Failed to clear documents: ${error.message}`);
     }
   }
 
@@ -940,223 +923,6 @@ export class VectorStore {
   }
 
   /**
-   * Search with filters (compatibility method for QA service)
-   * @param {number[]} queryEmbedding - Query embedding vector
-   * @param {Object} filters - Search filters
-   * @returns {Promise<Object>} Search results with documents, distances, metadatas, ids
-   */
-  async searchWithFilters(queryEmbedding, filters = {}) {
-    try {
-      if (!this.isInitialized || !this.collection) {
-        throw new Error("Vector store not initialized");
-      }
-
-      if (!queryEmbedding || queryEmbedding.length === 0) {
-        throw new Error("Query embedding is required");
-      }
-
-      console.log(`🔍 Searching with filters:`, filters);
-
-      // Try MongoDB Atlas Vector Search first
-      try {
-        // Build MongoDB aggregation pipeline
-        const pipeline = [
-          // Vector search stage
-          {
-            $vectorSearch: {
-              index: "vector_index",
-              path: "embedding",
-              queryVector: queryEmbedding,
-              numCandidates: 100,
-              limit: 20
-            }
-          },
-          // Add score field
-          {
-            $addFields: {
-              score: { $meta: "vectorSearchScore" }
-            }
-          }
-        ];
-
-        // Add metadata filters if provided
-        if (Object.keys(filters).length > 0) {
-          const matchConditions = {};
-
-          if (filters.fileType) {
-            matchConditions["metadata.fileType"] = filters.fileType;
-          }
-
-          if (filters.minFileSize || filters.maxFileSize) {
-            matchConditions["metadata.fileSize"] = {};
-            if (filters.minFileSize) matchConditions["metadata.fileSize"].$gte = filters.minFileSize;
-            if (filters.maxFileSize) matchConditions["metadata.fileSize"].$lte = filters.maxFileSize;
-          }
-
-          if (filters.language) {
-            matchConditions["metadata.language"] = filters.language;
-          }
-
-          if (filters.tags && filters.tags.length > 0) {
-            matchConditions["metadata.tags"] = { $in: filters.tags };
-          }
-
-          if (filters.categories && filters.categories.length > 0) {
-            matchConditions["metadata.categories"] = { $in: filters.categories };
-          }
-
-          if (filters.author) {
-            matchConditions["metadata.author"] = { $regex: filters.author, $options: 'i' };
-          }
-
-          if (filters.title) {
-            matchConditions["metadata.title"] = { $regex: filters.title, $options: 'i' };
-          }
-
-          if (Object.keys(matchConditions).length > 0) {
-            pipeline.push({ $match: matchConditions });
-          }
-        }
-
-        // Execute search
-        const results = await this.collection.aggregate(pipeline).toArray();
-        console.log(`✅ Found ${results.length} filtered results using Atlas Vector Search`);
-
-        // Format results to match expected format
-        return {
-          documents: [results.map(r => r.content || "")],
-          distances: [results.map(r => 1 - r.score)], // Convert similarity to distance
-          metadatas: [results.map(r => r.metadata || {})],
-          ids: [results.map(r => r._id.toString())]
-        };
-
-      } catch (atlasError) {
-        // Fall back to manual vector similarity search
-        console.log("⚠️ Atlas Vector Search not available, falling back to manual search");
-        return await this.manualVectorSearchWithFilters(queryEmbedding, filters);
-      }
-
-    } catch (error) {
-      console.error("❌ Filtered search failed:", error);
-      // Return empty results on error
-      return {
-        documents: [[]],
-        distances: [[]],
-        metadatas: [[]],
-        ids: [[]]
-      };
-    }
-  }
-
-  /**
-   * Manual vector similarity search with filters (fallback when Atlas Vector Search is not available)
-   * @private
-   */
-  async manualVectorSearchWithFilters(queryEmbedding, filters = {}) {
-    try {
-      // Build MongoDB query for filters
-      const mongoQuery = {};
-
-      // Apply metadata filters
-      if (Object.keys(filters).length > 0) {
-        if (filters.fileType) {
-          mongoQuery["metadata.fileType"] = filters.fileType;
-        }
-
-        if (filters.minFileSize || filters.maxFileSize) {
-          mongoQuery["metadata.fileSize"] = {};
-          if (filters.minFileSize) mongoQuery["metadata.fileSize"].$gte = filters.minFileSize;
-          if (filters.maxFileSize) mongoQuery["metadata.fileSize"].$lte = filters.maxFileSize;
-        }
-
-        if (filters.language) {
-          mongoQuery["metadata.language"] = filters.language;
-        }
-
-        if (filters.tags && filters.tags.length > 0) {
-          mongoQuery["metadata.tags"] = { $in: filters.tags };
-        }
-
-        if (filters.categories && filters.categories.length > 0) {
-          mongoQuery["metadata.categories"] = { $in: filters.categories };
-        }
-
-        if (filters.author) {
-          mongoQuery["metadata.author"] = { $regex: filters.author, $options: 'i' };
-        }
-
-        if (filters.title) {
-          mongoQuery["metadata.title"] = { $regex: filters.title, $options: 'i' };
-        }
-      }
-
-      // Get filtered documents with performance limits
-      const documents = await this.collection
-        .find(mongoQuery)
-        .limit(this.maxDocumentsPerQuery || 1000)
-        .sort({ createdAt: -1 }) // Prefer newer documents
-        .toArray();
-
-      // Calculate cosine similarity for each document
-      const results = documents.map(doc => {
-        const similarity = this.cosineSimilarity(queryEmbedding, doc.embedding);
-        return {
-          ...doc,
-          score: similarity
-        };
-      });
-
-      // Sort by similarity and return top results
-      const topResults = results
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 20);
-
-      console.log(`✅ Found ${topResults.length} filtered results using manual search`);
-
-      return {
-        documents: [topResults.map(r => r.content || "")],
-        distances: [topResults.map(r => 1 - r.score)], // Convert similarity to distance
-        metadatas: [topResults.map(r => r.metadata || {})],
-        ids: [topResults.map(r => r._id.toString())]
-      };
-    } catch (error) {
-      console.error("❌ Manual filtered search failed:", error);
-      return {
-        documents: [[]],
-        distances: [[]],
-        metadatas: [[]],
-        ids: [[]]
-      };
-    }
-  }
-
-  /**
-   * Calculate cosine similarity between two vectors
-   * @private
-   */
-  cosineSimilarity(vecA, vecB) {
-    if (!vecA || !vecB || vecA.length !== vecB.length) {
-      return 0;
-    }
-
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-
-    for (let i = 0; i < vecA.length; i++) {
-      dotProduct += vecA[i] * vecB[i];
-      normA += vecA[i] * vecA[i];
-      normB += vecB[i] * vecB[i];
-    }
-
-    if (normA === 0 || normB === 0) {
-      return 0;
-    }
-
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  }
-
-  /**
    * Check if the MongoDB service is healthy
    * @returns {Promise<boolean>} Health status
    */
@@ -1174,6 +940,120 @@ export class VectorStore {
       return false;
     }
   }
+
+  /**
+   * Get performance metrics for the MongoDB vector store
+   * @returns {Promise<Object>} Performance metrics
+   */
+  async getPerformanceMetrics() {
+    try {
+      if (!this.isInitialized) {
+        return { error: "Vector store not initialized" };
+      }
+
+      // Get basic collection statistics
+      const documentCount = await this.collection.countDocuments();
+      const sampleDoc = await this.collection.findOne({});
+      const indexes = await this.collection.listIndexes().toArray();
+
+      // Estimate collection size (rough approximation)
+      const estimatedSize = documentCount * (sampleDoc ? JSON.stringify(sampleDoc).length : 1024);
+
+      return {
+        collection: this.collectionName,
+        documentCount: documentCount,
+        estimatedSize: estimatedSize,
+        estimatedSizeMB: (estimatedSize / (1024 * 1024)).toFixed(2),
+        indexes: indexes.length,
+        avgDocumentSize: sampleDoc ? JSON.stringify(sampleDoc).length : 0,
+        performanceConfig: {
+          maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE) || 10,
+          searchBatchSize: this.searchBatchSize,
+          maxDocumentsPerQuery: this.maxDocumentsPerQuery,
+          similarityThreshold: this.similarityThreshold
+        },
+        lastUpdated: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error("❌ Failed to get performance metrics:", error);
+      return { error: error.message };
+    }
+  }
+
+  /**
+   * Optimize collection for better performance
+   * @returns {Promise<Object>} Optimization results
+   */
+  async optimizeCollection() {
+    try {
+      if (!this.isInitialized) {
+        throw new Error("Vector store not initialized");
+      }
+
+      console.log("🔧 Optimizing MongoDB collection for performance...");
+
+      // Analyze collection statistics before optimization
+      const beforeCount = await this.collection.countDocuments();
+      const beforeIndexes = (await this.collection.listIndexes().toArray()).length;
+      console.log(`📊 Before optimization: ${beforeCount} documents, ${beforeIndexes} indexes`);
+
+      // Rebuild indexes by dropping and recreating them
+      try {
+        // Drop all indexes except _id
+        const indexes = await this.collection.listIndexes().toArray();
+        for (const index of indexes) {
+          if (index.name !== '_id_') {
+            await this.collection.dropIndex(index.name);
+            console.log(`🗑️ Dropped index: ${index.name}`);
+          }
+        }
+
+        // Recreate indexes
+        await this.createIndexes();
+        console.log("✅ Indexes recreated");
+      } catch (indexError) {
+        console.log("⚠️ Index recreation failed:", indexError.message);
+      }
+
+      // Get updated statistics
+      const afterCount = await this.collection.countDocuments();
+      const afterIndexes = (await this.collection.listIndexes().toArray()).length;
+
+      const results = {
+        beforeOptimization: {
+          documentCount: beforeCount,
+          indexes: beforeIndexes
+        },
+        afterOptimization: {
+          documentCount: afterCount,
+          indexes: afterIndexes
+        },
+        optimizationTimestamp: new Date().toISOString()
+      };
+
+      console.log("✅ Collection optimization completed");
+      return results;
+
+    } catch (error) {
+      console.error("❌ Collection optimization failed:", error);
+      return { error: error.message };
+    }
+  }
+
+  /**
+   * Close the MongoDB connection
+   */
+  async close() {
+    try {
+      if (this.client) {
+        await this.client.close();
+        this.isInitialized = false;
+        console.log("✅ MongoDB connection closed");
+      }
+    } catch (error) {
+      console.error("❌ Error closing MongoDB connection:", error);
+    }
+  }
 }
 
-export default VectorStore;
+export default MongoVectorStore;
