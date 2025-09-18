@@ -251,7 +251,7 @@ const corsWhitelist = [
   "http://localhost:3001",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:3001",
-  "https://rag-pipeline-front-mvy3654ul-sanjib-ranjans-projects.vercel.app"
+  "https://rag-pipeline-front.vercel.app"
 ];
 
 // Configure middleware
