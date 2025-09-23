@@ -1,16 +1,17 @@
 /**
  * DocumentStore Service
  *
- * Phase 1: Persistent storage for parent chunks using file system
+ * Phase 1: Persistent storage for parent chunks using MongoDB
  * Stores parent chunks persistently across server restarts
  *
  * @author RAG Pipeline Team
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { MongoClient } from 'mongodb';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,11 +21,24 @@ export class DocumentStore {
     // In-memory Map for storing parent chunks (primary storage)
     this.parentChunks = new Map();
 
+    // MongoDB connection
+    this.client = null;
+    this.db = null;
+    this.collection = null;
+    this.isInitialized = false;
+
     // Configuration options
     this.maxSize = options.maxSize || 10000; // Maximum number of parent chunks to store
     this.cleanupInterval = options.cleanupInterval || 30 * 60 * 1000; // 30 minutes
     this.enableCleanup = options.enableCleanup !== false; // Default to true
     this.enablePersistence = options.enablePersistence !== false; // Default to true
+
+    // MongoDB configuration (same as VectorStore)
+    this.databaseName = process.env.MONGODB_DATABASE || "rag_pipeline";
+    this.collectionName = process.env.MONGODB_DOCUMENT_COLLECTION || "document_store";
+    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/rag_pipeline";
+
+    // Always set persistence file for fallback/migration
     this.persistenceFile = options.persistenceFile || path.join(__dirname, '../../data/processed/document_store.json');
 
     // Statistics tracking
@@ -40,21 +54,176 @@ export class DocumentStore {
       createdAt: new Date().toISOString()
     };
 
-    // Ensure persistence directory exists
-    if (this.enablePersistence) {
-      const persistenceDir = path.dirname(this.persistenceFile);
-      if (!fs.existsSync(persistenceDir)) {
-        fs.mkdirSync(persistenceDir, { recursive: true });
+    // Try to initialize MongoDB connection
+    this.initialize(mongoUri).catch(async (error) => {
+      console.warn(`⚠️ DocumentStore MongoDB initialization failed, falling back to file system: ${error.message}`);
+
+      // Fallback to file system persistence
+      this.persistenceFile = options.persistenceFile || path.join(__dirname, '../../data/processed/document_store.json');
+      if (this.enablePersistence) {
+        const persistenceDir = path.dirname(this.persistenceFile);
+        if (!fs.existsSync(persistenceDir)) {
+          fs.mkdirSync(persistenceDir, { recursive: true });
+        }
+        this.loadFromDisk();
       }
-      this.loadFromDisk();
-    }
+
+      // Try to initialize MongoDB again in the background (for production deployments)
+      setTimeout(async () => {
+        try {
+          console.log('🔄 Retrying DocumentStore MongoDB initialization...');
+          await this.initialize(mongoUri);
+          console.log('✅ DocumentStore MongoDB initialized successfully on retry');
+
+          // If we have file system data but no MongoDB data, migrate
+          if (this.parentChunks.size > 0) {
+            const mongoCount = await this.collection.countDocuments();
+            if (mongoCount === 0) {
+              console.log('📦 Migrating existing data to MongoDB...');
+              await this.migrateFromFileSystem();
+            }
+          }
+        } catch (retryError) {
+          console.warn(`⚠️ DocumentStore MongoDB retry failed: ${retryError.message}`);
+        }
+      }, 5000); // Retry after 5 seconds
+    });
 
     // Start cleanup timer if enabled
     if (this.enableCleanup) {
       this.startCleanupTimer();
     }
 
-    console.log(`📦 DocumentStore initialized with ${this.enablePersistence ? 'persistent' : 'in-memory'} storage`);
+    console.log(`📦 DocumentStore initialized with ${this.isInitialized ? 'MongoDB' : 'file system'} storage`);
+  }
+
+  /**
+   * Initialize MongoDB connection for DocumentStore
+   * @param {string} mongoUri - MongoDB connection URI
+   * @returns {Promise<boolean>} Success status
+   */
+  async initialize(mongoUri) {
+    try {
+      console.log(`🔗 Connecting DocumentStore to MongoDB at: ${mongoUri}`);
+
+      // Create MongoDB client
+      this.client = new MongoClient(mongoUri, {
+        maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE) || 10,
+        minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE) || 5,
+        maxIdleTimeMS: parseInt(process.env.MONGODB_MAX_IDLE_TIME) || 30000,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        retryWrites: true,
+        retryReads: true,
+        readPreference: 'primaryPreferred',
+        writeConcern: { w: 'majority', wtimeoutMS: 5000 }
+      });
+
+      // Connect to MongoDB
+      await this.client.connect();
+      this.db = this.client.db(this.databaseName);
+      this.collection = this.db.collection(this.collectionName);
+
+      // Create indexes for optimal performance (skip if disk space is low)
+      try {
+        await this.collection.createIndex({ parentId: 1 }, { unique: true });
+        await this.collection.createIndex({ "metadata.documentName": 1 });
+        await this.collection.createIndex({ createdAt: 1 });
+        console.log("✅ DocumentStore indexes created");
+      } catch (indexError) {
+        console.warn("⚠️ Failed to create indexes (possibly due to disk space):", indexError.message);
+        console.log("📦 Continuing without indexes - performance may be reduced");
+      }
+
+      // Load existing parent chunks from MongoDB into memory
+      await this.loadFromMongoDB();
+
+      // If no chunks in MongoDB but we have file system backup, migrate from file system
+      if (this.parentChunks.size === 0) {
+        const mongoCount = await this.collection.countDocuments();
+        if (mongoCount === 0 && this.persistenceFile && fs.existsSync(this.persistenceFile)) {
+          console.log("📦 Migrating parent chunks from file system to MongoDB...");
+          try {
+            await this.migrateFromFileSystem();
+          } catch (migrationError) {
+            console.warn("⚠️ Migration from file system failed:", migrationError.message);
+          }
+        }
+      }
+
+      console.log(`✅ DocumentStore MongoDB connected successfully - Collection: ${this.collectionName}`);
+      this.isInitialized = true;
+      return true;
+    } catch (error) {
+      console.error("❌ DocumentStore MongoDB connection failed:", error);
+      throw new Error(`Failed to initialize DocumentStore: ${error.message}`);
+    }
+  }
+
+  /**
+   * Migrate parent chunks from file system to MongoDB
+   * @private
+   */
+  async migrateFromFileSystem() {
+    try {
+      if (!this.persistenceFile || !fs.existsSync(this.persistenceFile)) {
+        return;
+      }
+
+      const fileData = fs.readFileSync(this.persistenceFile, 'utf8');
+      const fileDataParsed = JSON.parse(fileData);
+
+      // Handle different file formats
+      let chunksToMigrate = [];
+      if (fileDataParsed.parentChunks && Array.isArray(fileDataParsed.parentChunks)) {
+        // Format: { parentChunks: [[id, chunk], [id, chunk], ...] }
+        chunksToMigrate = fileDataParsed.parentChunks;
+      } else if (typeof fileDataParsed === 'object') {
+        // Format: { id: chunk, id: chunk, ... }
+        chunksToMigrate = Object.entries(fileDataParsed);
+      }
+
+      let migratedCount = 0;
+      for (const [parentId, chunk] of chunksToMigrate) {
+        await this.saveToMongoDB(parentId, chunk);
+        this.parentChunks.set(parentId, chunk);
+        migratedCount++;
+      }
+
+      console.log(`✅ Migrated ${migratedCount} parent chunks from file system to MongoDB`);
+
+    } catch (error) {
+      console.error("❌ Migration from file system failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Load parent chunks from MongoDB into memory
+   * @private
+   */
+  async loadFromMongoDB() {
+    try {
+      console.log("📦 Loading parent chunks from MongoDB...");
+
+      const documents = await this.collection.find({}).toArray();
+
+      for (const doc of documents) {
+        this.parentChunks.set(doc.parentId, {
+          parentId: doc.parentId,
+          content: doc.content,
+          metadata: doc.metadata,
+          createdAt: doc.createdAt
+        });
+      }
+
+      this.stats.lastLoad = new Date().toISOString();
+      console.log(`✅ Loaded ${documents.length} parent chunks from MongoDB`);
+
+    } catch (error) {
+      console.error("❌ Failed to load from MongoDB:", error);
+      throw error;
+    }
   }
 
   /**
@@ -69,20 +238,20 @@ export class DocumentStore {
       if (!parentId || typeof parentId !== 'string') {
         throw new Error('Parent ID must be a non-empty string');
       }
-      
+
       if (!parentChunk || typeof parentChunk !== 'object') {
         throw new Error('Parent chunk must be an object');
       }
-      
+
       if (!parentChunk.content || typeof parentChunk.content !== 'string') {
         throw new Error('Parent chunk must have content property');
       }
-      
+
       // Check if we need to cleanup before storing
       if (this.parentChunks.size >= this.maxSize) {
         this.performCleanup();
       }
-      
+
       // Add timestamp and store
       const enrichedChunk = {
         ...parentChunk,
@@ -90,19 +259,71 @@ export class DocumentStore {
         accessCount: 0,
         lastAccessed: null
       };
-      
+
       this.parentChunks.set(parentId, enrichedChunk);
       this.stats.totalStored++;
 
-      // Auto-save to disk if persistence is enabled
-      this.autoSave();
+      // Save to MongoDB if available
+      if (this.isInitialized && this.collection) {
+        this.saveToMongoDB(parentId, enrichedChunk).catch(error => {
+          console.warn(`⚠️ Failed to save parent chunk ${parentId} to MongoDB:`, error.message);
+        });
+      }
+
+      // Auto-save to disk if persistence is enabled (fallback)
+      if (!this.isInitialized) {
+        this.autoSave();
+      }
 
       console.log(`📦 Stored parent chunk: ${parentId} (${parentChunk.content.length} chars)`);
       return true;
-      
+
     } catch (error) {
       console.error(`❌ Failed to store parent chunk ${parentId}:`, error.message);
       return false;
+    }
+  }
+
+  /**
+   * Save a parent chunk to MongoDB
+   * @param {string} parentId - Parent chunk ID
+   * @param {Object} parentChunk - Parent chunk data
+   * @private
+   */
+  async saveToMongoDB(parentId, parentChunk) {
+    try {
+      if (!this.collection) {
+        console.warn(`⚠️ Cannot save ${parentId} to MongoDB: no collection`);
+        return;
+      }
+
+      const mongoDocument = {
+        parentId,
+        content: parentChunk.content,
+        metadata: parentChunk.metadata || {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accessCount: parentChunk.accessCount || 0,
+        lastAccessed: parentChunk.lastAccessed
+      };
+
+      const result = await this.collection.updateOne(
+        { parentId },
+        { $set: mongoDocument },
+        { upsert: true }
+      );
+
+      if (result.acknowledged) {
+        console.log(`💾 Saved parent chunk ${parentId} to MongoDB`);
+      } else {
+        console.warn(`⚠️ Failed to save parent chunk ${parentId} to MongoDB: not acknowledged`);
+      }
+
+      this.stats.lastSave = new Date().toISOString();
+
+    } catch (error) {
+      console.error(`❌ Failed to save parent chunk ${parentId} to MongoDB:`, error);
+      throw error;
     }
   }
 

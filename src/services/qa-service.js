@@ -2087,19 +2087,22 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       const distance = distances[i] || 1;
       const similarity = 1 - distance; // Convert distance to similarity
 
-      // For mixed retrieval, be more lenient with distance threshold
-      if (distance > 3.0) { // Allow higher distance for mixed results
+      // For production fallback (when hierarchical retrieval fails), be very lenient
+      // Accept all chunks with reasonable distance, skip only very poor matches
+      if (distance > 5.0) { // Much more lenient threshold
         continue;
       }
 
-      // Check if chunk is relevant to the question
-      if (this.isChunkRelevantToQuestion(chunk, question)) {
+      // For fallback mode, skip strict relevance check or make it very lenient
+      const isRelevant = this.isChunkRelevantToQuestion(chunk, question) || distance < 2.0;
+
+      if (isRelevant) {
         relevantChunks.push({
           content: chunk,
           similarity,
           metadata: metadatas[i] || {},
           index: i,
-          retrievalMethod: 'mixed' // Mark as mixed retrieval result
+          retrievalMethod: 'mixed_fallback' // Mark as fallback retrieval result
         });
       }
     }
@@ -2125,14 +2128,16 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
     // Extract keywords from question (words longer than 3 characters)
     const questionWords = questionLower
       .split(/\W+/)
-      .filter(word => word.length > 3)
+      .filter(word => word.length > 2) // Shorter words too
       .filter(word => !this.isStopWord(word));
+
+    if (questionWords.length === 0) return true; // If no keywords, accept the chunk
 
     // Check if chunk contains significant question keywords
     const matchingWords = questionWords.filter(word => chunkLower.includes(word));
     const matchRatio = matchingWords.length / Math.max(questionWords.length, 1);
 
-    return matchRatio >= 0.3; // At least 30% of question words should match
+    return matchRatio >= 0.1; // Much more lenient - at least 10% of question words should match
   }
 
   /**
