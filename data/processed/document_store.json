@@ -34472,8 +34472,8 @@
           "linking_strategy": "sequential"
         },
         "storedAt": "2025-09-19T07:24:18.528Z",
-        "accessCount": 1,
-        "lastAccessed": "2025-09-19T08:04:45.979Z"
+        "accessCount": 3,
+        "lastAccessed": "2025-09-22T15:39:49.304Z"
       }
     ],
     [
@@ -34608,8 +34608,8 @@
           "linking_strategy": "sequential"
         },
         "storedAt": "2025-09-19T07:24:18.529Z",
-        "accessCount": 0,
-        "lastAccessed": null
+        "accessCount": 1,
+        "lastAccessed": "2025-09-22T15:39:49.305Z"
       }
     ],
     [
@@ -35662,8 +35662,8 @@
           "linking_strategy": "sequential"
         },
         "storedAt": "2025-09-19T08:06:12.097Z",
-        "accessCount": 0,
-        "lastAccessed": null
+        "accessCount": 2,
+        "lastAccessed": "2025-09-22T15:41:21.105Z"
       }
     ],
     [
@@ -35696,22 +35696,1892 @@
           "linking_strategy": "sequential"
         },
         "storedAt": "2025-09-19T08:06:12.098Z",
+        "accessCount": 1,
+        "lastAccessed": "2025-09-22T15:41:21.104Z"
+      }
+    ],
+    [
+      "parent_1758555732408_0",
+      {
+        "id": "parent_1758555732408_0",
+        "content": "AQA Psychology A-level\nNotes\nOption 1: Relationships\nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 3,
+              "to": 6
+            }
+          },
+          "chunkIndex": 0,
+          "contentLength": 70,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": null,
+          "next_chunk_id": "parent_1758555732408_1",
+          "position_in_document": 0,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": true,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_1",
+      {
+        "id": "parent_1758555732408_1",
+        "content": "Relationships \t\nPart 1 — Sexual Selection and Human Reproductive Behaviour: \n•\nSexual selection explains why certain seemingly disadvantageous characteristics (from an \nevolutionary point of view) are still passed on. This is because these characteristics may be \nadvantageous for sexual selection, such as males who behave aggressively (and so have a greater \nchance of protecting their female from competing males) and females with characteristic traits of \nfertility (such as a narrow waist and large hips). This process determines which genes are passed \nonto offspring, through the process of heredity. \n•\nThere are differences between male and female gametes, and the term ‘anisogamy’ describes this. \nDifferences may be in terms of the size of the gametes, the energy invested into their production, \nwhether they are static or mobile, and the intervals at which they are produced. This is reflected in \nthe two types of sexual selection, and which is preferred by each gender i.e. intra-sexual selection",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 8,
+              "to": 21
+            }
+          },
+          "chunkIndex": 1,
+          "contentLength": 1011,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_0",
+          "next_chunk_id": "parent_1758555732408_2",
+          "position_in_document": 1,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_2",
+      {
+        "id": "parent_1758555732408_2",
+        "content": "the two types of sexual selection, and which is preferred by each gender i.e. intra-sexual selection \nand inter-sexual selection. \n•\nInter-sexual selection describes the strategies that each sex uses to attract the other. This is the \n‘quality over quantity’ approach and is favoured by females because they invest more energy into \nthe development of ova, which are produced in limited numbers at intervals across their lives, and \nthe fact that females experience more post-coital responsibility compared to males. Therefore, a \nfemale will be more ‘choosy’ as to who she mates with, due to her limited reproductive resources. \nThis, from an evolutionary standpoint, enables the high quality of her offspring.  \n•\nAn example of inter-sexual selection would be Fisher’s ‘sexy sons hypothesis’. This suggests that, \nthrough a female choosing to mate with an attractive male, her offspring will also grow up to be \nattractive or ‘sexy’, and so are themselves likely to attract females to mate with. This ensures that",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 21,
+              "to": 33
+            }
+          },
+          "chunkIndex": 2,
+          "contentLength": 1015,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_1",
+          "next_chunk_id": "parent_1758555732408_3",
+          "position_in_document": 2,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_3",
+      {
+        "id": "parent_1758555732408_3",
+        "content": "attractive or ‘sexy’, and so are themselves likely to attract females to mate with. This ensures that \nthe female’s genes are passed on through several generations, thus increasing the likelihood that \nthese genes will remain in the gene pool.  \n•\nIntra-sexual selection describes the strategies used within sexes to attract males. This is the \n‘quantity over quality’ approach and is favoured by males because they produce sperm \ncontinuously throughout their lifetime, with little energy investment and limited post-coital \nresponsibility. Therefore, from an evolutionary perspective, it is most effective to impregnate as many \nwomen as possible, in order to ensure the survival of their genes.  \n•\nExamples of intra-sexual selection strategies would be males behaving aggressively and being \nprotective of their female (reducing the likelihood that she will be impregnated by another competing \nmale), being larger (and so more sexually desirable to women), as well as possessing certain facial",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 33,
+              "to": 45
+            }
+          },
+          "chunkIndex": 3,
+          "contentLength": 998,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_2",
+          "next_chunk_id": "parent_1758555732408_4",
+          "position_in_document": 3,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_4",
+      {
+        "id": "parent_1758555732408_4",
+        "content": "male), being larger (and so more sexually desirable to women), as well as possessing certain facial \nand physical characteristics (e.g. strong jawlines and broad shoulders).  \n•\nThese differences in mating strategies and anisogamy results in dimorphism i.e. the physical \ndifferences between the male and female sexes.  \n— Evidence suggests that it is incorrect to assume that current reproductive patterns still have a \nstrong evolutionary basis, but rather an interactionist approach would be more accurate, where the \ninfluences of both culture and evolution are combined together, as suggested by Chang et al (2011). \nChanging social and cultural norms means that women no longer place a large emphasis on \nresource-availability when looking for a new partner, as suggested by Bereczkei et al (1997) because \nwomen are now more financially independent, with the average age of marriage currently exceeding \n30. This suggests that some evolutionary pressures for inter-sexual selection no longer apply in the",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 45,
+              "to": 56
+            }
+          },
+          "chunkIndex": 4,
+          "contentLength": 1011,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_3",
+          "next_chunk_id": "parent_1758555732408_5",
+          "position_in_document": 4,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_5",
+      {
+        "id": "parent_1758555732408_5",
+        "content": "30. This suggests that some evolutionary pressures for inter-sexual selection no longer apply in the \nmodern climate.  \n+\nHowever, research has suggested that there are some sexual selection pressures which have been \nconstant in terms of evolution and in terms of modern times, such as the hip to waist ratio, as \nsuggested by Singh (1993). If this ratio is around 0.7, then this demonstrates to potential mates that \nthe female is fertile and able to carry children over a long period of time, with birth being easier when \nthe female has larger hips and a narrower waist. Therefore, this suggests that some evolutionary \npressures are still relevant in modern times.  \n+\nThere is also evidence supporting the idea that females are more selective when it comes to \npotential mates, due to their greater energy and genetic input into the pregnancy and care for the \nchild, as suggested by Clark and Hatfield (1989). These researchers found that 75% of college",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 56,
+              "to": 68
+            }
+          },
+          "chunkIndex": 5,
+          "contentLength": 960,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_4",
+          "next_chunk_id": "parent_1758555732408_6",
+          "position_in_document": 5,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_6",
+      {
+        "id": "parent_1758555732408_6",
+        "content": "child, as suggested by Clark and Hatfield (1989). These researchers found that 75% of college \nmales, compared to 0% of females, would be willing to sleep with a stranger if this stranger had \napproached them and complimented them! This supports the idea that men have an evolutionary \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 68,
+              "to": 71
+            }
+          },
+          "chunkIndex": 6,
+          "contentLength": 303,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_5",
+          "next_chunk_id": "parent_1758555732408_7",
+          "position_in_document": 6,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_7",
+      {
+        "id": "parent_1758555732408_7",
+        "content": "Relationships \t\npredisposition to want to impregnate as many women as possible, due to the high rates of sperm \nproduction and little energy/resources required to do so, and so also supports the differences in \nmate selection strategies used by females and males i.e. intra- and inter-selection.  \nPart 2 — Factors Affecting Attraction: Self-Disclosure:  \n•\nSelf-disclosure refers to the information we choose to reveal about ourselves within a romantic \nrelationship. The aim of self-disclosure is to increase the intimacy, understanding and empathy \nbetween two individuals. This is under the condition that the self-disclosure is reciprocal.  \n•\nAltman and Taylor have proposed the ‘social penetration’ theory, which suggests that the process of \nself-disclosure allows one person to penetrate deeper into the life of their partner, thus increasing \nintimacy and trust. However, it is important to be selective with what one chooses to disclose. \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 73,
+              "to": 86
+            }
+          },
+          "chunkIndex": 7,
+          "contentLength": 951,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_6",
+          "next_chunk_id": "parent_1758555732408_8",
+          "position_in_document": 7,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_8",
+      {
+        "id": "parent_1758555732408_8",
+        "content": "intimacy and trust. However, it is important to be selective with what one chooses to disclose. \n•\nThe researchers have used an onion analogy to illustrate this. As the relationship progresses, more \nlayers of the onion are removed, representing deeper and more meaningful information being \ndisclosed. This is only likely to occur if the exchange of such information is reciprocal i.e. the other \nperson showing empathy, understanding and revealing personal details about themselves. Such \nexchanges represents a stage in the relationship which is serious and characterised by trust.  \n•\nRevealing intimate details about oneself at the beginning of a relationship may be detrimental effects \ne.g. revealing ‘too much information’. This demonstrates to the other person that at least one \nperson in the relationship does not trust the other.  \n•\nReis and Shaver (1988) suggest that there are two elements of the social penetration theory - depth",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 85,
+              "to": 97
+            }
+          },
+          "chunkIndex": 8,
+          "contentLength": 945,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_7",
+          "next_chunk_id": "parent_1758555732408_9",
+          "position_in_document": 8,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_9",
+      {
+        "id": "parent_1758555732408_9",
+        "content": "•\nReis and Shaver (1988) suggest that there are two elements of the social penetration theory - depth \nand breadth. There is a positive correlation between the increasing quality and trust within a \nrelationship, coinciding with increasing depth and breadth of revealed information.  \n•\nFor example, high levels of breadth result in low levels of depth due to many topics being ‘off limits’, \nthus reducing the emotional impact and empathy shown by the other person. This is the kind of \ninformation we would disclose to strangers, colleagues etc.  \n•\nTherefore, the key to maintaining a developing and intimate relationship is a balance between depth \nand breadth, through the reciprocal self-disclosure of information from both parties.  \n+\nAn increased understanding of the importance of self-disclosure in building and maintaining intimacy \nwithin relationships can have a real-life practical advantage, as suggested by Hass and Stafford",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 96,
+              "to": 109
+            }
+          },
+          "chunkIndex": 9,
+          "contentLength": 941,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_8",
+          "next_chunk_id": "parent_1758555732408_10",
+          "position_in_document": 9,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_10",
+      {
+        "id": "parent_1758555732408_10",
+        "content": "within relationships can have a real-life practical advantage, as suggested by Hass and Stafford \n(1998). These researchers found that for couples with high levels of intimacy and commitment within \ntheir relationships, 57% reported the use of self-disclosure as a way to maintain it. Therefore, this \nsupports the use of therapies which focus on increasing the depth and breadth of self-disclosure for \ncouples who struggle with intimacy, as well as increasing trust within the relationship. These are the \npredictions made by social penetration theory, thus further increasing the validity of this theory! \n— A key methodological issue with the use of correlational studies, such as Sprecher and Hendrick \n(2004), is that causal conclusions cannot be made. For example, simply because there is a correlation \nbetween satisfaction and self-disclosure does not necessarily mean that the former causes the latter. \nCorrelational studies can never establish ‘cause and effect’ relationships between two variables",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 109,
+              "to": 118
+            }
+          },
+          "chunkIndex": 10,
+          "contentLength": 1010,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_9",
+          "next_chunk_id": "parent_1758555732408_11",
+          "position_in_document": 10,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_11",
+      {
+        "id": "parent_1758555732408_11",
+        "content": "Correlational studies can never establish ‘cause and effect’ relationships between two variables \nbecause they may also be affected by the ‘third variable problem’. This occurs when a third, \nunstudied variable can affect both outcomes e.g. the age difference between each couple. Therefore, \nthis means that correlational studies cannot be relied upon to demonstrate the mechanism of self-\ndisclosure in relation to the quality of relationships.  \n+\nHowever, there is research support for the predictions made by social penetration theory, as \nsuggested by Laurenceau et al (2005). These researchers found that, on the basis of daily diary \nentries, high levels of intimacy and trust were strongly associated or correlated with high levels of \nself-disclosure, in married couples. This suggests that the depth and breadth of self-disclosure is \nstrongly predictive of the intimacy and quality of romantic relationships, which again supports the",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 118,
+              "to": 128
+            }
+          },
+          "chunkIndex": 11,
+          "contentLength": 945,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_10",
+          "next_chunk_id": "parent_1758555732408_12",
+          "position_in_document": 11,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_12",
+      {
+        "id": "parent_1758555732408_12",
+        "content": "strongly predictive of the intimacy and quality of romantic relationships, which again supports the \nvalidity of the social penetration theory as an indicator of relationship quality.  \nPart 3 — Factors Affecting Attraction: Physical Attractiveness:  \n•\nFrom an evolutionary perspective, there are certain physical traits which we are pre-disposed to find \nattractive (Shackleford and Larsen 1997). For example, females with neotenous (child-like) faces are \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 128,
+              "to": 134
+            }
+          },
+          "chunkIndex": 12,
+          "contentLength": 476,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_11",
+          "next_chunk_id": "parent_1758555732408_13",
+          "position_in_document": 12,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_13",
+      {
+        "id": "parent_1758555732408_13",
+        "content": "Relationships \t\nmore likely to be viewed as attractive by males because their facial features (e.g. a soft chin and \nlarge eyes) trigger an aggressive and protective trait in men, which gives the female an evolutionary \nadvantage (i.e. increasing her risk of survival and reproduction). This, alongside facial symmetry, \nsignifies a high-quality mate due to their displayed genetic fitness.  \n•\nThe halo effect suggests that we have a tendency to associate highly attractive people with pre-\nconceived disproportionately positive characteristics, including personality and wealth, even though \nthese factors may not be linked. Therefore, we are more likely to view attractive people as \ntrustworthy, honest, successful and more sociable compared to their unattractive counterparts i.e. \n‘what is beautiful is good’ (Dion et al). These beliefs increase the likelihood that such attractive \npeople develop these traits, and so displays the process of a self-fulfilling prophecy.  \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 136,
+              "to": 148
+            }
+          },
+          "chunkIndex": 13,
+          "contentLength": 980,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_12",
+          "next_chunk_id": "parent_1758555732408_14",
+          "position_in_document": 13,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_14",
+      {
+        "id": "parent_1758555732408_14",
+        "content": "people develop these traits, and so displays the process of a self-fulfilling prophecy.  \n•\nThe key to a successful relationship, according to the Matching Hypothesis, is striking a balance \nbetween the attractiveness of a mate and the realistic chances of attaining such a mate. This relies \non an accurate assessment of one’s own attractiveness and ‘value’, meaning that we are more likely \nto have a mate who is of a similar attractiveness level to us. \nSuch a method reduces the likelihood of rejection by a \nseemingly unattainable individual (in terms of attraction) and \nthe potential disappointment of a disproportionately less \nattractive mate.  \n•\nThe idea of physical attractiveness being important to a \nrelationship is not restricted to the ‘early’ stages. For \nexample, McNully et al (2008) found that physical \nattractiveness was still an important determinant of a \nsuccessful relationship, even after marriage.  \n— The halo effect and physical attractiveness may vary in its",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 147,
+              "to": 163
+            }
+          },
+          "chunkIndex": 14,
+          "contentLength": 990,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_13",
+          "next_chunk_id": "parent_1758555732408_15",
+          "position_in_document": 14,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_15",
+      {
+        "id": "parent_1758555732408_15",
+        "content": "successful relationship, even after marriage.  \n— The halo effect and physical attractiveness may vary in its \nimportance as a predictor of the quality of early relationships \ndepending on the individual, as suggested by Towhey (1979). \nThis researcher found that participants with low scores on \nthe MAHCO scale (which measures underlying sexist beliefs \nabout others) were less likely to be attracted to an individual \nas a potential partner based purely on their physical \nattractiveness. This suggests that physical attractiveness, \nfrom an evolutionary perspective, does not provide the same \nselection pressure for all individuals, and so may explain the cases of couples were one is significantly \nmore attractive than the other. Therefore, the halo effect has a good theoretical value.  \n+\nAlthough physical attraction is a relatively broad term, it is not affected extensively by cultural \nrelativism, with both individualist and collectivist cultures finding similar features attractive, as",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 162,
+              "to": 176
+            }
+          },
+          "chunkIndex": 15,
+          "contentLength": 1000,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_14",
+          "next_chunk_id": "parent_1758555732408_16",
+          "position_in_document": 15,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_16",
+      {
+        "id": "parent_1758555732408_16",
+        "content": "relativism, with both individualist and collectivist cultures finding similar features attractive, as \nsuggested by Cunningham et al (1995). These features include large eyes, high eyebrows and sharp \ncheekbones, and this is applicable across both Asian and Western male respondents, as \ndemonstrated by Wheeler and Kim (1997). Therefore, this means that although the influence of \nphysical attractiveness varies between individuals, what is considered ‘attractive’ is relatively \nconsistent.  \n+\nThere are important real-life, practical applications associated with an increased understanding of \nthe halo effect and its influence on individual perceptions of others. For example, Palmer and \nPeterson (2012) found that even when participants were informed that the images of physically \nattractive people represented those of people with little knowledge of political matters, respondents \nstill judged these images as representative of people who were highly politically-skilled, mature and",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 176,
+              "to": 187
+            }
+          },
+          "chunkIndex": 16,
+          "contentLength": 993,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_15",
+          "next_chunk_id": "parent_1758555732408_17",
+          "position_in_document": 16,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_17",
+      {
+        "id": "parent_1758555732408_17",
+        "content": "still judged these images as representative of people who were highly politically-skilled, mature and \ntrustworthy. This has important implications on the state of politics, where the success of some \npoliticians or political parties may be more easily or accurately explained as a result of the halo \neffect, rather than actual political expertise. Therefore, this knowledge could be used to the \nadvantage of some parties when selecting candidates! \nPart 4 — Factors Affecting Attraction: Filter Theory: \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 187,
+              "to": 193
+            }
+          },
+          "chunkIndex": 17,
+          "contentLength": 524,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_16",
+          "next_chunk_id": "parent_1758555732408_18",
+          "position_in_document": 17,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_18",
+      {
+        "id": "parent_1758555732408_18",
+        "content": "Relationships \t\n•\nKerckhoff and Davis (1962) proposed the filter theory of attraction. We are initially exposed to a ‘field \nof availables’ but, in order to form relationships, we must narrow down this field into a ‘field of \ndesirables’, using the 3 filters of social demography, similarity in attitudes and complementarity. The \nimportance of each filter depends on whether the relationship is short-term or long-term.  \n•\nThe first filter is social demography, and describes the factors which can make potential partners \nattractive to us. Key to this is the idea of similarity in terms of these factors which include religion, \nsexuality, ethnicity, social class, educational attainment and proximity. Two people sharing similar \nsocial demographic features are more likely to find each other attractive. Nevertheless, proximity is \nkey because it provides accessibility, which makes communication and relationship formation",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 195,
+              "to": 206
+            }
+          },
+          "chunkIndex": 18,
+          "contentLength": 928,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_17",
+          "next_chunk_id": "parent_1758555732408_19",
+          "position_in_document": 18,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_19",
+      {
+        "id": "parent_1758555732408_19",
+        "content": "key because it provides accessibility, which makes communication and relationship formation \nbetween both parties easier, as the two individuals have regular access to each other. Therefore, \nclose proximity between two individuals may ‘trump’ dissimilarities in other social demographic \nfeatures. \n•\nThe second filter is similarity in attitudes, which is particularly important in short-term relationships \ni.e. less than 18 months in duration. This describes basic similarities in terms of core beliefs about \nsignificant topics, such as love, sex and religion. Large dissimilarities in the attitudes expressed \nbetween two partners may cause the relationship to end, because of the incompatability that would \nresult in the long-term. \n•\nThe third and final filter, which is particularly important in long-term relationships, is the idea of \ncomplementarity. A relationship is more likely to be successful if two people feel that they ‘complete’",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 206,
+              "to": 218
+            }
+          },
+          "chunkIndex": 19,
+          "contentLength": 949,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_18",
+          "next_chunk_id": "parent_1758555732408_20",
+          "position_in_document": 19,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_20",
+      {
+        "id": "parent_1758555732408_20",
+        "content": "complementarity. A relationship is more likely to be successful if two people feel that they ‘complete’ \neach other to form a ‘whole’, therefore supporting the common belief that opposites attract e.g. a \nsociable individual will enjoy encouraging their partner to partake in more activities, which in turn \nmeans that the partner will enjoy and benefit themselves from improved social skills.  \n— Filter theory may have been considered a valid explanation for relationship formation, but only \nbefore the increased use of the Internet and online dating. Such technological advances mean that \nour ‘field of desirables’ is further increased because we are not restricted by certain social \ndemographics, such as proximity and social class or culture, because we have the ability to \ncommunicate with potential partners before meeting them and potentially starting a relationship. This \nmeans that filter theory may lack temporal validity because it can only explain dating phenomena",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 218,
+              "to": 227
+            }
+          },
+          "chunkIndex": 20,
+          "contentLength": 982,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_19",
+          "next_chunk_id": "parent_1758555732408_21",
+          "position_in_document": 20,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_21",
+      {
+        "id": "parent_1758555732408_21",
+        "content": "means that filter theory may lack temporal validity because it can only explain dating phenomena \nwhich have been restricted to the era before the Internet. Nonetheless, the majority of individuals can \nstill use the three filters outlined in the theory, and so it is not completely invalid as an explanation for \nrelationship formation.  \n+\nThere is evidence to support that filter theory is an important predictor of the progression and initial \ndevelopment of a relationship, as suggested by Winch (1958). He found that initial similarities in \nbeliefs and attitudes were cited as one of the main attractive features in the partners of respondents, \nwhich is in line with the predictions made by the matching hypothesis, as well as increasing the \nvalidity of filter theory as a way of narrowing the field of availables down to a field of desirables. \nTherefore, this suggests that even in the modern age, filter theory and the matching hypothesis are \nstill valid explanations of relationship formation.",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 227,
+              "to": 238
+            }
+          },
+          "chunkIndex": 21,
+          "contentLength": 1007,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_20",
+          "next_chunk_id": "parent_1758555732408_22",
+          "position_in_document": 21,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_22",
+      {
+        "id": "parent_1758555732408_22",
+        "content": "still valid explanations of relationship formation. \n— However, there is evidence to refute the idea that initial similarities are important in the early stages \nof relationship formation, as suggested by Anderson et al (2003). These researchers demonstrated \nthe idea of emotional convergence (where over time, a couple’s emotional responses and attitudes will \nbecome more similar, and so can be considered as a type of adaptation in response to living \ntogether), whilst the ‘attitude alignment effect’ (where over time, a couple’s attitudes will become more \nsimilar) was demonstrated by David and Rusbult (2001). This means that there exist individual \ndifferences in the ways in which filter theory affects different individuals, and that the importance of \ninitial similarities between romantic partners is not always concrete.  \nPart 5 — Theories of Romantic Relationships: Social Exchange Theory: \n•\nThibault and Kelley (1959).  \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 238,
+              "to": 250
+            }
+          },
+          "chunkIndex": 22,
+          "contentLength": 940,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_21",
+          "next_chunk_id": "parent_1758555732408_23",
+          "position_in_document": 22,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.821Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_23",
+      {
+        "id": "parent_1758555732408_23",
+        "content": "Part 5 — Theories of Romantic Relationships: Social Exchange Theory: \n•\nThibault and Kelley (1959).  \n•\nThe Social Exchange Theory for relationship formation takes an ‘economical’ approach, viewing \nrelationships as worthwhile based on their relative costs and benefits, with the ‘minimax’ principles \nsuggesting that we all aim to increase our rewards and decrease our benefits. We invest time, \nenergy and money into each relationship and so we want to ‘get our worth’. This relates to the \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 247,
+              "to": 255
+            }
+          },
+          "chunkIndex": 23,
+          "contentLength": 510,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_22",
+          "next_chunk_id": "parent_1758555732408_24",
+          "position_in_document": 23,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_24",
+      {
+        "id": "parent_1758555732408_24",
+        "content": "Relationships \t\nopportunity cost, which suggests that we must \nchoose whether to invest these resources into our \ncurrent relationship, or in other opportunities.  \n•\nIn order to assess the potential profits we gain from a \nrelationship (i.e. rewards — cost), we can use \ncomparison levels and comparison of alternatives. \n•\nComparison levels (CL) refer to our perception of \nwhat we are worth and so what we can get out of a \nrelationship. This perception becomes more \nsophisticated, and potentially more accurate, with \nexperience because we can base our CL off of a \nlarger number of relationships and experiences. Our \nCL is also influenced by social and cultural factors, \nsuch as what novels and TV programs depict as a \ngood or bad relationship.  \n•\nOur CL determines the quality of the relationship we \nare looking for, and hence the quality of our partner. For example, a person with feelings of \nworthlessness may ‘settle’ for relationships which yield little profit.  \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 257,
+              "to": 279
+            }
+          },
+          "chunkIndex": 24,
+          "contentLength": 982,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_23",
+          "next_chunk_id": "parent_1758555732408_25",
+          "position_in_document": 24,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_25",
+      {
+        "id": "parent_1758555732408_25",
+        "content": "worthlessness may ‘settle’ for relationships which yield little profit.  \n•\nThis links into the second method of assessing profit - comparison of alternatives. Individuals may \nconsider ending a relationship if they can see that there are other alternatives which would give \nthem a larger return on the investment they are making towards their current relationship. However, \nthis is a sign of an unstable relationship, and a couple who are satisfied will not be looking for \nalternatives.  \n•\nThere are 4 stages of assessing the quality and profit of a relationship: sampling (rewards and costs \nare determined through trial and error), bargaining (as a couple become more committed, \ncompromises are made in terms of cost and rewards), commitment (such standards of cost and \nrewards are known to both parties) and institutionalisation (these standards and expectations are \nwell-established).  \n— SET may be more useful as a retrospective explanation as to why relationships break down, rather",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 278,
+              "to": 291
+            }
+          },
+          "chunkIndex": 25,
+          "contentLength": 997,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_24",
+          "next_chunk_id": "parent_1758555732408_26",
+          "position_in_document": 25,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_26",
+      {
+        "id": "parent_1758555732408_26",
+        "content": "well-established).  \n— SET may be more useful as a retrospective explanation as to why relationships break down, rather \nthan an explanation of their initial development. This is because many of the concepts in SET cannot \nbe objectively and quantitatively measured, such as comparison levels and the comparison levels of \nalternatives. It is for this reason that it is difficult to establish ‘thresholds’ for each of these concepts \ni.e. what type and value of a discrepancy between two comparison levels is needed to trigger the \nbreakdown of a relationship? This means that SET is a subjective theory and reflects each individual’s \nperception of what is ‘worthy’ in a relationship, in terms of the comparison levels.  \n— SET makes the incorrect assumption that considerations of alternatives triggers dissatisfaction. \nThis makes sense because people in committed, loving relationships are unlikely to look towards \nother attractive people as alternatives because they are satisfied in their own relationship, and have",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 290,
+              "to": 300
+            }
+          },
+          "chunkIndex": 26,
+          "contentLength": 1022,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_25",
+          "next_chunk_id": "parent_1758555732408_27",
+          "position_in_document": 26,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_27",
+      {
+        "id": "parent_1758555732408_27",
+        "content": "other attractive people as alternatives because they are satisfied in their own relationship, and have \ntheir own perception of suitable comparison levels, as suggested by Argyle (1987). It therefore should \nfollow that satisfied individuals in long-term relationships will spend less time looking at other highly \nattractive people because the benefits of their current relationship exceeds the associated costs, as \ndemonstrated by Miller (1997). Therefore, this suggests that SET is likely to be an accurate \nexplanation for comparison levels as a mechanism for relationship breakdown after dissatisfaction \nappears, as opposed to the opposite.  \n— The overemphasis of SET on the role of comparison levels ignores the importance of equity - even \nif the benefits of a relationship exceed the costs for an individual, if this excess is not equal to that of \ntheir partner’s, then this inequity is likely to be a major cause of dissatisfaction in the relationship, even",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 300,
+              "to": 309
+            }
+          },
+          "chunkIndex": 27,
+          "contentLength": 970,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_26",
+          "next_chunk_id": "parent_1758555732408_28",
+          "position_in_document": 27,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_28",
+      {
+        "id": "parent_1758555732408_28",
+        "content": "their partner’s, then this inequity is likely to be a major cause of dissatisfaction in the relationship, even \nif the two partners have similar perceptions of their comparison levels. This idea has been supported \nby equity research, such as that conducted by Utne et al (1984). \nPart 6 — Theories of Romantic Relationships: Equity Theory:  \n•\nEquity theory, unlike social exchange theory, suggests that striking a balance between the ratio of \ncost and reward that each individual has is the key to a successful relationship. Therefore, couples \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 309,
+              "to": 316
+            }
+          },
+          "chunkIndex": 28,
+          "contentLength": 565,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_27",
+          "next_chunk_id": "parent_1758555732408_29",
+          "position_in_document": 28,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_29",
+      {
+        "id": "parent_1758555732408_29",
+        "content": "Relationships \t\nare not always looking to maximise their gains, but simply to have a ‘fair’ relationship. This is not the \nsame as equality where this ratio, alongside levels of cost and reward, would be the same for both \npartners.  \n•\nRewards may include feelings of intimacy, love, sex, support and encouragement, whereas costs \nmay include infidelity and even abuse. \n•\nTherefore, equity is largely a subjective perception. However, differences in these perceptions can \nlead to one person being overbenefitted, whilst the second is underbenefitted. This disparity causes \nthe overbenefitted individual to feel guilty and not worthy of the other, whereas the underbenefitted \nindividual feels envious and disappointed that their input into the relationship is not reciprocal.  \n•\nThe degree of difference between the two ratios, belonging to each individual, determines the \nlikelihood that the relationship will be salvaged and the effort required to do so. This can result in a",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 318,
+              "to": 332
+            }
+          },
+          "chunkIndex": 29,
+          "contentLength": 983,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_28",
+          "next_chunk_id": "parent_1758555732408_30",
+          "position_in_document": 29,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_30",
+      {
+        "id": "parent_1758555732408_30",
+        "content": "likelihood that the relationship will be salvaged and the effort required to do so. This can result in a \nbehavioural or cognitive outcome. The behavioural outcome means that one partner will increase \ntheir own cost in order to increase the reward of the other individual, in an attempt to achieve equity. \nThe cognitive outcome is one or both individuals making their expectations or perceptions of equity \nmore realistic, such as accepting certain ‘costs’ as standards/norms. This may include abuse, \ntardiness, messiness and even unfaithfulness.  \n•\nThis ‘ratio’ often does not remain the same throughout the entire course of the relationship. The \n‘input’ or cost of the relationship is often significantly larger in the early stages, in order to secure the \nother partner, but decreases as a standard of equity has been established between the couple.  \n— There is evidence contradicting the idea that the idea of equity is universal across all relationships",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 332,
+              "to": 342
+            }
+          },
+          "chunkIndex": 30,
+          "contentLength": 964,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_29",
+          "next_chunk_id": "parent_1758555732408_31",
+          "position_in_document": 30,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_31",
+      {
+        "id": "parent_1758555732408_31",
+        "content": "— There is evidence contradicting the idea that the idea of equity is universal across all relationships \nand crucial to upholding the quality of all relationships, as suggested by Huseman et al (1987). This \ninfluence varies depending on the individual and whether they are happy to disproportionately give to \nthe relationship (‘benevolents’) or disproportionately thrive off of the relationship (‘entitleds’). In both \ncases, individuals do so without worry and are aware of their actions, as well as their partner’s \nattitudes. This means that equity is essentially a perception and is not universal across all people.  \n+\nHowever, there is evidence supporting the link between equity theory and the satisfaction or \ncommitment in a relationship, as suggested by Utne et al. Satisfied couples (out of a sample of 118, \nand who’d been dating for 2 or more years before marriage) valued equity as a key component of \nthe success of their relationship, and preferred this balance compared to one or both members",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 342,
+              "to": 352
+            }
+          },
+          "chunkIndex": 31,
+          "contentLength": 1012,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_30",
+          "next_chunk_id": "parent_1758555732408_32",
+          "position_in_document": 31,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_32",
+      {
+        "id": "parent_1758555732408_32",
+        "content": "the success of their relationship, and preferred this balance compared to one or both members \nbeing benevolents or entitleds. Therefore, this suggests that equity has greater ecological validity \nthan SET because it can explain the quality and satisfaction associated with real-life couples, as \nopposed to simply being theoretical.  \n— It has been suggested by Clark and Mills (2011) that equity theory may be a better or more valid \nexplanation for friendship and business/non-personal relationships, as opposed to simply romantic \nrelationships. This is because the researchers emphasised that it is important to draw distinctions \nbetween different types of relationships, and the different expectations that go with each, which may \nimpact on the perceived equity levels. Hence, this suggests that SET is a limited explanation for only \nsome types of relationships.  \nPart 7 — Theories of Romantic Relationships: Rusbult’s Investment Model: \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 352,
+              "to": 363
+            }
+          },
+          "chunkIndex": 32,
+          "contentLength": 949,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_31",
+          "next_chunk_id": "parent_1758555732408_33",
+          "position_in_document": 32,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_33",
+      {
+        "id": "parent_1758555732408_33",
+        "content": "some types of relationships.  \nPart 7 — Theories of Romantic Relationships: Rusbult’s Investment Model: \n•\nRusbult et al (2011), in an extension of social exchange theory, suggested that commitment and \ninvestment are both more important than satisfaction in determining the likelihood of a successful \nrelationship. The three factors which determine the level of commitment shown within a relationship \nare satisfaction levels, comparison with alternatives (a similar concept to SET) and investment size. \n•\nHe argues that satisfaction occurs when each partner sees large profits (i.e. rewards — costs) and \nthat there are fewer plausible or profitable alternatives, in which they can invest their resources.  \n•\nComparison levels play a major part in this. If one partner feels that their profits are decreasing, such \nas through costs increasing throughout the course of the relationship (e.g. discovering that their \npartner is untidy, abuse or is cheating on them), then they shall start looking for alternative",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 361,
+              "to": 374
+            }
+          },
+          "chunkIndex": 33,
+          "contentLength": 1016,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_32",
+          "next_chunk_id": "parent_1758555732408_34",
+          "position_in_document": 33,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_34",
+      {
+        "id": "parent_1758555732408_34",
+        "content": "partner is untidy, abuse or is cheating on them), then they shall start looking for alternative \nrelationships or even consider having no relationship at all.  \n•\nHowever, there are many couples who have small profits but still remain together because they have \nmade large investments in the relationship. This refers to the loss of tangible (intrinsic) or intangible \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 374,
+              "to": 379
+            }
+          },
+          "chunkIndex": 34,
+          "contentLength": 387,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_33",
+          "next_chunk_id": "parent_1758555732408_35",
+          "position_in_document": 34,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_35",
+      {
+        "id": "parent_1758555732408_35",
+        "content": "Relationships \t\n(extrinsic) resources after the end of a relationship. Therefore, there are two types of investment - \nintrinsic and extrinsic. \n•\nIntrinsic investments describe resources which were we have added to the relationship, both at the \nbeginning and throughout e.g. money, time, energy, opportunities etc. However, extrinsic \ninvestments describe ‘resources’ which have come about as a result of the relationship e.g. a \nshared mortgage, children, strong expectations from others of staying together.  \n•\nThe size of the investment dictates how hard each partner will work to salvage their relationship, \nand thus demonstrate commitment. From an economic viewpoint, this commitment is almost selfish \nin that it is carried out purely not to lose the investment. Rusbult suggested that there are \nmechanisms which facilitate commitment: ridiculing alternatives, positive illusions, forgiveness, \nwillingness to sacrifice and accommodation. \n+",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 381,
+              "to": 395
+            }
+          },
+          "chunkIndex": 35,
+          "contentLength": 952,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_34",
+          "next_chunk_id": "parent_1758555732408_36",
+          "position_in_document": 35,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_36",
+      {
+        "id": "parent_1758555732408_36",
+        "content": "willingness to sacrifice and accommodation. \n+\nRusbult’s Investment Model features high ecological validity because it can easily explain abusive \nrelationships, by shifting the focus from relationship satisfaction to that of investment and viable \nalternatives, as demonstrated by Rusbult and Martz (1995). These researchers found that the \npredictions based off of Rusbult’s model can explain why ‘battered women’ often return to their \nabusive partners, and explained this in terms of making significant investments and having few \nalternative partners, rather than satisfaction (which is obviously not present in an abusive \nrelationship, featuring intimate partner violence, for both partners). Therefore, this shift of focus may \nbe considered refreshing and a more valid explanation of abusive relationships compared to SET or \nequity theory.  \n+\nAlthough self-report measures are usually criticised as lacking objectivity and creating qualitative",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 394,
+              "to": 406
+            }
+          },
+          "chunkIndex": 36,
+          "contentLength": 954,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_35",
+          "next_chunk_id": "parent_1758555732408_37",
+          "position_in_document": 36,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_37",
+      {
+        "id": "parent_1758555732408_37",
+        "content": "equity theory.  \n+\nAlthough self-report measures are usually criticised as lacking objectivity and creating qualitative \ndata, this is not the case with Rusbult’s model. The key elements of his model focus on an \nindividual’s perception of their investments, resources and energy, as opposed to a quantitative \nvalue. This makes sense and has high ecological validity when considering that an individual’s \nperception of their investments is often different to their partner’s perception in the instance of \nrelationship breakdown. Therefore, Rusbult’s investment model has used the correct methodology \nto accurately reflect the subjective nature of the model’s features.  \n— Rusbult’s Investment Model sees the motivation to continue with a relationship according to the \ninvestments, time and energy which an individual has contributed. However, the motivation to see a \ncouple’s future plans come to fruition may be a bigger predictor of relationship success, as opposed",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 404,
+              "to": 415
+            }
+          },
+          "chunkIndex": 37,
+          "contentLength": 974,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_36",
+          "next_chunk_id": "parent_1758555732408_38",
+          "position_in_document": 37,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_38",
+      {
+        "id": "parent_1758555732408_38",
+        "content": "couple’s future plans come to fruition may be a bigger predictor of relationship success, as opposed \nto initial investments which are often very low in the early stages of romantic relationships. This was \nsuggested by Goodfriend and Agnew (2008). Therefore, Rusbult’s model may have oversimplified the \nconcept of investment and its future implications on the plans that couples make together.  \nPart 8 — Theories of Romantic Relationships: Duck’s Phase Model: \n•\nDuck (2007) suggested that there is a process of relationship breakdown, which occurs in 4 distinct \nstages, each marked by a ‘threshold’ or a change in each partner’s perception of the relationship, \nwhich leads them to enter the next stage. \n•\nThe first stage is the intra-psychic stage, which focuses upon cognitive elements. One or both \npartners have reached the point/threshold that they are evaluating the costs and rewards of their \nrelationship, and reconsidering the profitability as compared to the investments. However, most of",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 415,
+              "to": 427
+            }
+          },
+          "chunkIndex": 38,
+          "contentLength": 1005,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_37",
+          "next_chunk_id": "parent_1758555732408_39",
+          "position_in_document": 38,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_39",
+      {
+        "id": "parent_1758555732408_39",
+        "content": "relationship, and reconsidering the profitability as compared to the investments. However, most of \nthese processes are private, and are unlikely to be shared, unless potentially with a trusted friend.  \n•\nThe second stage, after the first threshold has been reached, is the dyadic phase. The previously \nprivate thoughts about the future of the relationship are now openly discussed between the \npartners, who may voice concerns over inequity, jealousy, increasing costs of the relationship etc. \nThis may either provoke the partners to work to salvage the relationship, or may trigger the \nbeginning of a public breakdown.  \n•\nThe third stage is the social phase, where the break-up has been made public. This triggers friends \nof the couple to evaluate the relationship to either give reassurance/support or place blame on one \nof the partners, which inevitably results in the majority of the mutual friends having to take sides. A",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 427,
+              "to": 438
+            }
+          },
+          "chunkIndex": 39,
+          "contentLength": 934,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_38",
+          "next_chunk_id": "parent_1758555732408_40",
+          "position_in_document": 39,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_40",
+      {
+        "id": "parent_1758555732408_40",
+        "content": "of the partners, which inevitably results in the majority of the mutual friends having to take sides. A \nfinal attempt at salvaging the relationship may be made by these friends, perhaps by offering their \nadvice or helping resolve equity issues etc.  \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 438,
+              "to": 441
+            }
+          },
+          "chunkIndex": 40,
+          "contentLength": 270,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_39",
+          "next_chunk_id": "parent_1758555732408_41",
+          "position_in_document": 40,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_41",
+      {
+        "id": "parent_1758555732408_41",
+        "content": "Relationships \t\n•\nThe fourth and final stage is the grave-dressing stage, which confirms the end of the relationship \nand signifies both members to ‘move on’. Key to this face is ‘keeping good face’ and maintaining a \npositive social image. This may involve fabricating false stories about the cause of the end of the \nrelationship to make it more socially-acceptable (e.g. the infidelity of one partner may be blamed on \nthe unattractiveness of the other). Both partners make new plans to carry on with their lives, taking \nwith them valuable lessons learnt from the previous relationship. \n— There may be a fifth stage of the model, as suggested by Rollie and Duck (2006), called the \nresurrection phase where individuals learn from the experiences of their previous relationships. \nHowever, these researchers also suggest that a relationship breakdown model should be a dynamic \nprogression as opposed to a set sequence of stages through which all people pass through. The",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 443,
+              "to": 454
+            }
+          },
+          "chunkIndex": 41,
+          "contentLength": 975,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_40",
+          "next_chunk_id": "parent_1758555732408_42",
+          "position_in_document": 41,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_42",
+      {
+        "id": "parent_1758555732408_42",
+        "content": "progression as opposed to a set sequence of stages through which all people pass through. The \nsocial dynamics within each stage can also affect the chances of ex-partners reuniting, such as the \nspreading of rumours during the dyadic or social phases. This means that Duck’s model may be \noversimplified and has little ecological validity because it cannot represent the progression of real-life \nrelationships. \n— Flemlee’s ‘fatal attraction hypothesis’ (1995) may be a better and more valid explanation of \nrelationship breakdown compared to the Phase Model. This is because the fatal attraction hypothesis, \nwhich suggests that the initially desirable characteristics become less so as the relationship \nprogresses, actually explains the cause of relationship breakdown as opposed to simply the \nprogression of the breakdown (as the Phase Model does). This means that Duck’s model may lack \necological validity because it is a general description of a universal sequence of stages involved in",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 454,
+              "to": 464
+            }
+          },
+          "chunkIndex": 42,
+          "contentLength": 996,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_41",
+          "next_chunk_id": "parent_1758555732408_43",
+          "position_in_document": 42,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.822Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_43",
+      {
+        "id": "parent_1758555732408_43",
+        "content": "ecological validity because it is a general description of a universal sequence of stages involved in \nrelationship breakdown, as opposed to a concrete explanation. \n— There are also serious methodological issues associated with the research upon which Duck’s \nPhase Model was based upon. For example, much of the research features self-report measures \nwhich are completed retrospectively after the end of the relationship. This means that the data may \nrely too much on the respondents’ accuracy of memory and a realistic perception of the relationship. \nIn addition, since researchers are unwilling to intervene at the early stages of relationship breakdown, \nthis means that these early stages are mostly speculative and their workings inferred from the later \nstages. Therefore, these methodological issues draws doubts over the validity and accuracy of Duck’s \nPhase Model as an explanation for relationship breakdown.  \nPart 9 — Virtual Relationships in Social Media: \n•",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 464,
+              "to": 475
+            }
+          },
+          "chunkIndex": 43,
+          "contentLength": 977,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_42",
+          "next_chunk_id": "parent_1758555732408_44",
+          "position_in_document": 43,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_44",
+      {
+        "id": "parent_1758555732408_44",
+        "content": "Phase Model as an explanation for relationship breakdown.  \nPart 9 — Virtual Relationships in Social Media: \n•\nDifferences in self-disclosure between face-to-face and computer-mediated communications (CDC) \nmeans that the rate of progression of the relationship and intimacy with also be different.  \n•\nFor example, Keisler and Sproull (1986), through their Reduced Cues theory, suggests that CDC \nrelationships may have poorer levels of intimacy and delayed self-disclosure because some of the \nvital cues present in face-to-face relationships, such as facial expressions and voice intonation, are \nnot present in CDC relationships, leading to the de-individuation of each partner. Therefore, to act \nas a compromise for the lack of cues, one or both individuals are likely to be excessively blunt or \nimpersonal, which also reduces the likelihood of future self-disclosure and early intimacy within the \nrelationship.  \n•\nOn the other hand, the hyperpersonal model suggests that online relationships develop and end at",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 473,
+              "to": 487
+            }
+          },
+          "chunkIndex": 44,
+          "contentLength": 1020,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_43",
+          "next_chunk_id": "parent_1758555732408_45",
+          "position_in_document": 44,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_45",
+      {
+        "id": "parent_1758555732408_45",
+        "content": "relationship.  \n•\nOn the other hand, the hyperpersonal model suggests that online relationships develop and end at \na much higher rate than face-to-face relationships, as suggested by Cooper and Sportolari (1997) \nthrough their idea of a ‘boom and bust phenomenon’. Initial self-disclosure is high because partners \ncan be selective about what information they choose to display or disclose i.e. selective self-\npenetration. However, a lack of personal cues means that trust and intimacy is not built at the same \nrate as self-disclosure, so these exchanges are not reciprocal. The anonymity associated with online \ndating, as suggested by Bargh et al (2002), means that each individual takes less responsibility for \ntheir behaviour and so the break-up and build-up of the relationship is less personal.  \n•\nGating refers to the reasons as to why we may choose one person over another as a potential \npartner, as suggested by McKenna and Bargh (1999). An absence of gating may explain why the",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 485,
+              "to": 497
+            }
+          },
+          "chunkIndex": 45,
+          "contentLength": 993,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_44",
+          "next_chunk_id": "parent_1758555732408_46",
+          "position_in_document": 45,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_46",
+      {
+        "id": "parent_1758555732408_46",
+        "content": "partner, as suggested by McKenna and Bargh (1999). An absence of gating may explain why the \nrate of progression of online relationships is greater than relationships in real-life: if each individual is \nselective about how they present themselves online, then there are fewer ‘gates’ and so effectively \nfewer reasons not to choose a particular individual to start a relationship with! \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 497,
+              "to": 501
+            }
+          },
+          "chunkIndex": 46,
+          "contentLength": 405,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_45",
+          "next_chunk_id": "parent_1758555732408_47",
+          "position_in_document": 46,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_47",
+      {
+        "id": "parent_1758555732408_47",
+        "content": "Relationships \t\n+\nThere is research evidence supporting some of the core principles/assumptions of the \nhyperpersonal model, as suggested by Whitty and Johnson (2009). Online communications, due to \nthe apparent lack of nonverbal cues, often feature ‘direct’ questions, as opposed to the small-talk \nwhich features in face-to-face relationships. Therefore, this suggests that we are actually more likely \nto self-disclose in virtual relationships because we can be selective as to what information we reveal \nabout ourselves, and so use self-disclosure to further improve the way that a potential partner views \nus. Hence, the central principle of selective self-presentation and the importance on anonymity are \ndemonstrated in such studies.  \n— The theories of self-disclosure and absence of gating in virtual relationships may lack ecological \nvalidity because they may not be able to explain all the course of modern-age relationships, which is",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 503,
+              "to": 514
+            }
+          },
+          "chunkIndex": 47,
+          "contentLength": 948,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_46",
+          "next_chunk_id": "parent_1758555732408_48",
+          "position_in_document": 47,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_48",
+      {
+        "id": "parent_1758555732408_48",
+        "content": "validity because they may not be able to explain all the course of modern-age relationships, which is \noften a mixture of virtual and face-to-face elements, as suggested by Walther (2011). Individuals often \nfeel the pressure to portray themselves in the same way as they have online as in real-life, and so this \ninteraction may offset the effects of fewer gates and self-disclosure in virtual relationships.  \n— Although virtual relationships are intrinsically different to face-to-face relationships, they may still \nshare the similarity of featuring nonverbal signals, as suggested by Walther and Tidwell (1995). This \nincludes the use of emojis, acronyms (e.g. LOL and OMG) and nonverbal cues which are specific to \nonline communications, such as the length, timing and tone of the messages sent. This refutes the \ncentral assumption of the reduces cues theory that online communication relationships may suffer due \nto being impersonal and featuring few cues, especially considering that an increasing number of",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 514,
+              "to": 523
+            }
+          },
+          "chunkIndex": 48,
+          "contentLength": 1017,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_47",
+          "next_chunk_id": "parent_1758555732408_49",
+          "position_in_document": 48,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_49",
+      {
+        "id": "parent_1758555732408_49",
+        "content": "to being impersonal and featuring few cues, especially considering that an increasing number of \nsuccessful modern relationships begin online.  \n \nPart 10 — Parasocial Relationships: \n•\nMaltby et al (2006) used the Celebrity Attitude \nScale (developed by McCutcheon et al, 2002) to \nestablish three different stages of parasocial \nrelationships, each increasing with emotional \nintensity and commitment towards the celebrity. \nThe three stages are entertainment-social, intense-\npersonal and borderline pathological. The first \nstage suggests that celebrity news is used as a \nsource of gossip (Giles, 2002) and so can \nstrengthen real-life relationships with friends due to \nhaving more common interests. The second stage \nis characterised by obsessive thoughts about the \ncelebrity and an advanced emotional connection \nwith them, whilst the third stage is associated with \nmore pathological behaviours such as stalking \nand/or resentment against anyone who may \nprevent the individual from carrying out these",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 523,
+              "to": 544
+            }
+          },
+          "chunkIndex": 49,
+          "contentLength": 1011,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_48",
+          "next_chunk_id": "parent_1758555732408_50",
+          "position_in_document": 49,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_50",
+      {
+        "id": "parent_1758555732408_50",
+        "content": "and/or resentment against anyone who may \nprevent the individual from carrying out these \nbehaviours. \n•\nAn individual is more likely to develop abnormal, pathological parasocial relationships if they are \nunfulfilled in their current relationship, have low self-esteem or have experienced traumatic, life-\nchanging events e.g. a mid-life crisis. This is in line with the absorption-addiction model, where \nabsorption indicates the individual’s initial interest and developing obsession with the celebrity, whilst \nthe addiction model indicates the individual’s need to increase the intensity and commitment of their \nparasocial relationship, through increasingly pathological behaviours.  \n•\nIn line with Bowlby’s theories of maternal deprivation and monotropic attachment, an individual with \nan insecure-resistant attachment type is more likely to be involved in a parasocial relationship (due \nto lowering the risk of rejection and pain, alongside unfulfillment associated with real-life",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 543,
+              "to": 556
+            }
+          },
+          "chunkIndex": 50,
+          "contentLength": 991,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_49",
+          "next_chunk_id": "parent_1758555732408_51",
+          "position_in_document": 50,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_51",
+      {
+        "id": "parent_1758555732408_51",
+        "content": "to lowering the risk of rejection and pain, alongside unfulfillment associated with real-life \nrelationships), as well as those with an insecure-avoidant attachment type (but with an emphasis on \navoiding the feelings above, rather than being exposed to them in the first instance).  \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 556,
+              "to": 559
+            }
+          },
+          "chunkIndex": 51,
+          "contentLength": 302,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_50",
+          "next_chunk_id": "parent_1758555732408_52",
+          "position_in_document": 51,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_52",
+      {
+        "id": "parent_1758555732408_52",
+        "content": "Relationships \t\n— Bowlby’s attachment theory may be a better explanation for the development of pathological traits \nin parasocial relationships, compared to the absorption-addiction model. This is because the latter \nmodel accurately describes the acquirement and maintenance of parasocial relationships (i.e. in terms \nof the initial absorption and then consequent addiction to fulfill the original desires), whereas Bowlby’s \nattachment theory can explain why some people are more likely to begin parasocial relationships than \nothers. Therefore, Bowlby’s attachment theory has a greater practical explanatory value.  \n+\nThere is evidence to support the idea that different psychological states are associated with each of \nthe three stages of parasocial relationship formation, as suggested by Maltby et al (2003). For \nexample, the final borderline-psychotic stage is associated with psychotic traits, whilst the second",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 561,
+              "to": 571
+            }
+          },
+          "chunkIndex": 52,
+          "contentLength": 924,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_51",
+          "next_chunk_id": "parent_1758555732408_53",
+          "position_in_document": 52,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_53",
+      {
+        "id": "parent_1758555732408_53",
+        "content": "example, the final borderline-psychotic stage is associated with psychotic traits, whilst the second \nstage is associated with neuroticism. This, alongside previous evidence from Maltby et al (2005) \nwhich found a positive correlation between increasing body dissatisfaction and an increasing \nlikelihood of developing a parasocial relationship, supports the idea that abnormal psychological \nfunctioning is heavily implicated in the formation of parasocial relationships. This is in line with \nMcCutcheon’s original theory and predictions, increasing the validity of such ideas! \n— However, the methodology of research studies which have formed the basis of theories of \nparasocial relationships may be flawed. The first problem is that of correlational research, which can \nonly demonstrate a link between two variables and so cannot establish a ‘cause and effect’ \nrelationship between, for example, personality type and the likelihood of forming a parasocial",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 571,
+              "to": 580
+            }
+          },
+          "chunkIndex": 53,
+          "contentLength": 962,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_52",
+          "next_chunk_id": "parent_1758555732408_54",
+          "position_in_document": 53,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
+        "accessCount": 0,
+        "lastAccessed": null
+      }
+    ],
+    [
+      "parent_1758555732408_54",
+      {
+        "id": "parent_1758555732408_54",
+        "content": "relationship between, for example, personality type and the likelihood of forming a parasocial \nrelationship. Such correlational studies also do not take into account the ‘third variable problem’, \nwhere a third, unstudied variable may be affecting both outcomes. The second problem is the reliance \non self-report measures, which depend on the accuracy of the respondent’s memory and their \nhonesty. Such data is particularly susceptible to acquiscience bias and social desirability bias (both \ntypes of demand characteristics). This therefore reduces the reliability of the Celebrity Attitude Scale \nand McCutcheon’s stages as explanations of parasocial relationships.  \nwww.pmt.education",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 580,
+              "to": 587
+            }
+          },
+          "chunkIndex": 54,
+          "contentLength": 690,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "code",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1758555732408_53",
+          "next_chunk_id": null,
+          "position_in_document": 54,
+          "total_chunks_in_document": 55,
+          "is_first_chunk": false,
+          "is_last_chunk": true,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-22T15:43:44.823Z",
         "accessCount": 0,
         "lastAccessed": null
       }
     ]
   ],
   "stats": {
-    "totalStored": 1050,
-    "totalRetrieved": 26,
+    "totalStored": 1105,
+    "totalRetrieved": 32,
     "totalDeleted": 0,
-    "cacheHits": 26,
-    "cacheMisses": 10,
+    "cacheHits": 32,
+    "cacheMisses": 13,
     "lastCleanup": null,
     "lastSave": "2025-09-18T11:16:22.363Z",
-    "lastLoad": "2025-09-19T08:04:31.432Z",
+    "lastLoad": "2025-09-22T15:32:19.375Z",
     "createdAt": "2025-09-18T09:12:30.132Z"
   },
-  "savedAt": "2025-09-19T08:06:13.099Z",
+  "savedAt": "2025-09-22T15:43:45.825Z",
   "version": "2.1.0"
 }
