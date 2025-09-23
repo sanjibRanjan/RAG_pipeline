@@ -1,6 +1,7 @@
 import { DocumentProcessor } from '../services/document-processor.js';
 import { EmbeddingService } from '../services/embedding-service.js';
 import { VectorStore } from '../services/vector-store.js';
+import { DocumentStore } from '../services/document-store.js';
 import 'dotenv/config';
 import { readdir } from 'fs/promises';
 import path from 'path';
@@ -17,9 +18,11 @@ async function runIngestion() {
     const documentProcessor = new DocumentProcessor();
     const embeddingService = new EmbeddingService();
     const vectorStore = new VectorStore();
+    const documentStore = new DocumentStore(); // Phase 1: DocumentStore for parent chunks
 
     await embeddingService.initialize();
     await vectorStore.initialize();
+    // DocumentStore initializes automatically
 
     // Get files from data directory
     let files;
@@ -54,16 +57,32 @@ async function runIngestion() {
         processedDocuments.push(processedDoc);
         totalChunks += processedDoc.chunks.length;
 
-        console.log(`✅ ${file}: ${processedDoc.chunks.length} chunks created`);
+        console.log(`✅ ${file}: ${processedDoc.chunks.length} child chunks, ${processedDoc.parentChunks ? processedDoc.parentChunks.length : 0} parent chunks created`);
+
+        // Phase 1: Store parent chunks in DocumentStore
+        if (processedDoc.parentChunks && processedDoc.parentChunks.length > 0) {
+          console.log(`📦 Storing ${processedDoc.parentChunks.length} parent chunks in DocumentStore...`);
+          const parentChunkData = processedDoc.parentChunks.map(chunk => ({
+            id: chunk.id,
+            chunk: chunk
+          }));
+
+          const parentStoreResult = documentStore.storeParentChunksBatch(parentChunkData);
+          console.log(`📦 Stored ${parentStoreResult.successful}/${parentStoreResult.total} parent chunks in DocumentStore`);
+        }
       } catch (error) {
         console.error(`❌ Failed to process ${file}:`, error.message);
         continue; // Continue with other files
       }
     }
 
+    // Calculate total parent chunks
+    const totalParentChunks = processedDocuments.reduce((sum, doc) => sum + (doc.parentChunks ? doc.parentChunks.length : 0), 0);
+
     console.log(`\n📊 Processing Summary:`);
     console.log(`   • Documents processed: ${processedDocuments.length}`);
-    console.log(`   • Total chunks: ${totalChunks}`);
+    console.log(`   • Total child chunks: ${totalChunks}`);
+    console.log(`   • Total parent chunks: ${totalParentChunks}`);
 
     if (processedDocuments.length === 0) {
       console.log('⚠️ No documents were successfully processed. Exiting.');
@@ -111,8 +130,10 @@ async function runIngestion() {
     console.log('\n🎉 Data ingestion completed successfully!');
     console.log(`📈 Final Summary:`);
     console.log(`   • Documents processed: ${processedDocuments.length}`);
-    console.log(`   • Total chunks stored: ${totalChunks}`);
+    console.log(`   • Total child chunks stored: ${totalChunks}`);
+    console.log(`   • Total parent chunks stored: ${totalParentChunks}`);
     console.log(`   • Vector database: ${COLLECTION_NAME}`);
+    console.log(`   • Document store: document_store`);
 
   } catch (error) {
     console.error('💥 Fatal error during ingestion process:', error);
