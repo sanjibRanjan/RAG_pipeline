@@ -53,7 +53,7 @@ export class VectorStore {
 
       // Performance configuration
       this.searchBatchSize = parseInt(process.env.VECTOR_SEARCH_BATCH_SIZE) || 50;
-      this.maxDocumentsPerQuery = parseInt(process.env.MAX_DOCUMENTS_PER_QUERY) || 1000;
+      this.maxDocumentsPerQuery = parseInt(process.env.MAX_DOCUMENTS_PER_QUERY) || 500; // Reduced for better performance
       this.similarityThreshold = parseFloat(process.env.SIMILARITY_THRESHOLD) || 0.7;
 
       // Connect to MongoDB
@@ -113,7 +113,7 @@ export class VectorStore {
             name: "vector_index",
             vectorSearch: {
               type: "knnVector",
-              dimensions: 384, // Adjust based on your embedding model
+              dimensions: 3072, // Updated for Gemini embeddings
               similarity: "cosine"
             }
           }
@@ -121,7 +121,18 @@ export class VectorStore {
         console.log("✅ Vector search index created");
       } catch (vectorError) {
         console.log("⚠️ Vector search index not available (requires MongoDB Atlas Vector Search)");
-        console.log("   Falling back to manual vector similarity calculation");
+        console.log("   Creating regular index for manual search optimization...");
+
+        // Create regular index on embedding field for better performance
+        try {
+          await this.collection.createIndex(
+            { embedding: 1 },
+            { name: "embedding_index" }
+          );
+          console.log("✅ Regular embedding index created for manual search");
+        } catch (indexError) {
+          console.warn("⚠️ Could not create embedding index:", indexError.message);
+        }
       }
 
       console.log("✅ MongoDB indexes created successfully");
@@ -341,12 +352,26 @@ export class VectorStore {
    */
   async manualVectorSearch(queryEmbedding, limit) {
     try {
-      // Get sample of documents for similarity calculation
-      const documents = await this.collection
-        .find({})
-        .limit(this.maxDocumentsPerQuery)
-        .sort({ createdAt: -1 }) // Prefer newer documents
-        .toArray();
+      // Use sampling strategy for better performance with large datasets
+      const totalDocs = await this.collection.countDocuments();
+      const sampleSize = Math.min(this.maxDocumentsPerQuery, totalDocs);
+
+      let documents;
+      if (totalDocs <= sampleSize) {
+        // If we have fewer documents than our limit, get all
+        documents = await this.collection
+          .find({})
+          .sort({ createdAt: -1 })
+          .toArray();
+      } else {
+        // Use aggregation pipeline for more efficient sampling
+        documents = await this.collection.aggregate([
+          { $sample: { size: sampleSize } },
+          { $sort: { createdAt: -1 } }
+        ]).toArray();
+      }
+
+      console.log(`🔍 Calculating similarity for ${documents.length} documents`);
 
       // Calculate cosine similarity for each document
       const results = documents.map(doc => {

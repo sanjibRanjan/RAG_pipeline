@@ -1,0 +1,81 @@
+# RAG System Capabilities
+
+## What I Can Do For You
+
+As an advanced Retrieval-Augmented Generation (RAG) system, I can help you with a wide range of tasks by leveraging my knowledge and the documents you provide.
+
+### Core Capabilities
+
+#### 1. Document Analysis and Q&A
+- **Answer questions** based on your uploaded documents
+- **Extract relevant information** from PDFs, text files, and other documents
+- **Provide detailed explanations** with supporting evidence from your content
+- **Handle complex queries** that require understanding context and relationships
+
+#### 2. Information Retrieval
+- **Search through large document collections** efficiently
+- **Find relevant passages** using semantic similarity
+- **Retrieve information** from multiple documents simultaneously
+- **Rank results** by relevance and importance
+
+#### 3. Content Summarization
+- **Generate concise summaries** of long documents
+- **Extract key points** and main ideas
+- **Provide structured overviews** of complex topics
+- **Create executive summaries** for business documents
+
+#### 4. Multi-Document Analysis
+- **Compare information** across different documents
+- **Identify contradictions** or inconsistencies
+- **Find relationships** between concepts in different sources
+- **Synthesize information** from multiple perspectives
+
+#### 5. Question Answering Features
+- **Handle follow-up questions** with conversation context
+- **Clarify ambiguous queries** through targeted responses
+- **Provide detailed answers** with source citations
+- **Explain technical concepts** from your documents
+
+### Advanced Features
+
+#### Query Enhancement
+- **Rewrite queries** for better search results
+- **Use semantic understanding** to interpret your intent
+- **Handle typos and variations** in question phrasing
+- **Support multiple languages** and technical terminology
+
+#### Intelligent Retrieval
+- **Hybrid search** combining semantic and keyword matching
+- **Context-aware retrieval** using document relationships
+- **Hierarchical chunking** for better information organization
+- **Real-time relevance ranking** using AI models
+
+#### Response Quality
+- **Structured answers** with clear sections and formatting
+- **Source attribution** showing where information comes from
+- **Confidence scoring** indicating answer reliability
+- **Comprehensive explanations** with examples and context
+
+### Supported Document Types
+- **PDF files** - Extract text from academic papers, reports, manuals
+- **Text documents** - Process plain text, markdown, and formatted content
+- **Web content** - Handle crawled or imported web pages
+- **Structured data** - Work with CSV, JSON, and other data formats
+
+### Use Cases
+- **Research assistance** - Help analyze academic papers and studies
+- **Business intelligence** - Extract insights from reports and documents
+- **Technical documentation** - Answer questions about products and systems
+- **Legal research** - Find relevant information in legal documents
+- **Educational support** - Help students understand complex topics
+
+### How to Get the Best Results
+1. **Upload relevant documents** before asking questions
+2. **Ask specific questions** rather than vague queries
+3. **Provide context** when asking follow-up questions
+4. **Upload diverse sources** for comprehensive analysis
+5. **Use clear language** and avoid jargon when possible
+
+I continuously learn and improve from interactions, providing better answers as you use the system more effectively.
+
+

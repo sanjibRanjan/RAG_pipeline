@@ -1,0 +1,71 @@
+# Machine Learning Fundamentals
+
+## What is Machine Learning?
+
+Machine Learning (ML) is a subset of artificial intelligence (AI) that enables computers to learn and make decisions from data without being explicitly programmed for every scenario.
+
+### Types of Machine Learning
+
+1. **Supervised Learning**: Learning from labeled data
+   - Classification: Predicting categories (spam detection, image recognition)
+   - Regression: Predicting continuous values (price prediction, weather forecasting)
+
+2. **Unsupervised Learning**: Finding patterns in unlabeled data
+   - Clustering: Grouping similar data points (customer segmentation)
+   - Dimensionality Reduction: Simplifying data while preserving important information
+
+3. **Reinforcement Learning**: Learning through interaction and rewards
+   - Game playing (AlphaGo, chess engines)
+   - Robotics and autonomous systems
+
+## Key Concepts
+
+### Training Data
+The dataset used to teach the model patterns and relationships.
+
+### Features
+The measurable properties or characteristics of the data.
+
+### Labels
+The target outputs we want to predict (in supervised learning).
+
+### Model
+The mathematical representation that captures patterns from training data.
+
+## Popular Algorithms
+
+### Linear Regression
+- Used for predicting continuous values
+- Assumes linear relationship between features and target
+
+### Decision Trees
+- Tree-like model for classification and regression
+- Easy to interpret and visualize
+
+### Neural Networks
+- Inspired by biological neural networks
+- Powerful for complex pattern recognition
+- Deep Learning uses multiple layers
+
+### Support Vector Machines (SVM)
+- Effective for classification tasks
+- Works well with clear margin of separation
+
+## Applications
+
+- **Computer Vision**: Image recognition, object detection
+- **Natural Language Processing**: Text analysis, translation
+- **Recommendation Systems**: Product suggestions, content personalization
+- **Medical Diagnosis**: Disease prediction, drug discovery
+- **Financial Services**: Fraud detection, algorithmic trading
+- **Autonomous Vehicles**: Self-driving cars, navigation
+
+## Getting Started with ML
+
+1. **Learn Python**: Primary language for ML
+2. **Master Mathematics**: Linear algebra, calculus, statistics
+3. **Choose a Framework**: TensorFlow, PyTorch, scikit-learn
+4. **Practice with Datasets**: Kaggle, UCI Machine Learning Repository
+5. **Build Projects**: Start with simple models, gradually increase complexity
+
+Machine Learning is revolutionizing industries and creating new possibilities for automation and intelligent systems.

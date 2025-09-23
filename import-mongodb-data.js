@@ -237,7 +237,7 @@ Optional Options:
   --help, -h           Show this help message
 
 Environment Variables:
-  MONGODB_URI                MongoDB connection URI (default: mongodb://localhost:27017/rag_pipeline)
+  MONGODB_URI                MongoDB connection URI (default:mongodb://localhost:27017/rag_pipeline)
   MONGODB_DATABASE          Database name (default: rag_pipeline)
   MONGODB_VECTOR_COLLECTION Collection name (default: vector_documents)
 

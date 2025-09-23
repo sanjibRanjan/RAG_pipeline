@@ -301,12 +301,32 @@ export class QAService {
       }
 
       // Phase 3: Build narrative context using linked list metadata (can be disabled for performance)
-      let narrativeContext;
+      let narrativeContext = {
+        narrativeEnabled: false,
+        primaryChunk: null,
+        contextMetadata: {
+          chunksRetrieved: 0,
+          contextStats: {
+            contextExpansionRatio: 1.0,
+            totalContextLength: 0
+          },
+          linkedListMetadata: null
+        }
+      }; // Default fallback
+
       if (process.env.DISABLE_NARRATIVE_CONTEXT === 'true') {
         console.log('🚀 Narrative context building disabled for performance');
         narrativeContext = {
           narrativeEnabled: false,
-          primaryChunk: reRankedChunks[0] || null
+          primaryChunk: reRankedChunks[0] || null,
+          contextMetadata: {
+            chunksRetrieved: 0,
+            contextStats: {
+              contextExpansionRatio: 1.0,
+              totalContextLength: 0
+            },
+            linkedListMetadata: null
+          }
         };
       } else {
         narrativeContext = await this._buildNarrativeContext(reRankedChunks, question);
@@ -360,11 +380,11 @@ export class QAService {
           topChunkScores: reRankedChunks.slice(0, 3).map(chunk => chunk.llmScore || 'N/A'),
           // Phase 3: Narrative context metadata
           narrativeContext: {
-            enabled: narrativeContext.narrativeEnabled,
-            chunksRetrieved: narrativeContext.contextMetadata.chunksRetrieved || 0,
-            contextExpansionRatio: narrativeContext.contextMetadata.contextStats?.contextExpansionRatio || 1.0,
-            totalContextLength: narrativeContext.contextMetadata.contextStats?.totalContextLength || 0,
-            linkedListMetadata: narrativeContext.contextMetadata.linkedListMetadata || null
+            enabled: narrativeContext?.narrativeEnabled || false,
+            chunksRetrieved: narrativeContext?.contextMetadata?.chunksRetrieved || 0,
+            contextExpansionRatio: narrativeContext?.contextMetadata?.contextStats?.contextExpansionRatio || 1.0,
+            totalContextLength: narrativeContext?.contextMetadata?.contextStats?.totalContextLength || 0,
+            linkedListMetadata: narrativeContext?.contextMetadata?.linkedListMetadata || null
           }
         }
       };
@@ -1424,6 +1444,12 @@ SCORES:`;
    */
   async performHyDESearch(question) {
     try {
+      // Disable HyDE in production to save API quota - it's expensive and not always necessary
+      if (process.env.NODE_ENV === 'production') {
+        console.log("🔄 HyDE disabled in production to save API quota, using semantic search only");
+        return { documents: [[]], distances: [[]], metadatas: [[]], ids: [[]] };
+      }
+
       // Check if LLM is available for HyDE
       if (!this.langChainManager || !this.langChainManager.useModelTiering) {
         console.log("⚠️ HyDE requires LLM with model tiering, falling back to semantic search");
@@ -1651,27 +1677,44 @@ Hypothetical Document:`;
 
   /**
    * Convert search results to vector store format for consistency
-   * @param {Array} results - Search results
+   * @param {Array|Object} results - Search results (can be array or vector store format)
    * @returns {Object} Vector store format results
    */
   convertToVectorStoreFormat(results) {
-    if (!results || results.length === 0) {
+    // Handle empty/null results
+    if (!results) {
       return { documents: [[]], distances: [[]], metadatas: [[]], ids: [[]] };
     }
 
-    return {
-      documents: [results.map(r => r.contentPreview || r.content || '')],
-      distances: [results.map(() => 0.5)], // Default distance for non-semantic results
-      metadatas: [results.map(r => ({
-        documentName: r.documentName || 'unknown',
-        chunkIndex: r.chunkIndex || 0,
-        fileType: r.fileType || 'unknown',
-        fileSize: r.fileSize || 0,
-        version: r.version || 1,
-        uploadedAt: r.uploadedAt || null
-      }))],
-      ids: [results.map((r, idx) => r.id || `mixed_${idx}`)]
-    };
+    // If results is already in vector store format (has documents, distances, metadatas, ids)
+    if (results.documents && results.distances && results.metadatas && results.ids) {
+      return results;
+    }
+
+    // Handle array of results (from keyword search, etc.)
+    if (Array.isArray(results)) {
+      if (results.length === 0) {
+        return { documents: [[]], distances: [[]], metadatas: [[]], ids: [[]] };
+      }
+
+      return {
+        documents: [results.map(r => r.contentPreview || r.content || '')],
+        distances: [results.map(() => 0.5)], // Default distance for non-semantic results
+        metadatas: [results.map(r => ({
+          documentName: r.documentName || 'unknown',
+          chunkIndex: r.chunkIndex || 0,
+          fileType: r.fileType || 'unknown',
+          fileSize: r.fileSize || 0,
+          version: r.version || 1,
+          uploadedAt: r.uploadedAt || null
+        }))],
+        ids: [results.map((r, idx) => r.id || `mixed_${idx}`)]
+      };
+    }
+
+    // Fallback for unexpected format
+    console.warn('⚠️ Unexpected results format in convertToVectorStoreFormat:', typeof results);
+    return { documents: [[]], distances: [[]], metadatas: [[]], ids: [[]] };
   }
 
   /**
@@ -1682,8 +1725,14 @@ Hypothetical Document:`;
    */
   async _llmReRank(parentChunks, question) {
     try {
+      // Disable LLM re-ranking in production to save API quota - it's expensive and not always necessary
+      if (process.env.NODE_ENV === 'production') {
+        console.log(`🔄 LLM re-ranking disabled in production to save API quota, using original order`);
+        return parentChunks;
+      }
+
       console.log(`🧠 Phase 2: LLM re-ranking ${parentChunks.length} parent chunks...`);
-      
+
       if (!this.langChainManager || !this.langChainManager.useModelTiering) {
         console.warn('⚠️ LLM not available for re-ranking, returning original order');
         return parentChunks;
@@ -2285,31 +2334,134 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
     }
 
-    // Combine all chunk content
-    const allText = relevantChunks.map(chunk => chunk.content).join(" ");
+    try {
+      // Enhanced fallback: Try to create a coherent answer by extracting and organizing content
+      const questionType = this.analyzeQuestionType(question);
+      const answerTitle = this.generateAnswerTitle(question, questionType);
 
-    // Extract sentences that might be relevant
+      let answer = answerTitle ? `## ${answerTitle}\n\n` : '';
+
+      // Extract key information from chunks
+      const keyPoints = this.extractKeyPointsFromChunks(relevantChunks, question);
+
+      if (keyPoints.length > 0) {
+        answer += keyPoints.join('\n\n');
+        answer += '\n\n*This answer is based on information found in the uploaded documents.*';
+        return answer;
+      }
+
+      // Fallback to improved text extraction
+      const synthesizedAnswer = this.synthesizeAnswerFromChunks(relevantChunks, question);
+      if (synthesizedAnswer) {
+        return synthesizedAnswer;
+      }
+
+      // Final fallback: return structured preview of top chunk
+      const topChunk = relevantChunks[0];
+      const previewLength = Math.min(800, topChunk.content.length);
+      const preview = topChunk.content.substring(0, previewLength);
+      const sentences = preview.split(/[.!?]+/).filter(s => s.trim().length > 10);
+
+      return `🔍 Answer based on document content:\n\n${sentences.slice(0, 4).join('. ').trim()}${sentences.length > 4 ? '...' : ''}\n\n*Source: Document content*`;
+
+    } catch (error) {
+      console.warn("⚠️ Enhanced fallback failed, using simple fallback:", error.message);
+      // Simple fallback
+      const topChunk = relevantChunks[0];
+      return `Based on the documents, here's the most relevant information:\n\n${topChunk.content.substring(0, 500)}${topChunk.content.length > 500 ? '...' : ''}`;
+    }
+  }
+
+  /**
+   * Extract key points from chunks to create a coherent answer
+   * @param {Array} chunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {Array} Key points as strings
+   */
+  extractKeyPointsFromChunks(chunks, question) {
+    const keyPoints = [];
+    const questionWords = question.toLowerCase().split(/\s+/).filter(word => word.length > 3);
+
+    for (const chunk of chunks.slice(0, 3)) { // Only process top 3 chunks
+      const sentences = chunk.content.split(/[.!?]+/).filter(s => s.trim().length > 15);
+
+      for (const sentence of sentences.slice(0, 3)) { // Take first 3 sentences from each chunk
+        const sentenceLower = sentence.toLowerCase();
+        const relevanceScore = questionWords.reduce((score, word) => {
+          return score + (sentenceLower.includes(word) ? 1 : 0);
+        }, 0);
+
+        if (relevanceScore > 0 || sentence.length > 50) {
+          keyPoints.push(sentence.trim());
+        }
+
+        if (keyPoints.length >= 5) break; // Limit to 5 key points
+      }
+
+      if (keyPoints.length >= 5) break;
+    }
+
+    return keyPoints.slice(0, 5); // Return top 5 points
+  }
+
+  /**
+   * Synthesize a coherent answer from multiple chunks
+   * @param {Array} chunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {string} Synthesized answer
+   */
+  synthesizeAnswerFromChunks(chunks, question) {
+    const allText = chunks.map(chunk => chunk.content).join(' ');
     const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
-    const questionLower = question.toLowerCase();
 
-    // Find sentences that contain question keywords
-    const relevantSentences = sentences.filter(sentence => {
-      const sentenceLower = sentence.toLowerCase();
-      // Check if sentence contains important words from the question
-      const questionWords = questionLower.split(/\s+/).filter(word => word.length > 3);
-      return questionWords.some(word => sentenceLower.includes(word));
-    });
+    // Try to find the most comprehensive sentences
+    const scoredSentences = sentences.map(sentence => ({
+      text: sentence.trim(),
+      score: this.scoreSentenceRelevance(sentence, question)
+    })).sort((a, b) => b.score - a.score);
 
-    if (relevantSentences.length > 0) {
-      // Return top 3-5 relevant sentences
-      const topSentences = relevantSentences.slice(0, Math.min(5, relevantSentences.length));
+    const topSentences = scoredSentences.slice(0, 4).map(s => s.text);
+
+    if (topSentences.length > 0) {
       return `🔍 Answer based on document content:\n\n${topSentences.join('. ')}.`;
     }
 
-    // If no specific sentences match, return the beginning of the most relevant chunk
-    const topChunk = relevantChunks[0];
-    const previewLength = Math.min(600, topChunk.content.length);
-    return `🔍 Here's relevant information from the documents:\n\n${topChunk.content.substring(0, previewLength)}${topChunk.content.length > previewLength ? '...' : ''}`;
+    return null;
+  }
+
+  /**
+   * Score sentence relevance to question
+   * @param {string} sentence - Sentence to score
+   * @param {string} question - Original question
+   * @returns {number} Relevance score
+   */
+  scoreSentenceRelevance(sentence, question) {
+    const sentenceLower = sentence.toLowerCase();
+    const questionLower = question.toLowerCase();
+    const questionWords = questionLower.split(/\s+/).filter(word => word.length > 2);
+
+    let score = 0;
+
+    // Exact word matches
+    for (const word of questionWords) {
+      if (sentenceLower.includes(word)) {
+        score += 2;
+      }
+    }
+
+    // Partial matches for longer words
+    for (const word of questionWords.filter(w => w.length > 4)) {
+      const partialMatches = sentenceLower.split(word.substring(0, 4));
+      if (partialMatches.length > 1) {
+        score += 1;
+      }
+    }
+
+    // Length bonus (prefer substantial sentences)
+    if (sentence.length > 100) score += 1;
+    if (sentence.length > 200) score += 1;
+
+    return score;
   }
 
   /**
@@ -2708,7 +2860,13 @@ JSON_OUTPUT:`;
 
       // Parse and format the JSON response with enhanced validation
       try {
-        const jsonResponse = JSON.parse(result.answer.trim());
+        // Try to extract and parse JSON from the response
+        const jsonResponse = this.extractAndParseJSON(result.answer.trim());
+
+        if (!jsonResponse) {
+          console.warn("❌ No valid JSON found in LLM response, falling back to raw answer");
+          return result.answer;
+        }
 
         // Validate response completeness and quality
         const validationResult = this.validateResponseQuality(jsonResponse, question);
@@ -2790,6 +2948,13 @@ JSON_OUTPUT:`;
 
       } catch (parseError) {
         console.warn("❌ Failed to parse JSON response, falling back to raw answer:", parseError.message);
+        // Try to extract JSON from the raw response
+        const extractedJSON = this.extractAndParseJSON(result.answer);
+        if (extractedJSON) {
+          console.log("✅ Successfully extracted JSON from malformed response");
+          // Format the extracted JSON response
+          return this.formatStructuredResponse(extractedJSON, question);
+        }
         // Fallback: return the raw response if JSON parsing fails
         return result.answer;
       }
@@ -2797,6 +2962,126 @@ JSON_OUTPUT:`;
     } catch (error) {
       console.warn("❌ Direct answer generation failed:", error.message);
       return this.generateFallbackAnswer(relevantChunks, question);
+    }
+  }
+
+  /**
+   * Extract and parse JSON from LLM response that may contain malformed JSON
+   * @param {string} response - Raw LLM response
+   * @returns {Object|null} Parsed JSON object or null if parsing fails
+   */
+  extractAndParseJSON(response) {
+    try {
+      // First try direct JSON parsing
+      return JSON.parse(response.trim());
+    } catch (e) {
+      console.log("Direct JSON parsing failed, attempting extraction...");
+
+      // Try to extract JSON from code blocks (```json ... ```)
+      const jsonBlockRegex = /```(?:json)?\s*(\{[\s\S]*?\})\s*```/i;
+      const jsonBlockMatch = response.match(jsonBlockRegex);
+      if (jsonBlockMatch) {
+        try {
+          return JSON.parse(jsonBlockMatch[1].trim());
+        } catch (e2) {
+          console.log("JSON block extraction failed:", e2.message);
+        }
+      }
+
+      // Try to find JSON object pattern (starts with { and ends with })
+      const jsonObjectRegex = /\{[\s\S]*\}/;
+      const jsonMatch = response.match(jsonObjectRegex);
+      if (jsonMatch) {
+        try {
+          // Try to fix common JSON issues
+          let jsonString = jsonMatch[0];
+
+          // Fix trailing commas
+          jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
+
+          // Fix unescaped quotes in strings
+          jsonString = jsonString.replace(/([^\\])"([^"]*)"([^,}\]]*[^\\])"([^"]*)"([^,}\]]*)/g, '$1"$2\\"$3\\"$4"$5');
+
+          return JSON.parse(jsonString);
+        } catch (e3) {
+          console.log("JSON object extraction failed:", e3.message);
+        }
+      }
+
+      return null;
+    }
+  }
+
+  /**
+   * Format structured JSON response into readable text
+   * @param {Object} jsonResponse - Parsed JSON response
+   * @param {string} question - Original question for validation
+   * @returns {string} Formatted answer
+   */
+  formatStructuredResponse(jsonResponse, question) {
+    try {
+      let formattedAnswer = '';
+
+      // Add title if meaningful
+      if (jsonResponse.title && jsonResponse.title.trim()) {
+        formattedAnswer += `# ${jsonResponse.title}\n\n`;
+      }
+
+      // Add introduction
+      if (jsonResponse.introduction && jsonResponse.introduction.trim()) {
+        formattedAnswer += `${jsonResponse.introduction}\n\n`;
+      }
+
+      // Add main content
+      if (jsonResponse.mainContent && jsonResponse.mainContent.trim()) {
+        formattedAnswer += `${jsonResponse.mainContent}\n\n`;
+      }
+
+      // Add key points if available
+      if (jsonResponse.keyPoints && Array.isArray(jsonResponse.keyPoints) && jsonResponse.keyPoints.length > 0) {
+        formattedAnswer += `## Key Points\n\n`;
+        jsonResponse.keyPoints.forEach(point => {
+          if (point && point.trim()) {
+            formattedAnswer += `• ${point.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add categories only if they contain actual content
+      if (jsonResponse.categories && Array.isArray(jsonResponse.categories) && jsonResponse.categories.length > 0) {
+        formattedAnswer += `## Categories\n\n`;
+        jsonResponse.categories.forEach(category => {
+          if (category && category.trim()) {
+            formattedAnswer += `• ${category.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add examples only if they contain actual examples
+      if (jsonResponse.examples && Array.isArray(jsonResponse.examples) && jsonResponse.examples.length > 0) {
+        formattedAnswer += `## Examples\n\n`;
+        jsonResponse.examples.forEach(example => {
+          if (example && example.trim()) {
+            formattedAnswer += `• ${example.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add conclusion if meaningful
+      if (jsonResponse.conclusion && jsonResponse.conclusion.trim()) {
+        formattedAnswer += `## Conclusion\n\n${jsonResponse.conclusion.trim()}`;
+      }
+
+      // Clean the output: remove source citations and extra whitespace
+      formattedAnswer = this.cleanStructuredOutput(formattedAnswer);
+
+      return formattedAnswer.trim();
+    } catch (error) {
+      console.error("❌ Error formatting structured response:", error.message);
+      return JSON.stringify(jsonResponse, null, 2);
     }
   }
 
@@ -3030,9 +3315,9 @@ JSON_OUTPUT:`;
   answerCache = new Map();
 
   async rewriteQueryForRetrieval(originalQuestion) {
-    // Allow disabling query rewriting to save API quota
-    if (process.env.DISABLE_QUERY_REWRITING === 'true') {
-      console.log("🔄 Query rewriting disabled, using original question");
+    // Disable query rewriting in production to save API quota - it's expensive and not always necessary
+    if (process.env.NODE_ENV === 'production' || process.env.DISABLE_QUERY_REWRITING === 'true') {
+      console.log("🔄 Query rewriting disabled to save API quota, using original question");
       return originalQuestion;
     }
 

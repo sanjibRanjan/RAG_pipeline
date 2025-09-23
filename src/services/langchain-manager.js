@@ -11,11 +11,16 @@ export class LangChainManager {
     this.maxTokens = options.maxTokens || parseInt(process.env.LLM_MAX_TOKENS) || 2000;
     this.isInitialized = false;
     this.llm = null;
-    
+
     // Model tiering support - separate models for different tasks
     this.preprocessingModel = null; // For query rewriting, HyDE, re-ranking
     this.synthesisModel = null;     // For final answer generation
-    this.useModelTiering = options.useModelTiering !== false; // Default to true
+    this.useModelTiering = options.useModelTiering !== false && process.env.DISABLE_MODEL_TIERING !== 'true'; // Check env var
+
+    // Rate limiting for API quota management
+    this.requestHistory = [];
+    this.maxRequestsPerMinute = options.maxRequestsPerMinute || parseInt(process.env.LLM_MAX_REQUESTS_PER_MINUTE) || 10;
+    this.maxRequestsPerDay = options.maxRequestsPerDay || parseInt(process.env.LLM_MAX_REQUESTS_PER_DAY) || 1000;
   }
 
   getDefaultModelName() {
@@ -77,10 +82,13 @@ export class LangChainManager {
       }
 
       // Skip connection test in development to save API quota
-      if (process.env.NODE_ENV === 'production' || process.env.TEST_CONNECTION === 'true') {
+      // In production, only test if explicitly requested
+      if (process.env.NODE_ENV === 'production' && process.env.TEST_CONNECTION === 'true') {
         await this.testConnection();
-      } else {
+      } else if (process.env.NODE_ENV !== 'production') {
         console.log(`⏭️ Skipping connection test in development mode (set TEST_CONNECTION=true to enable)`);
+      } else {
+        console.log(`⏭️ Skipping connection test in production to save API quota`);
       }
 
       this.isInitialized = true;
@@ -342,6 +350,12 @@ export class LangChainManager {
    * @returns {Promise<Object>} Generated answer with metadata
    */
   async generateAnswer(question, relevantChunks, questionAnalysis, conversationHistory = [], options = {}) {
+    // Check rate limits before proceeding
+    if (!this.checkRateLimit()) {
+      console.warn("⚠️ Rate limit exceeded, falling back to rule-based generation");
+      return this.generateFallbackAnswer(question, relevantChunks, questionAnalysis);
+    }
+
     // Reduce retries to save API quota - use 0 for development, can be overridden
     const maxRetries = options.maxRetries !== undefined ? options.maxRetries : (process.env.NODE_ENV === 'production' ? 1 : 0);
     let lastError = null;
@@ -353,6 +367,9 @@ export class LangChainManager {
         }
 
         console.log(`🧠 Generating answer using ${this.provider} ${this.modelName} (attempt ${attempt}/${maxRetries})...`);
+
+        // Record this request for rate limiting
+        this.recordRequest();
 
         // Prepare context from retrieved chunks
         const rawContext = this.prepareContext(relevantChunks);
@@ -506,6 +523,41 @@ export class LangChainManager {
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
 
     return cleaned.trim();
+  }
+
+  /**
+   * Check if request should be allowed based on rate limits
+   * @returns {boolean} Whether request should proceed
+   */
+  checkRateLimit() {
+    const now = Date.now();
+    const oneMinuteAgo = now - 60000;
+    const oneDayAgo = now - 86400000;
+
+    // Clean old requests from history
+    this.requestHistory = this.requestHistory.filter(timestamp => timestamp > oneDayAgo);
+
+    // Check per-minute limit
+    const recentRequests = this.requestHistory.filter(timestamp => timestamp > oneMinuteAgo);
+    if (recentRequests.length >= this.maxRequestsPerMinute) {
+      console.warn(`⚠️ Rate limit exceeded: ${recentRequests.length}/${this.maxRequestsPerMinute} requests per minute`);
+      return false;
+    }
+
+    // Check per-day limit
+    if (this.requestHistory.length >= this.maxRequestsPerDay) {
+      console.warn(`⚠️ Daily quota limit exceeded: ${this.requestHistory.length}/${this.maxRequestsPerDay} requests per day`);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Record a request for rate limiting
+   */
+  recordRequest() {
+    this.requestHistory.push(Date.now());
   }
 
   /**
