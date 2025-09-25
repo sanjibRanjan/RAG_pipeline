@@ -79,14 +79,14 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter for PDF and TXT only
+// File filter for PDF, TXT, and ZIP files
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["application/pdf", "text/plain"];
+  const allowedTypes = ["application/pdf", "text/plain", "application/zip", "application/x-zip-compressed"];
 
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only PDF and TXT files are allowed!"), false);
+    cb(new Error("Only PDF, TXT, and ZIP files are allowed!"), false);
   }
 };
 

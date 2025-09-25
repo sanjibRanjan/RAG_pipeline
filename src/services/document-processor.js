@@ -2,6 +2,7 @@ import fs from "fs";
 import pdf from "pdf-parse";
 import crypto from "crypto";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { ZipProcessor } from "../utils/zip-processor.js";
 
 // Phase 1: Hierarchical chunking configuration
 const CHILD_CHUNK_SIZE = 256;
@@ -42,17 +43,20 @@ export class DocumentProcessor {
       chunkSize: this.chunkSize,
       chunkOverlap: this.chunkOverlap,
     });
-    
+
     // Phase 1: Hierarchical chunking splitters
     this.childSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: CHILD_CHUNK_SIZE,
       chunkOverlap: CHILD_CHUNK_OVERLAP,
     });
-    
+
     this.parentSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: PARENT_CHUNK_SIZE,
       chunkOverlap: PARENT_CHUNK_OVERLAP,
     });
+
+    // ZIP processing
+    this.zipProcessor = new ZipProcessor();
   }
 
   /**
@@ -72,14 +76,50 @@ export class DocumentProcessor {
       const fileHash = this.generateFileHash(fileContent);
 
       let text = "";
+      let extractedFiles = null;
+      let zipExtractDir = null;
 
       // Extract text based on file type
-      if (originalName.toLowerCase().endsWith(".pdf")) {
+      if (originalName.toLowerCase().endsWith(".zip")) {
+        // Handle ZIP files containing chat exports
+        const zipResult = await this.zipProcessor.extractZip(filePath);
+        if (!zipResult.success) {
+          throw new Error(`Failed to extract ZIP file: ${zipResult.error}`);
+        }
+
+        zipExtractDir = zipResult.extractDir;
+        extractedFiles = zipResult.extractedFiles;
+
+        if (extractedFiles.length === 0) {
+          throw new Error("ZIP file contains no supported files (PDF/TXT).");
+        }
+
+        // For ZIP files, process the first text file (likely the chat export)
+        const chatFile = this.zipProcessor.findWhatsAppChat(extractedFiles) || extractedFiles[0];
+
+        console.log(`📄 Processing extracted file: ${chatFile.originalName}`);
+
+        if (chatFile.fileType === 'pdf') {
+          text = await this.extractPdfText(chatFile.extractedPath);
+        } else {
+          text = await this.extractTxtText(chatFile.extractedPath);
+        }
+
+        // Add ZIP metadata
+        if (!versionOptions.metadata) versionOptions.metadata = {};
+        versionOptions.metadata.zipInfo = {
+          originalZipName: originalName,
+          extractedFile: chatFile.originalName,
+          totalFilesInZip: extractedFiles.length,
+          supportedFiles: extractedFiles.length
+        };
+
+      } else if (originalName.toLowerCase().endsWith(".pdf")) {
         text = await this.extractPdfText(filePath);
       } else if (originalName.toLowerCase().endsWith(".txt")) {
         text = await this.extractTxtText(filePath);
       } else {
-        throw new Error("Unsupported file type. Only PDF and TXT files are supported.");
+        throw new Error("Unsupported file type. Only PDF, TXT, and ZIP files are supported.");
       }
 
       // Determine version number
@@ -150,9 +190,20 @@ export class DocumentProcessor {
 
       console.log(`✅ Document processed: ${originalName} v${currentVersion} (${versionType}) - ${chunks.length} child chunks, ${hierarchicalChunks.parentChunks.length} parent chunks, ${text.length} characters`);
 
+      // Cleanup temporary ZIP extraction directory
+      if (zipExtractDir) {
+        this.zipProcessor.cleanup(zipExtractDir);
+      }
+
       return processedDoc;
     } catch (error) {
       console.error("❌ Document processing failed:", error);
+
+      // Cleanup temporary ZIP extraction directory in case of error
+      if (zipExtractDir) {
+        this.zipProcessor.cleanup(zipExtractDir);
+      }
+
       throw new Error(`Document processing failed: ${error.message}`);
     }
   }
@@ -181,10 +232,101 @@ export class DocumentProcessor {
   async extractTxtText(filePath) {
     try {
       console.log("📝 Reading text file...");
-      return fs.readFileSync(filePath, "utf8");
+      let text = fs.readFileSync(filePath, "utf8");
+
+      // Check if this is a WhatsApp chat export and process it
+      if (this.isWhatsAppChat(text)) {
+        console.log("📱 Detected WhatsApp chat format, processing accordingly");
+        text = this.processWhatsAppChat(text);
+      }
+
+      return text;
     } catch (error) {
       throw new Error(`TXT file reading failed: ${error.message}`);
     }
+  }
+
+  /**
+   * Check if text content is a WhatsApp chat export
+   * @param {string} text - Text content to check
+   * @returns {boolean} True if WhatsApp chat format
+   */
+  isWhatsAppChat(text) {
+    // Check for WhatsApp's characteristic date/time format at the beginning
+    const lines = text.split('\n').slice(0, 10); // Check first 10 lines
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+
+      // WhatsApp format variations:
+      // [MM/DD/YY, HH:MM:SS AM/PM] - Name: Message (with space after comma)
+      // [DD/MM/YYYY, HH:MM:SS] - Name: Message
+      const whatsappPatterns = [
+        /^\[\d{1,2}\/\d{1,2}\/\d{2,4},\s+\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?\]\s*-\s*[^:]+:/,
+        /^\[\d{1,2}\/\d{1,2}\/\d{4},\s+\d{1,2}:\d{2}:\d{2}\]\s*-\s*[^:]+:/
+      ];
+
+      for (const pattern of whatsappPatterns) {
+        if (pattern.test(trimmedLine)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Process WhatsApp chat export for better RAG processing
+   * @param {string} text - Raw WhatsApp chat text
+   * @returns {string} Processed text optimized for RAG
+   */
+  processWhatsAppChat(text) {
+    const lines = text.split('\n');
+    const processedLines = [];
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine) continue;
+
+      // WhatsApp message patterns (multiple formats)
+      const whatsappPatterns = [
+        // [MM/DD/YY, HH:MM:SS AM/PM] - Name: Message (with space after comma)
+        /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s+(\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?)\]\s*-\s*([^:]+):\s*(.*)$/,
+        // [DD/MM/YYYY, HH:MM:SS] - Name: Message
+        /^\[(\d{1,2}\/\d{1,2}\/\d{4}),\s+(\d{1,2}:\d{2}:\d{2})\]\s*-\s*([^:]+):\s*(.*)$/
+      ];
+
+      let match = null;
+      for (const pattern of whatsappPatterns) {
+        match = trimmedLine.match(pattern);
+        if (match) break;
+      }
+
+      if (match) {
+        const [, date, time, sender, message] = match;
+
+        // Clean up time format (remove extra spaces)
+        const cleanTime = time.trim();
+
+        // Format for better readability and searchability
+        const formattedMessage = `[${date} ${cleanTime}] ${sender}: ${message}`;
+
+        // Add structured context for RAG processing
+        processedLines.push(`WhatsApp chat message from ${sender} on ${date} at ${cleanTime}: ${message}`);
+        processedLines.push(`Message: ${message}`);
+        processedLines.push(`Sender: ${sender}`);
+        processedLines.push(`Timestamp: ${date} ${cleanTime}`);
+        processedLines.push(formattedMessage);
+      } else {
+        // Keep non-message lines (like system messages, media omitted, etc.)
+        processedLines.push(trimmedLine);
+      }
+    }
+
+    return processedLines.join('\n');
   }
 
   /**

@@ -131,7 +131,7 @@ class DemoQAService {
         const parentChunks = [];
         for (const chunk of relevantChunks) {
           if (chunk.metadata.parent_id) {
-            const parentChunk = this.documentStore.getParentChunk(chunk.metadata.parent_id);
+            const parentChunk = await this.documentStore.getParentChunk(chunk.metadata.parent_id);
             if (parentChunk) {
               parentChunks.push(parentChunk);
             }

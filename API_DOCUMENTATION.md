@@ -6,7 +6,7 @@ The RAG Pipeline API is a comprehensive Retrieval-Augmented Generation system th
 
 ### Key Features
 
-- 📄 **Multi-format Support**: PDF and TXT document processing
+- 📄 **Multi-format Support**: PDF, TXT, and ZIP document processing
 - 🧠 **Intelligent QA**: Context-aware question answering
 - 💬 **Conversation Memory**: Persistent conversation sessions
 - 🔄 **Version Control**: Document versioning and rollback
@@ -122,7 +122,7 @@ curl -X POST -F "document=@sample.pdf" http://localhost:3000/api/documents/uploa
 
 **Error Responses:**
 - `400`: No file uploaded
-- `400`: Unsupported file type (only PDF/TXT allowed)
+- `400`: Unsupported file type (only PDF/TXT/ZIP allowed)
 - `413`: File too large (max 10MB)
 - `500`: Upload failed
 

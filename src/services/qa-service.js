@@ -203,20 +203,26 @@ export class QAService {
 
     // Initialize LLM if configured
     if (this.langChainManager) {
-      try {
-        console.log(`🤖 Initializing LLM with provider: ${this.langChainManager.provider}, model: ${this.langChainManager.modelName}`);
-        await this.langChainManager.initialize();
-        console.log("✅ LLM integration enabled successfully");
-      } catch (error) {
-        console.error("❌ LLM initialization failed:", error.message);
-        console.error("❌ Full error details:", error);
-        console.warn("⚠️ Falling back to rule-based generation. Check your LLM configuration:");
-        console.warn("   - LLM_PROVIDER:", process.env.LLM_PROVIDER || 'not set');
-        console.warn("   - LLM_MODEL:", process.env.LLM_MODEL || 'not set');
-        console.warn("   - GOOGLE_API_KEY:", process.env.GOOGLE_API_KEY ? 'set' : 'not set');
-        console.warn("   - ANTHROPIC_API_KEY:", process.env.ANTHROPIC_API_KEY ? 'set' : 'not set');
-        console.warn("   - OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? 'set' : 'not set');
+      // Skip LLM initialization in production if explicitly disabled (for memory/quota reasons)
+      if (process.env.NODE_ENV === 'production' && process.env.SKIP_LLM_INIT === 'true') {
+        console.log("⏭️ Skipping LLM initialization in production (SKIP_LLM_INIT=true)");
         this.langChainManager = null;
+      } else {
+        try {
+          console.log(`🤖 Initializing LLM with provider: ${this.langChainManager.provider}, model: ${this.langChainManager.modelName}`);
+          await this.langChainManager.initialize();
+          console.log("✅ LLM integration enabled successfully");
+        } catch (error) {
+          console.error("❌ LLM initialization failed:", error.message);
+          console.error("❌ Full error details:", error);
+          console.warn("⚠️ Falling back to rule-based generation. Check your LLM configuration:");
+          console.warn("   - LLM_PROVIDER:", process.env.LLM_PROVIDER || 'not set');
+          console.warn("   - LLM_MODEL:", process.env.LLM_MODEL || 'not set');
+          console.warn("   - GOOGLE_API_KEY:", process.env.GOOGLE_API_KEY ? 'set' : 'not set');
+          console.warn("   - ANTHROPIC_API_KEY:", process.env.ANTHROPIC_API_KEY ? 'set' : 'not set');
+          console.warn("   - OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? 'set' : 'not set');
+          this.langChainManager = null;
+        }
       }
     } else {
       console.warn("⚠️ No LLM provider configured (LLM_PROVIDER not set or set to 'none')");
@@ -1949,7 +1955,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       // Try to fetch from DocumentStore first (for parent chunks)
       if (this.documentStore) {
-        const parentChunk = this.documentStore.getParentChunk(chunkId);
+        const parentChunk = await this.documentStore.getParentChunk(chunkId);
         if (parentChunk) {
           return {
             id: chunkId,
@@ -2025,7 +2031,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       for (const parentId of parentIdArray) {
         try {
-          const parentChunk = this.documentStore.getParentChunk(parentId);
+          const parentChunk = await this.documentStore.getParentChunk(parentId);
           if (parentChunk) {
             parentChunks.push({
               content: parentChunk.content,

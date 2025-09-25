@@ -135,8 +135,19 @@ export class DocumentStore {
         console.log("📦 Continuing without indexes - performance may be reduced");
       }
 
-      // Load existing parent chunks from MongoDB into memory
-      await this.loadFromMongoDB();
+      // Load existing parent chunks from MongoDB into memory (lazy loading for production)
+      if (process.env.NODE_ENV !== 'production' || process.env.LOAD_PARENT_CHUNKS_EAGERLY === 'true') {
+        await this.loadFromMongoDB();
+      } else {
+        console.log("📦 DocumentStore using lazy loading for production (parent chunks loaded on-demand)");
+        // Count chunks for stats
+        try {
+          this.stats.totalStored = await this.collection.countDocuments();
+          console.log(`📊 Found ${this.stats.totalStored} parent chunks in MongoDB (lazy loading enabled)`);
+        } catch (countError) {
+          console.warn("⚠️ Could not count parent chunks:", countError.message);
+        }
+      }
 
       // If no chunks in MongoDB but we have file system backup, migrate from file system
       if (this.parentChunks.size === 0) {
@@ -328,33 +339,63 @@ export class DocumentStore {
   }
 
   /**
-   * Retrieve a parent chunk by its ID
+   * Retrieve a parent chunk by its ID (with lazy loading)
    * @param {string} parentId - Unique identifier for the parent chunk
    * @returns {Object|null} Parent chunk object or null if not found
    */
-  getParentChunk(parentId) {
+  async getParentChunk(parentId) {
     try {
       if (!parentId || typeof parentId !== 'string') {
         throw new Error('Parent ID must be a non-empty string');
       }
-      
-      const chunk = this.parentChunks.get(parentId);
-      
+
+      // Check in-memory cache first
+      let chunk = this.parentChunks.get(parentId);
+
       if (chunk) {
         // Update access statistics
         chunk.accessCount++;
         chunk.lastAccessed = new Date().toISOString();
         this.stats.totalRetrieved++;
         this.stats.cacheHits++;
-        
-        console.log(`📦 Retrieved parent chunk: ${parentId} (accessed ${chunk.accessCount} times)`);
+
+        console.log(`📦 Retrieved parent chunk from cache: ${parentId} (accessed ${chunk.accessCount} times)`);
         return chunk;
-      } else {
-        this.stats.cacheMisses++;
-        console.log(`📦 Parent chunk not found: ${parentId}`);
-        return null;
       }
-      
+
+      // Lazy loading: Try to load from MongoDB if not in memory
+      if (this.isInitialized && this.collection) {
+        try {
+          const doc = await this.collection.findOne({ parentId });
+          if (doc) {
+            chunk = {
+              parentId: doc.parentId,
+              content: doc.content,
+              metadata: doc.metadata,
+              createdAt: doc.createdAt,
+              accessCount: (doc.accessCount || 0) + 1,
+              lastAccessed: new Date().toISOString()
+            };
+
+            // Cache it in memory for future use
+            this.parentChunks.set(parentId, chunk);
+
+            // Update statistics
+            this.stats.totalRetrieved++;
+            this.stats.cacheMisses++; // Count as miss since it wasn't in cache
+
+            console.log(`📦 Retrieved parent chunk from MongoDB: ${parentId}`);
+            return chunk;
+          }
+        } catch (mongoError) {
+          console.warn(`⚠️ Failed to load parent chunk ${parentId} from MongoDB:`, mongoError.message);
+        }
+      }
+
+      this.stats.cacheMisses++;
+      console.log(`📦 Parent chunk not found: ${parentId}`);
+      return null;
+
     } catch (error) {
       console.error(`❌ Failed to retrieve parent chunk ${parentId}:`, error.message);
       return null;
@@ -362,17 +403,32 @@ export class DocumentStore {
   }
 
   /**
-   * Check if a parent chunk exists in the store
+   * Check if a parent chunk exists in the store (with lazy loading support)
    * @param {string} parentId - Unique identifier for the parent chunk
    * @returns {boolean} True if chunk exists, false otherwise
    */
-  hasParentChunk(parentId) {
+  async hasParentChunk(parentId) {
     try {
       if (!parentId || typeof parentId !== 'string') {
         return false;
       }
-      
-      return this.parentChunks.has(parentId);
+
+      // Check in-memory cache first
+      if (this.parentChunks.has(parentId)) {
+        return true;
+      }
+
+      // Check MongoDB if using lazy loading
+      if (this.isInitialized && this.collection) {
+        try {
+          const count = await this.collection.countDocuments({ parentId }, { limit: 1 });
+          return count > 0;
+        } catch (mongoError) {
+          console.warn(`⚠️ Failed to check parent chunk existence ${parentId} in MongoDB:`, mongoError.message);
+        }
+      }
+
+      return false;
     } catch (error) {
       console.error(`❌ Failed to check parent chunk existence ${parentId}:`, error.message);
       return false;
