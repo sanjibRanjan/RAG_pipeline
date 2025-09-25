@@ -12,6 +12,9 @@ import { VectorStore } from "../services/vector-store.js";
 import { ConversationManager } from "../services/conversation-manager.js";
 import { DocumentStore } from "../services/document-store.js";
 import { QAService } from "../services/qa-service.js";
+import FirebaseService from "../services/firebase-service.js";
+import UserService from "../services/user-service.js";
+import { authenticateToken, optionalAuthentication, tenantLogging, initializeAuthMiddleware } from "../middleware/auth-middleware.js";
 import EventManager from "./event-manager.js";
 import SystemMonitor from "./system-monitor.js";
 import logger, { requestLoggingMiddleware, serviceLogger, healthLogger, performanceLogger } from "../utils/logger.js";
@@ -79,14 +82,14 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter for PDF and TXT only
+// File filter for PDF, TXT, and ZIP files
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["application/pdf", "text/plain"];
+  const allowedTypes = ["application/pdf", "text/plain", "application/zip", "application/x-zip-compressed"];
 
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only PDF and TXT files are allowed!"), false);
+    cb(new Error("Only PDF, TXT, and ZIP files are allowed!"), false);
   }
 };
 
@@ -99,7 +102,7 @@ const upload = multer({
 });
 
 // Initialize services (with error handling)
-let documentProcessor, embeddingService, vectorStore, conversationManager, documentStore, qaService, eventManager, systemMonitor;
+let documentProcessor, embeddingService, vectorStore, conversationManager, documentStore, qaService, firebaseService, userService, eventManager, systemMonitor;
 
 try {
   console.log("🔧 Creating service instances...");
@@ -121,7 +124,13 @@ try {
   documentStore = new DocumentStore(); // Phase 1: DocumentStore for parent chunks
 
   qaService = new QAService(embeddingService, vectorStore, documentStore);
-  
+
+  // Initialize Firebase service
+  firebaseService = new FirebaseService();
+
+  // Initialize User service
+  userService = new UserService(vectorStore, documentStore, conversationManager, qaService);
+
   console.log("✅ Service instances created successfully");
 } catch (error) {
   console.error("❌ Failed to create service instances:", error);
@@ -218,6 +227,25 @@ async function initializeServices() {
       }
     }
 
+    // Initialize Firebase service
+    if (firebaseService) {
+      try {
+        console.log("🔥 Initializing Firebase service...");
+        const firebasePerf = performanceLogger.start('firebase_service_init');
+        await firebaseService.initialize();
+        firebasePerf.end();
+        healthLogger.service('FirebaseService', 'healthy');
+        servicesInitialized++;
+        console.log("✅ Firebase service initialized");
+
+        // Initialize authentication middleware
+        initializeAuthMiddleware(firebaseService);
+      } catch (error) {
+        console.error("❌ Firebase service failed:", error.message);
+        logger.error("❌ Firebase service initialization failed:", error);
+      }
+    }
+
     perfTracker.end({
       servicesInitialized,
       environment: process.env.NODE_ENV || 'development'
@@ -274,6 +302,9 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Request logging middleware
 app.use(requestLoggingMiddleware);
+
+// Tenant-aware logging middleware
+app.use(tenantLogging);
 
 // Request metrics middleware
 app.use((req, res, next) => {
@@ -400,6 +431,190 @@ app.get("/metrics", (req, res) => {
   }
 });
 
+// Authentication endpoints
+
+// POST /api/auth/verify - Verify Firebase ID token
+app.post("/api/auth/verify", async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "ID token is required",
+        error: "MISSING_TOKEN"
+      });
+    }
+
+    if (!firebaseService || !firebaseService.isInitialized) {
+      return res.status(503).json({
+        success: false,
+        message: "Authentication service unavailable",
+        error: "SERVICE_UNAVAILABLE"
+      });
+    }
+
+    const decodedToken = await firebaseService.verifyIdToken(idToken);
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          uid: decodedToken.uid,
+          email: decodedToken.email,
+          name: decodedToken.name || decodedToken.displayName,
+          tenant: decodedToken.tenant
+        },
+        expiresAt: decodedToken.exp,
+        issuedAt: decodedToken.iat
+      },
+      message: "Token verified successfully"
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(401).json({
+      success: false,
+      message: "Token verification failed",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/auth/me - Get current user profile
+app.get("/api/auth/me", authenticateToken, async (req, res) => {
+  try {
+    const userProfile = await userService.getUserProfile(req.user);
+
+    res.json({
+      success: true,
+      data: userProfile,
+      message: "User profile retrieved successfully"
+    });
+  } catch (error) {
+    console.error("Get user profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get user profile",
+      error: error.message
+    });
+  }
+});
+
+// User management endpoints
+
+// GET /api/user/stats - Get user statistics
+app.get("/api/user/stats", authenticateToken, async (req, res) => {
+  try {
+    const stats = await userService.getUserStats(req.tenant);
+
+    res.json({
+      success: true,
+      data: stats,
+      message: "User statistics retrieved successfully"
+    });
+  } catch (error) {
+    console.error("Get user stats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get user statistics",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/user/documents - List user's documents
+app.get("/api/user/documents", authenticateToken, async (req, res) => {
+  try {
+    const { limit, offset, search, fileType, sortBy, sortOrder } = req.query;
+
+    const options = {
+      limit: limit ? parseInt(limit) : 10,
+      offset: offset ? parseInt(offset) : 0,
+      search,
+      fileType,
+      sortBy,
+      sortOrder
+    };
+
+    const documents = await userService.listUserDocuments(req.tenant, options);
+
+    res.json({
+      success: true,
+      data: documents,
+      message: "User documents retrieved successfully"
+    });
+  } catch (error) {
+    console.error("List user documents error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to list user documents",
+      error: error.message
+    });
+  }
+});
+
+// DELETE /api/user/documents/:documentId - Delete user's document
+app.delete("/api/user/documents/:documentId", authenticateToken, async (req, res) => {
+  try {
+    const { documentId } = req.params;
+
+    const deleted = await userService.deleteUserDocument(req.tenant, documentId);
+
+    res.json({
+      success: true,
+      data: { deleted },
+      message: "Document deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete user document error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete document",
+      error: error.message
+    });
+  }
+});
+
+// POST /api/user/clear-data - Clear all user data (GDPR compliance)
+app.post("/api/user/clear-data", authenticateToken, async (req, res) => {
+  try {
+    const summary = await userService.clearUserData(req.tenant);
+
+    res.json({
+      success: true,
+      data: summary,
+      message: "User data cleared successfully"
+    });
+  } catch (error) {
+    console.error("Clear user data error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear user data",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/user/export-data - Export user data (GDPR compliance)
+app.get("/api/user/export-data", authenticateToken, async (req, res) => {
+  try {
+    const exportData = await userService.exportUserData(req.tenant);
+
+    res.json({
+      success: true,
+      data: exportData,
+      message: "User data exported successfully"
+    });
+  } catch (error) {
+    console.error("Export user data error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to export user data",
+      error: error.message
+    });
+  }
+});
+
 // Usage endpoint
 app.get("/api/usage", (req, res) => {
   try {
@@ -477,8 +692,8 @@ app.get("/status/processing", (req, res) => {
   }
 });
 
-// File upload endpoint
-app.post("/api/documents/upload", upload.single("document"), (req, res) => {
+// File upload endpoint (protected)
+app.post("/api/documents/upload", optionalAuthentication, upload.single("document"), (req, res) => {
   const uploadPerf = performanceLogger.start('file_upload');
 
   try {
@@ -536,8 +751,8 @@ app.post("/api/documents/upload", upload.single("document"), (req, res) => {
   }
 });
 
-// Document ingestion endpoint
-app.post("/api/documents/ingest", async (req, res) => {
+// Document ingestion endpoint (protected)
+app.post("/api/documents/ingest", optionalAuthentication, async (req, res) => {
   const ingestionPerf = performanceLogger.start('document_ingestion');
 
   try {
@@ -670,12 +885,17 @@ app.post("/api/documents/ingest", async (req, res) => {
       ingestionTime: new Date().toISOString(),
     }));
 
-    // Store in primary vector database (MongoDB if configured)
+    // Store in primary vector database (MongoDB if configured) with tenant isolation
     const storagePerf = performanceLogger.start('vector_storage');
-    await vectorStore.addDocuments(texts, embeddings, metadatas, ids);
+    if (process.env.ENABLE_MULTI_TENANCY === 'true' && req.tenant && req.tenant.id !== 'global') {
+      await vectorStore.addDocumentsByTenant(texts, embeddings, metadatas, ids, req.tenant);
+    } else {
+      await vectorStore.addDocuments(texts, embeddings, metadatas, ids);
+    }
     storagePerf.end({
       chunksStored: texts.length,
-      documentId: baseId
+      documentId: baseId,
+      tenantId: req.tenant?.id
     });
 
     // Phase 1: Store parent chunks in DocumentStore
@@ -686,7 +906,7 @@ app.post("/api/documents/ingest", async (req, res) => {
         chunk: chunk
       }));
       
-      const parentStoreResult = documentStore.storeParentChunksBatch(parentChunkData);
+      const parentStoreResult = documentStore.storeParentChunksBatch(parentChunkData, req.tenant);
       parentStoragePerf.end({
         parentChunksStored: parentStoreResult.successful,
         documentId: baseId
@@ -740,8 +960,8 @@ app.post("/api/documents/ingest", async (req, res) => {
   }
 });
 
-// Question answering endpoint
-app.post("/api/qa/ask", async (req, res) => {
+// Question answering endpoint (protected)
+app.post("/api/qa/ask", optionalAuthentication, async (req, res) => {
   const qaPerf = performanceLogger.start('qa_request');
 
   try {
@@ -759,24 +979,29 @@ app.post("/api/qa/ask", async (req, res) => {
     }
 
     // Generate or use session ID
-    const currentSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const baseSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    serviceLogger.info('qa_service', `Processing question for session: ${currentSessionId}`, {
+    // Create tenant-specific session ID
+    const currentSessionId = req.tenant.id !== 'global' ? `${req.tenant.id}_${baseSessionId}` : baseSessionId;
+
+    serviceLogger.info('qa_service', `Processing question for session: ${currentSessionId} (tenant: ${req.tenant.id})`, {
       requestId: req.requestId,
       sessionId: currentSessionId,
+      tenantId: req.tenant.id,
       questionLength: question.length
     });
 
     // Get conversation history
     const conversationHistory = conversationManager.getConversation(currentSessionId);
 
-    // Get answer from QA service
+    // Get answer from QA service with tenant isolation
     const qaServicePerf = performanceLogger.start('qa_service_processing');
-    const result = await qaService.answerQuestion(question, conversationHistory);
+    const result = await qaService.answerQuestion(question, conversationHistory, req.tenant);
     qaServicePerf.end({
       chunksSearched: result.metadata.totalChunksSearched,
       relevantChunks: result.metadata.relevantChunksFound,
-      confidence: result.confidence
+      confidence: result.confidence,
+      tenantId: req.tenant?.id
     });
 
     // Add question to conversation history
@@ -839,13 +1064,15 @@ app.post("/api/qa/ask", async (req, res) => {
   }
 });
 
-// Get conversation history endpoint
-app.get("/api/conversations/:sessionId", (req, res) => {
+// Get conversation history endpoint (protected)
+app.get("/api/conversations/:sessionId", authenticateToken, (req, res) => {
   try {
     const { sessionId } = req.params;
     const { limit } = req.query;
 
-    const conversation = conversationManager.getConversation(sessionId, limit ? parseInt(limit) : null);
+    // Create tenant-specific session ID
+    const tenantSessionId = req.tenant.id !== 'global' ? `${req.tenant.id}_${sessionId}` : sessionId;
+    const conversation = conversationManager.getConversation(tenantSessionId, limit ? parseInt(limit) : null);
 
     res.json({
       success: true,
@@ -866,12 +1093,14 @@ app.get("/api/conversations/:sessionId", (req, res) => {
   }
 });
 
-// Clear conversation endpoint
-app.delete("/api/conversations/:sessionId", (req, res) => {
+// Clear conversation endpoint (protected)
+app.delete("/api/conversations/:sessionId", authenticateToken, (req, res) => {
   try {
     const { sessionId } = req.params;
 
-    const cleared = conversationManager.clearConversation(sessionId);
+    // Create tenant-specific session ID
+    const tenantSessionId = req.tenant.id !== 'global' ? `${req.tenant.id}_${sessionId}` : sessionId;
+    const cleared = conversationManager.clearConversation(tenantSessionId);
 
     res.json({
       success: true,
@@ -891,8 +1120,8 @@ app.delete("/api/conversations/:sessionId", (req, res) => {
   }
 });
 
-// Conversation statistics endpoint
-app.get("/api/conversations/stats", (req, res) => {
+// Conversation statistics endpoint (protected)
+app.get("/api/conversations/stats", authenticateToken, (req, res) => {
   try {
     const stats = conversationManager.getStats();
 

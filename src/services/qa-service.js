@@ -235,7 +235,7 @@ export class QAService {
    * @param {Object} options - Additional options
    * @returns {Promise<Object>} Answer with sources and confidence
    */
-  async answerQuestion(question, conversationHistory = [], options = {}) {
+  async answerQuestion(question, conversationHistory = [], tenant = null, options = {}) {
     try {
       if (!this.isInitialized) {
         throw new Error("QA Service not initialized");
@@ -270,10 +270,10 @@ export class QAService {
       const questionEmbedding = await this.embeddingService.generateSingleEmbedding(rewrittenQuestion);
 
       // Perform mixed retrieval (semantic + keyword + metadata) - returns child chunks
-      const searchResults = await this.performMixedRetrieval(questionEmbedding, question);
+      const searchResults = await this.performMixedRetrieval(questionEmbedding, question, tenant);
 
       // Phase 1: Perform hierarchical retrieval to get parent chunks
-      const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question);
+      const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question, tenant);
 
       // Phase 2: LLM-based re-ranking of parent chunks (can be disabled for performance)
       let reRankedChunks;
@@ -329,7 +329,7 @@ export class QAService {
           }
         };
       } else {
-        narrativeContext = await this._buildNarrativeContext(reRankedChunks, question);
+        narrativeContext = await this._buildNarrativeContext(reRankedChunks, question, tenant);
       }
       
       // Use narrative context for reasoning if available, otherwise fall back to re-ranked chunks
@@ -1385,10 +1385,10 @@ SCORES:`;
    * @param {string} originalQuestion - Original question text
    * @returns {Object} Combined search results from multiple strategies
    */
-  async performMixedRetrieval(questionEmbedding, originalQuestion) {
+  async performMixedRetrieval(questionEmbedding, originalQuestion, tenant = null) {
     const retrievalPromises = [
       // 1. Semantic search (existing)
-      this.vectorStore.search(questionEmbedding, this.maxResults * 2).then(results => ({
+      (tenant && this.vectorStore.searchByTenant ? this.vectorStore.searchByTenant(questionEmbedding, this.maxResults * 2, tenant) : this.vectorStore.search(questionEmbedding, this.maxResults * 2)).then(results => ({
         type: 'semantic',
         results,
         weight: 0.4
@@ -1409,7 +1409,7 @@ SCORES:`;
       })),
 
       // 4. Metadata-filtered search
-      this.performMetadataSearch(questionEmbedding, originalQuestion).then(results => ({
+      this.performMetadataSearch(questionEmbedding, originalQuestion, tenant).then(results => ({
         type: 'metadata',
         results,
         weight: 0.1
@@ -1427,7 +1427,9 @@ SCORES:`;
     } catch (error) {
       console.warn(`⚠️ Mixed retrieval partially failed, falling back to semantic search: ${error.message}`);
       // Fallback to semantic search only
-      const semanticResults = await this.vectorStore.search(questionEmbedding, this.maxResults);
+      const semanticResults = tenant && this.vectorStore.searchByTenant
+        ? await this.vectorStore.searchByTenant(questionEmbedding, this.maxResults, tenant)
+        : await this.vectorStore.search(questionEmbedding, this.maxResults);
       return {
         documents: semanticResults.documents || [[]],
         distances: semanticResults.distances || [[]],
@@ -1480,7 +1482,9 @@ Hypothetical Document:`;
       const hydeEmbedding = await this.embeddingService.generateSingleEmbedding(hypotheticalDocument);
       
       // Search using the hypothetical document embedding
-      const hydeResults = await this.vectorStore.search(hydeEmbedding, this.maxResults * 2);
+      const hydeResults = tenant && this.vectorStore.searchByTenant
+        ? await this.vectorStore.searchByTenant(hydeEmbedding, this.maxResults * 2, tenant)
+        : await this.vectorStore.search(hydeEmbedding, this.maxResults * 2);
       
       console.log(`🔮 HyDE search completed: ${hydeResults.documents?.[0]?.length || 0} results`);
       
@@ -1508,7 +1512,9 @@ Hypothetical Document:`;
 
       // Search for each keyword and combine results
       const keywordPromises = keywords.map(keyword =>
-        this.vectorStore.searchDocuments(keyword)
+        tenant && this.vectorStore.searchDocumentsByTenant
+          ? this.vectorStore.searchDocumentsByTenant(keyword, tenant)
+          : this.vectorStore.searchDocuments(keyword)
       );
 
       const keywordResults = await Promise.all(keywordPromises);
@@ -1531,13 +1537,15 @@ Hypothetical Document:`;
    * @param {string} question - Question text
    * @returns {Promise<Object>} Metadata-filtered search results
    */
-  async performMetadataSearch(questionEmbedding, question) {
+  async performMetadataSearch(questionEmbedding, question, tenant = null) {
     try {
       // Determine filters based on question analysis
       const filters = this.analyzeQuestionForFilters(question);
 
       // Perform filtered search
-      const filteredResults = await this.vectorStore.searchWithFilters(questionEmbedding, filters);
+      const filteredResults = tenant && this.vectorStore.searchByTenant
+        ? await this.vectorStore.searchByTenant(questionEmbedding, this.maxResults, tenant, filters)
+        : await this.vectorStore.searchWithFilters(questionEmbedding, filters);
 
       // Convert to vector store format
       return this.convertToVectorStoreFormat(filteredResults);
@@ -1814,7 +1822,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * @param {string} question - Original question
    * @returns {Object} Enhanced context with narrative flow
    */
-  async _buildNarrativeContext(reRankedChunks, question) {
+  async _buildNarrativeContext(reRankedChunks, question, tenant = null) {
     try {
       if (!reRankedChunks || reRankedChunks.length === 0) {
         console.log('⚠️ No chunks available for narrative context building');
@@ -1857,7 +1865,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       if (topChunk.metadata.previous_chunk_id) {
         try {
           console.log(`🔍 Fetching previous chunk: ${topChunk.metadata.previous_chunk_id}`);
-          previousChunk = await this._fetchChunkById(topChunk.metadata.previous_chunk_id);
+          previousChunk = await this._fetchChunkById(topChunk.metadata.previous_chunk_id, tenant);
           
           if (previousChunk) {
             console.log(`✅ Retrieved previous chunk: ${previousChunk.id} (${previousChunk.content.length} chars)`);
@@ -1875,7 +1883,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       if (topChunk.metadata.next_chunk_id) {
         try {
           console.log(`🔍 Fetching next chunk: ${topChunk.metadata.next_chunk_id}`);
-          nextChunk = await this._fetchChunkById(topChunk.metadata.next_chunk_id);
+          nextChunk = await this._fetchChunkById(topChunk.metadata.next_chunk_id, tenant);
           
           if (nextChunk) {
             console.log(`✅ Retrieved next chunk: ${nextChunk.id} (${nextChunk.content.length} chars)`);
@@ -1939,9 +1947,10 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
   /**
    * Helper method to fetch a chunk by its ID from DocumentStore
    * @param {string} chunkId - The chunk ID to fetch
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Object|null} The chunk object or null if not found
    */
-  async _fetchChunkById(chunkId) {
+  async _fetchChunkById(chunkId, tenant = null) {
     try {
       if (!chunkId || typeof chunkId !== 'string') {
         return null;
@@ -1949,7 +1958,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       // Try to fetch from DocumentStore first (for parent chunks)
       if (this.documentStore) {
-        const parentChunk = this.documentStore.getParentChunk(chunkId);
+        const parentChunk = this.documentStore.getParentChunk(chunkId, tenant);
         if (parentChunk) {
           return {
             id: chunkId,
@@ -1975,9 +1984,10 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * Phase 1: Perform hierarchical retrieval using child chunks to find parent chunks
    * @param {Object} searchResults - Results from vector search (child chunks)
    * @param {string} question - Original question
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Array} Parent chunks retrieved via DocumentStore
    */
-  async performHierarchicalRetrieval(searchResults, question) {
+  async performHierarchicalRetrieval(searchResults, question, tenant = null) {
     try {
       console.log('🔗 Phase 1: Performing hierarchical retrieval...');
       
@@ -2025,7 +2035,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       for (const parentId of parentIdArray) {
         try {
-          const parentChunk = this.documentStore.getParentChunk(parentId);
+          const parentChunk = this.documentStore.getParentChunk(parentId, tenant);
           if (parentChunk) {
             parentChunks.push({
               content: parentChunk.content,

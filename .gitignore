@@ -8,3 +8,5 @@ uploads
 logs
 logs/*.log
 *.log
+
+FirebaseAccount.json

@@ -2,6 +2,7 @@ import fs from "fs";
 import pdf from "pdf-parse";
 import crypto from "crypto";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import AdmZip from "adm-zip";
 
 // Phase 1: Hierarchical chunking configuration
 const CHILD_CHUNK_SIZE = 256;
@@ -78,8 +79,10 @@ export class DocumentProcessor {
         text = await this.extractPdfText(filePath);
       } else if (originalName.toLowerCase().endsWith(".txt")) {
         text = await this.extractTxtText(filePath);
+      } else if (originalName.toLowerCase().endsWith(".zip")) {
+        text = await this.extractZipText(filePath);
       } else {
-        throw new Error("Unsupported file type. Only PDF and TXT files are supported.");
+        throw new Error("Unsupported file type. Only PDF, TXT, and ZIP files are supported.");
       }
 
       // Determine version number
@@ -184,6 +187,59 @@ export class DocumentProcessor {
       return fs.readFileSync(filePath, "utf8");
     } catch (error) {
       throw new Error(`TXT file reading failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Extract text from ZIP files (processes all PDF/TXT files inside)
+   * @param {string} filePath - Path to the ZIP file
+   * @returns {string} Combined text from all processable files in the ZIP
+   */
+  async extractZipText(filePath) {
+    try {
+      console.log("📦 Extracting ZIP file...");
+      const zip = new AdmZip(filePath);
+      const zipEntries = zip.getEntries();
+      let combinedText = "";
+
+      for (const entry of zipEntries) {
+        if (entry.isDirectory) continue;
+
+        const fileName = entry.entryName.toLowerCase();
+
+        // Only process PDF and TXT files within the ZIP
+        if (fileName.endsWith('.pdf') || fileName.endsWith('.txt')) {
+          console.log(`📄 Processing ${entry.entryName} from ZIP...`);
+
+          try {
+            const fileContent = entry.getData();
+
+            if (fileName.endsWith('.pdf')) {
+              // For PDF files, save temporarily and process
+              const tempPath = `/tmp/${Date.now()}-${entry.entryName}`;
+              fs.writeFileSync(tempPath, fileContent);
+              const pdfText = await this.extractPdfText(tempPath);
+              combinedText += `\n\n--- ${entry.entryName} ---\n\n${pdfText}`;
+              fs.unlinkSync(tempPath); // Clean up temp file
+            } else if (fileName.endsWith('.txt')) {
+              // For TXT files, just decode the content
+              const textContent = fileContent.toString('utf8');
+              combinedText += `\n\n--- ${entry.entryName} ---\n\n${textContent}`;
+            }
+          } catch (fileError) {
+            console.warn(`⚠️ Failed to process ${entry.entryName} from ZIP: ${fileError.message}`);
+          }
+        }
+      }
+
+      if (combinedText.trim().length === 0) {
+        throw new Error("No processable files (PDF/TXT) found in ZIP archive");
+      }
+
+      console.log(`✅ Extracted text from ${combinedText.split('---').length - 1} files in ZIP`);
+      return combinedText;
+    } catch (error) {
+      throw new Error(`ZIP file extraction failed: ${error.message}`);
     }
   }
 
@@ -748,11 +804,11 @@ export class DocumentProcessor {
       }
 
       // Check file extension
-      const allowedExtensions = [".pdf", ".txt"];
+      const allowedExtensions = [".pdf", ".txt", ".zip"];
       const extension = originalName.toLowerCase().substring(originalName.lastIndexOf("."));
 
       if (!allowedExtensions.includes(extension)) {
-        throw new Error("Unsupported file type. Only PDF and TXT files are allowed.");
+        throw new Error("Unsupported file type. Only PDF, TXT, and ZIP files are allowed.");
       }
 
       return true;
