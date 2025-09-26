@@ -33,39 +33,45 @@ export class QAService {
   /**
    * Generate a cache key for a question
    * @param {string} question - The question to cache
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {string} Normalized cache key
    */
-  generateCacheKey(question) {
+  generateCacheKey(question, tenant = null) {
     if (!question || typeof question !== 'string') {
       return '';
     }
     
     // Normalize question for cache key generation
-    return question.toLowerCase()
+    const normalizedQuestion = question.toLowerCase()
       .replace(/[^\w\s]/g, '') // Remove punctuation
       .replace(/\s+/g, ' ')    // Normalize whitespace
       .trim()
       .substring(0, 100);     // Limit key length
+    
+    // Include tenant ID in cache key for isolation
+    const tenantId = tenant?.id || 'anonymous';
+    return `${tenantId}:${normalizedQuestion}`;
   }
 
   /**
    * Check if cache is enabled and has the answer
    * @param {string} question - The question to check
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Object|null} Cached answer or null
    */
-  getCachedAnswer(question) {
+  getCachedAnswer(question, tenant = null) {
     if (!this.cacheEnabled) {
       return null;
     }
 
-    const cacheKey = this.generateCacheKey(question);
+    const cacheKey = this.generateCacheKey(question, tenant);
     if (!cacheKey) {
       return null;
     }
 
     const cachedData = this.answerCache.get(cacheKey);
     if (cachedData) {
-      console.log(`📋 Cache HIT for question: "${question.substring(0, 50)}..."`);
+      console.log(`📋 Cache HIT for question: "${question.substring(0, 50)}..." (tenant: ${tenant?.id || 'anonymous'})`);
       return {
         ...cachedData,
         cached: true,
@@ -73,7 +79,7 @@ export class QAService {
       };
     }
 
-    console.log(`📋 Cache MISS for question: "${question.substring(0, 50)}..."`);
+    console.log(`📋 Cache MISS for question: "${question.substring(0, 50)}..." (tenant: ${tenant?.id || 'anonymous'})`);
     return null;
   }
 
@@ -81,13 +87,14 @@ export class QAService {
    * Store answer in cache
    * @param {string} question - The original question
    * @param {Object} answer - The complete answer object
+   * @param {Object} tenant - Tenant information for isolation
    */
-  setCachedAnswer(question, answer) {
+  setCachedAnswer(question, answer, tenant = null) {
     if (!this.cacheEnabled) {
       return;
     }
 
-    const cacheKey = this.generateCacheKey(question);
+    const cacheKey = this.generateCacheKey(question, tenant);
     if (!cacheKey) {
       return;
     }
@@ -97,7 +104,8 @@ export class QAService {
       ...answer,
       timestamp: Date.now(),
       cacheKey: cacheKey,
-      originalQuestion: question
+      originalQuestion: question,
+      tenantId: tenant?.id || 'anonymous'
     };
 
     // Store in cache
@@ -108,7 +116,7 @@ export class QAService {
       this.cleanupCache();
     }
 
-    console.log(`💾 Cached answer for question: "${question.substring(0, 50)}..." (Cache size: ${this.answerCache.size})`);
+    console.log(`💾 Cached answer for question: "${question.substring(0, 50)}..." (tenant: ${tenant?.id || 'anonymous'}) (Cache size: ${this.answerCache.size})`);
   }
 
   /**
@@ -241,7 +249,7 @@ export class QAService {
    * @param {Object} options - Additional options
    * @returns {Promise<Object>} Answer with sources and confidence
    */
-  async answerQuestion(question, conversationHistory = [], options = {}) {
+  async answerQuestion(question, conversationHistory = [], tenant = null, options = {}) {
     try {
       if (!this.isInitialized) {
         throw new Error("QA Service not initialized");
@@ -263,7 +271,7 @@ export class QAService {
       }
 
       // Check cache first - this is the main optimization
-      const cachedAnswer = this.getCachedAnswer(question);
+      const cachedAnswer = this.getCachedAnswer(question, tenant);
       if (cachedAnswer) {
         return cachedAnswer;
       }
@@ -276,10 +284,10 @@ export class QAService {
       const questionEmbedding = await this.embeddingService.generateSingleEmbedding(rewrittenQuestion);
 
       // Perform mixed retrieval (semantic + keyword + metadata) - returns child chunks
-      const searchResults = await this.performMixedRetrieval(questionEmbedding, question);
+      const searchResults = await this.performMixedRetrieval(questionEmbedding, question, tenant);
 
       // Phase 1: Perform hierarchical retrieval to get parent chunks
-      const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question);
+      const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question, tenant);
 
       // Phase 2: LLM-based re-ranking of parent chunks (can be disabled for performance)
       let reRankedChunks;
@@ -335,7 +343,7 @@ export class QAService {
           }
         };
       } else {
-        narrativeContext = await this._buildNarrativeContext(reRankedChunks, question);
+        narrativeContext = await this._buildNarrativeContext(reRankedChunks, question, tenant);
       }
       
       // Use narrative context for reasoning if available, otherwise fall back to re-ranked chunks
@@ -396,13 +404,20 @@ export class QAService {
       };
 
       // Cache the answer for future similar queries using our new cache system
-      this.setCachedAnswer(question, result);
+      this.setCachedAnswer(question, result, tenant);
 
       return result;
 
     } catch (error) {
       console.error("❌ QA Service error:", error);
-      throw new Error(`Failed to answer question: ${error.message}`);
+      console.error("❌ Error stack:", error.stack);
+      console.error("❌ Error details:", {
+        message: error?.message,
+        name: error?.name,
+        stack: error?.stack
+      });
+      const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
+      throw new Error(`Failed to answer question: ${errorMessage}`);
     }
   }
 
@@ -410,9 +425,10 @@ export class QAService {
    * Process search results and filter relevant chunks with advanced re-ranking
    * @param {Object} searchResults - Results from vector search
    * @param {string} question - Original question
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Array} Filtered and re-ranked relevant chunks
    */
-  async processSearchResults(searchResults, question) {
+  async processSearchResults(searchResults, question, tenant = null) {
     if (!searchResults.documents || !searchResults.documents[0]) {
       return [];
     }
@@ -447,7 +463,7 @@ export class QAService {
     }
 
     // Apply advanced re-ranking system
-    const reRankedChunks = await this.applyReRanking(relevantChunks, question);
+    const reRankedChunks = await this.applyReRanking(relevantChunks, question, tenant);
 
     return reRankedChunks.slice(0, this.maxResults);
   }
@@ -457,15 +473,16 @@ export class QAService {
    * @param {string} question - Question text
    * @returns {string} Cache key
    */
-  generateCacheKey(question) {
+  generateCacheKey(question, tenant = null) {
     // Normalize question for cache key generation
     const normalized = question.toLowerCase()
       .replace(/[^\w\s]/g, '') // Remove punctuation
       .replace(/\s+/g, ' ')    // Normalize whitespace
       .trim();
     
-    // Use first 50 characters as cache key
-    return normalized.substring(0, 50);
+    // Include tenant ID in cache key for isolation
+    const tenantId = tenant?.id || 'anonymous';
+    return `${tenantId}:${normalized.substring(0, 50)}`;
   }
 
   /**
@@ -474,13 +491,13 @@ export class QAService {
    * @param {string} question - Original question
    * @returns {Array} Re-ranked chunks with composite scores
    */
-  async applyReRanking(chunks, question) {
+  async applyReRanking(chunks, question, tenant = null) {
     if (chunks.length === 0) return chunks;
 
     // Check cache first
-    const cacheKey = this.generateCacheKey(question);
+    const cacheKey = this.generateCacheKey(question, tenant);
     if (this.rerankingCache.has(cacheKey)) {
-      console.log(`📋 Using cached re-ranking results for similar query`);
+      console.log(`📋 Using cached re-ranking results for similar query (tenant: ${tenant?.id || 'anonymous'})`);
       const cachedResults = this.rerankingCache.get(cacheKey);
       return this.applyCachedReRanking(chunks, cachedResults);
     }
@@ -541,7 +558,7 @@ export class QAService {
       // Prepare chunk summaries for LLM evaluation
       const chunkSummaries = scoredChunks.map((chunk, idx) => ({
         index: idx,
-        content: chunk.content.substring(0, 200) + (chunk.content.length > 200 ? '...' : ''),
+        content: (chunk.content || '').substring(0, 200) + ((chunk.content || '').length > 200 ? '...' : ''),
         currentScore: chunk.finalScore
       }));
 
@@ -1391,31 +1408,33 @@ SCORES:`;
    * @param {string} originalQuestion - Original question text
    * @returns {Object} Combined search results from multiple strategies
    */
-  async performMixedRetrieval(questionEmbedding, originalQuestion) {
+  async performMixedRetrieval(questionEmbedding, originalQuestion, tenant = null) {
+    console.log('🔍 performMixedRetrieval called with tenant:', tenant?.id || 'no tenant');
+    
     const retrievalPromises = [
-      // 1. Semantic search (existing)
-      this.vectorStore.search(questionEmbedding, this.maxResults * 2).then(results => ({
+      // 1. Semantic search (primary) - always pass tenant for proper isolation
+      this.vectorStore.search(questionEmbedding, this.maxResults * 2, tenant).then(results => ({
         type: 'semantic',
         results,
         weight: 0.4
       })),
 
-      // 2. HyDE (Hypothetical Document Embeddings) search
-      this.performHyDESearch(originalQuestion).then(results => ({
+      // 2. HyDE (Hypothetical Document Embeddings) search - pass tenant for isolation
+      this.performHyDESearch(originalQuestion, tenant).then(results => ({
         type: 'hyde',
         results,
         weight: 0.3
       })),
 
-      // 3. Keyword search
-      this.performKeywordSearch(originalQuestion).then(results => ({
+      // 3. Keyword search - pass tenant for isolation
+      this.performKeywordSearch(originalQuestion, tenant).then(results => ({
         type: 'keyword',
         results,
         weight: 0.2
       })),
 
-      // 4. Metadata-filtered search
-      this.performMetadataSearch(questionEmbedding, originalQuestion).then(results => ({
+      // 4. Metadata-filtered search - pass tenant for isolation
+      this.performMetadataSearch(questionEmbedding, originalQuestion, tenant).then(results => ({
         type: 'metadata',
         results,
         weight: 0.1
@@ -1432,8 +1451,8 @@ SCORES:`;
       return combinedResults;
     } catch (error) {
       console.warn(`⚠️ Mixed retrieval partially failed, falling back to semantic search: ${error.message}`);
-      // Fallback to semantic search only
-      const semanticResults = await this.vectorStore.search(questionEmbedding, this.maxResults);
+      // Fallback to semantic search only - ensure tenant isolation is maintained
+      const semanticResults = await this.vectorStore.search(questionEmbedding, this.maxResults, tenant);
       return {
         documents: semanticResults.documents || [[]],
         distances: semanticResults.distances || [[]],
@@ -1446,9 +1465,10 @@ SCORES:`;
   /**
    * Perform HyDE (Hypothetical Document Embeddings) search
    * @param {string} question - Question text
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Promise<Object>} HyDE search results
    */
-  async performHyDESearch(question) {
+  async performHyDESearch(question, tenant = null) {
     try {
       // Disable HyDE in production to save API quota - it's expensive and not always necessary
       if (process.env.NODE_ENV === 'production') {
@@ -1486,7 +1506,7 @@ Hypothetical Document:`;
       const hydeEmbedding = await this.embeddingService.generateSingleEmbedding(hypotheticalDocument);
       
       // Search using the hypothetical document embedding
-      const hydeResults = await this.vectorStore.search(hydeEmbedding, this.maxResults * 2);
+      const hydeResults = await this.vectorStore.search(hydeEmbedding, this.maxResults * 2, tenant);
       
       console.log(`🔮 HyDE search completed: ${hydeResults.documents?.[0]?.length || 0} results`);
       
@@ -1501,9 +1521,10 @@ Hypothetical Document:`;
   /**
    * Perform keyword-based search
    * @param {string} question - Question text
+   * @param {string} tenant - Tenant ID for isolation
    * @returns {Promise<Object>} Keyword search results
    */
-  async performKeywordSearch(question) {
+  async performKeywordSearch(question, tenant = null) {
     try {
       // Extract keywords from question
       const keywords = this.extractKeywords(question);
@@ -1512,10 +1533,17 @@ Hypothetical Document:`;
         return { documents: [[]], distances: [[]], metadatas: [[]], ids: [[]] };
       }
 
-      // Search for each keyword and combine results
-      const keywordPromises = keywords.map(keyword =>
-        this.vectorStore.searchDocuments(keyword)
-      );
+      // Search for each keyword and combine results - ensure tenant isolation
+      const keywordPromises = keywords.map(keyword => {
+        if (tenant && this.vectorStore.searchDocumentsByTenant) {
+          return this.vectorStore.searchDocumentsByTenant(keyword, tenant);
+        } else if (tenant && this.vectorStore.searchDocuments) {
+          // Fallback to regular search with tenant filtering if available
+          return this.vectorStore.searchDocuments(keyword, { tenantId: tenant.id });
+        } else {
+          return this.vectorStore.searchDocuments(keyword);
+        }
+      });
 
       const keywordResults = await Promise.all(keywordPromises);
 
@@ -1537,13 +1565,13 @@ Hypothetical Document:`;
    * @param {string} question - Question text
    * @returns {Promise<Object>} Metadata-filtered search results
    */
-  async performMetadataSearch(questionEmbedding, question) {
+  async performMetadataSearch(questionEmbedding, question, tenant = null) {
     try {
       // Determine filters based on question analysis
       const filters = this.analyzeQuestionForFilters(question);
 
-      // Perform filtered search
-      const filteredResults = await this.vectorStore.searchWithFilters(questionEmbedding, filters);
+      // Perform filtered search - always pass tenant for proper isolation
+      const filteredResults = await this.vectorStore.searchWithFilters(questionEmbedding, filters, tenant);
 
       // Convert to vector store format
       return this.convertToVectorStoreFormat(filteredResults);
@@ -1820,7 +1848,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * @param {string} question - Original question
    * @returns {Object} Enhanced context with narrative flow
    */
-  async _buildNarrativeContext(reRankedChunks, question) {
+  async _buildNarrativeContext(reRankedChunks, question, tenant = null) {
     try {
       if (!reRankedChunks || reRankedChunks.length === 0) {
         console.log('⚠️ No chunks available for narrative context building');
@@ -1863,7 +1891,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       if (topChunk.metadata.previous_chunk_id) {
         try {
           console.log(`🔍 Fetching previous chunk: ${topChunk.metadata.previous_chunk_id}`);
-          previousChunk = await this._fetchChunkById(topChunk.metadata.previous_chunk_id);
+          previousChunk = await this._fetchChunkById(topChunk.metadata.previous_chunk_id, tenant);
           
           if (previousChunk) {
             console.log(`✅ Retrieved previous chunk: ${previousChunk.id} (${previousChunk.content.length} chars)`);
@@ -1881,7 +1909,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       if (topChunk.metadata.next_chunk_id) {
         try {
           console.log(`🔍 Fetching next chunk: ${topChunk.metadata.next_chunk_id}`);
-          nextChunk = await this._fetchChunkById(topChunk.metadata.next_chunk_id);
+          nextChunk = await this._fetchChunkById(topChunk.metadata.next_chunk_id, tenant);
           
           if (nextChunk) {
             console.log(`✅ Retrieved next chunk: ${nextChunk.id} (${nextChunk.content.length} chars)`);
@@ -1945,9 +1973,10 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
   /**
    * Helper method to fetch a chunk by its ID from DocumentStore
    * @param {string} chunkId - The chunk ID to fetch
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Object|null} The chunk object or null if not found
    */
-  async _fetchChunkById(chunkId) {
+  async _fetchChunkById(chunkId, tenant = null) {
     try {
       if (!chunkId || typeof chunkId !== 'string') {
         return null;
@@ -1955,7 +1984,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       // Try to fetch from DocumentStore first (for parent chunks)
       if (this.documentStore) {
-        const parentChunk = await this.documentStore.getParentChunk(chunkId);
+        const parentChunk = await this.documentStore.getParentChunk(chunkId, tenant);
         if (parentChunk) {
           return {
             id: chunkId,
@@ -1981,15 +2010,16 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * Phase 1: Perform hierarchical retrieval using child chunks to find parent chunks
    * @param {Object} searchResults - Results from vector search (child chunks)
    * @param {string} question - Original question
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Array} Parent chunks retrieved via DocumentStore
    */
-  async performHierarchicalRetrieval(searchResults, question) {
+  async performHierarchicalRetrieval(searchResults, question, tenant = null) {
     try {
       console.log('🔗 Phase 1: Performing hierarchical retrieval...');
       
       if (!this.documentStore) {
         console.warn('⚠️ DocumentStore not available, falling back to child chunks');
-        return await this.processMixedSearchResults(searchResults, question);
+        return await this.processMixedSearchResults(searchResults, question, tenant);
       }
 
       if (!searchResults.documents || !searchResults.documents[0]) {
@@ -2020,7 +2050,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       if (parentIds.size === 0) {
         console.warn('⚠️ No parent_ids found in child chunks, falling back to child chunks');
-        return await this.processMixedSearchResults(searchResults, question);
+        return await this.processMixedSearchResults(searchResults, question, tenant);
       }
 
       console.log(`📦 Retrieving ${parentIds.size} unique parent chunks from DocumentStore...`);
@@ -2031,7 +2061,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       for (const parentId of parentIdArray) {
         try {
-          const parentChunk = await this.documentStore.getParentChunk(parentId);
+          const parentChunk = await this.documentStore.getParentChunk(parentId, tenant);
           if (parentChunk) {
             parentChunks.push({
               content: parentChunk.content,
@@ -2053,7 +2083,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
       if (parentChunks.length === 0) {
         console.warn('⚠️ No parent chunks retrieved, falling back to child chunks');
-        return await this.processMixedSearchResults(searchResults, question);
+        return await this.processMixedSearchResults(searchResults, question, tenant);
       }
 
       console.log(`✅ Hierarchical retrieval complete: ${parentChunks.length} parent chunks retrieved`);
@@ -2066,7 +2096,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
     } catch (error) {
       console.error('❌ Hierarchical retrieval failed:', error.message);
       console.log('🔄 Falling back to child chunk processing...');
-      return await this.processMixedSearchResults(searchResults, question);
+      return await this.processMixedSearchResults(searchResults, question, tenant);
     }
   }
 
@@ -2074,9 +2104,10 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * Process mixed search results (replacement for processSearchResults)
    * @param {Object} searchResults - Combined search results
    * @param {string} question - Original question
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Array} Filtered and re-ranked relevant chunks
    */
-  async processMixedSearchResults(searchResults, question) {
+  async processMixedSearchResults(searchResults, question, tenant = null) {
     if (!searchResults.documents || !searchResults.documents[0]) {
       return [];
     }
@@ -2114,7 +2145,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
     }
 
     // Apply advanced re-ranking system
-    const reRankedChunks = await this.applyReRanking(relevantChunks, question);
+    const reRankedChunks = await this.applyReRanking(relevantChunks, question, tenant);
 
     return reRankedChunks.slice(0, this.maxResults);
   }
@@ -2297,7 +2328,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
         console.log("🔄 Direct answer generation failed, using raw chunk content");
         if (relevantChunks.length > 0) {
           const topChunk = relevantChunks[0];
-          answer = `Based on the documents, here's the most relevant information:\n\n${topChunk.content.substring(0, 800)}${topChunk.content.length > 800 ? '...' : ''}`;
+          answer = `Based on the documents, here's the most relevant information:\n\n${(topChunk.content || '').substring(0, 800)}${(topChunk.content || '').length > 800 ? '...' : ''}`;
         } else {
           answer = "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
         }
@@ -2328,7 +2359,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       console.error("❌ Error in generateAnswer:", error);
       // Emergency fallback
       if (relevantChunks.length > 0) {
-        return `I found relevant information in the documents: ${relevantChunks[0].content.substring(0, 500)}...`;
+        return `I found relevant information in the documents: ${(relevantChunks[0].content || '').substring(0, 500)}...`;
       }
       return "I encountered an error while generating the answer. Please try again.";
     }
@@ -2370,7 +2401,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       // Final fallback: return structured preview of top chunk
       const topChunk = relevantChunks[0];
       const previewLength = Math.min(800, topChunk.content.length);
-      const preview = topChunk.content.substring(0, previewLength);
+      const preview = (topChunk.content || '').substring(0, previewLength);
       const sentences = preview.split(/[.!?]+/).filter(s => s.trim().length > 10);
 
       return `🔍 Answer based on document content:\n\n${sentences.slice(0, 4).join('. ').trim()}${sentences.length > 4 ? '...' : ''}\n\n*Source: Document content*`;
@@ -2379,7 +2410,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       console.warn("⚠️ Enhanced fallback failed, using simple fallback:", error.message);
       // Simple fallback
       const topChunk = relevantChunks[0];
-      return `Based on the documents, here's the most relevant information:\n\n${topChunk.content.substring(0, 500)}${topChunk.content.length > 500 ? '...' : ''}`;
+      return `Based on the documents, here's the most relevant information:\n\n${(topChunk.content || '').substring(0, 500)}${(topChunk.content || '').length > 500 ? '...' : ''}`;
     }
   }
 
@@ -2592,7 +2623,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
         chunkIndex: metadata.chunkIndex || chunk.index,
         similarity: similarity,
         confidence: chunk.similarity,
-        preview: chunk.content.substring(0, 150) + (chunk.content.length > 150 ? '...' : ''),
+        preview: (chunk.content || '').substring(0, 150) + ((chunk.content || '').length > 150 ? '...' : ''),
         metadata: {
           version: metadata.version,
           uploadedAt: metadata.uploadedAt,
@@ -3052,7 +3083,7 @@ JSON_OUTPUT:`;
       if (jsonResponse.keyPoints && Array.isArray(jsonResponse.keyPoints) && jsonResponse.keyPoints.length > 0) {
         formattedAnswer += `## Key Points\n\n`;
         jsonResponse.keyPoints.forEach(point => {
-          if (point && point.trim()) {
+          if (point && typeof point === 'string' && point.trim()) {
             formattedAnswer += `• ${point.trim()}\n`;
           }
         });
@@ -3063,7 +3094,7 @@ JSON_OUTPUT:`;
       if (jsonResponse.categories && Array.isArray(jsonResponse.categories) && jsonResponse.categories.length > 0) {
         formattedAnswer += `## Categories\n\n`;
         jsonResponse.categories.forEach(category => {
-          if (category && category.trim()) {
+          if (category && typeof category === 'string' && category.trim()) {
             formattedAnswer += `• ${category.trim()}\n`;
           }
         });
@@ -3074,7 +3105,7 @@ JSON_OUTPUT:`;
       if (jsonResponse.examples && Array.isArray(jsonResponse.examples) && jsonResponse.examples.length > 0) {
         formattedAnswer += `## Examples\n\n`;
         jsonResponse.examples.forEach(example => {
-          if (example && example.trim()) {
+          if (example && typeof example === 'string' && example.trim()) {
             formattedAnswer += `• ${example.trim()}\n`;
           }
         });

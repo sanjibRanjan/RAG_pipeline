@@ -241,9 +241,10 @@ export class DocumentStore {
    * Store a parent chunk in the document store
    * @param {string} parentId - Unique identifier for the parent chunk
    * @param {Object} parentChunk - Parent chunk object with content and metadata
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {boolean} Success status
    */
-  storeParentChunk(parentId, parentChunk) {
+  storeParentChunk(parentId, parentChunk, tenant = null) {
     try {
       // Validate input
       if (!parentId || typeof parentId !== 'string') {
@@ -263,12 +264,14 @@ export class DocumentStore {
         this.performCleanup();
       }
 
-      // Add timestamp and store
+      // Add timestamp and tenant information
       const enrichedChunk = {
         ...parentChunk,
         storedAt: new Date().toISOString(),
         accessCount: 0,
-        lastAccessed: null
+        lastAccessed: null,
+        tenantId: tenant?.id || null,
+        tenantType: tenant?.type || null
       };
 
       this.parentChunks.set(parentId, enrichedChunk);
@@ -315,7 +318,9 @@ export class DocumentStore {
         createdAt: new Date(),
         updatedAt: new Date(),
         accessCount: parentChunk.accessCount || 0,
-        lastAccessed: parentChunk.lastAccessed
+        lastAccessed: parentChunk.lastAccessed,
+        tenantId: parentChunk.tenantId,
+        tenantType: parentChunk.tenantType
       };
 
       const result = await this.collection.updateOne(
@@ -341,16 +346,23 @@ export class DocumentStore {
   /**
    * Retrieve a parent chunk by its ID (with lazy loading)
    * @param {string} parentId - Unique identifier for the parent chunk
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Object|null} Parent chunk object or null if not found
    */
-  async getParentChunk(parentId) {
+  async getParentChunk(parentId, tenant = null) {
     try {
       if (!parentId || typeof parentId !== 'string') {
         throw new Error('Parent ID must be a non-empty string');
       }
-
-      // Check in-memory cache first
+      
       let chunk = this.parentChunks.get(parentId);
+
+      // Check tenant isolation if enabled
+      if (chunk && tenant && chunk.tenantId && chunk.tenantId !== tenant.id) {
+        console.log(`🚫 Access denied: Parent chunk ${parentId} belongs to different tenant`);
+        this.stats.cacheMisses++;
+        return null;
+      }
 
       if (chunk) {
         // Update access statistics
@@ -468,9 +480,10 @@ export class DocumentStore {
   /**
    * Store multiple parent chunks in batch
    * @param {Array} chunks - Array of objects with {id, chunk} properties
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Object} Results summary
    */
-  storeParentChunksBatch(chunks) {
+  storeParentChunksBatch(chunks, tenant = null) {
     try {
       if (!Array.isArray(chunks)) {
         throw new Error('Chunks must be an array');
@@ -485,7 +498,7 @@ export class DocumentStore {
       
       chunks.forEach(({ id, chunk }, index) => {
         try {
-          if (this.storeParentChunk(id, chunk)) {
+          if (this.storeParentChunk(id, chunk, tenant)) {
             results.successful++;
           } else {
             results.failed++;

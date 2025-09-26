@@ -23,6 +23,10 @@ export class VectorStore {
     // Phase 1: Hierarchical chunking configuration (same as ChromaDB)
     this.ALLOWED_CHUNK_TYPES = ['child', 'basic'];
     this.REJECTED_CHUNK_TYPES = ['parent'];
+
+    // Multi-tenancy configuration will be set in initialize() method
+    this.multiTenancyEnabled = false; // Will be set during initialization
+    this.tenantIsolationLevel = 'user'; // Default value
   }
 
   /**
@@ -31,6 +35,16 @@ export class VectorStore {
    */
   async initialize() {
     try {
+      // Set multi-tenancy configuration from environment variables
+      this.multiTenancyEnabled = process.env.ENABLE_MULTI_TENANCY === 'true';
+      this.tenantIsolationLevel = process.env.TENANT_ISOLATION_LEVEL || 'user';
+      
+      console.log('🔍 VectorStore initialize - Multi-tenancy configuration:', {
+        ENABLE_MULTI_TENANCY: process.env.ENABLE_MULTI_TENANCY,
+        multiTenancyEnabled: this.multiTenancyEnabled,
+        tenantIsolationLevel: this.tenantIsolationLevel
+      });
+      
       const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/rag_pipeline";
       this.databaseName = process.env.MONGODB_DATABASE || "rag_pipeline";
       this.collectionName = process.env.MONGODB_VECTOR_COLLECTION || "vector_documents";
@@ -42,7 +56,7 @@ export class VectorStore {
         maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE) || 10,
         minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE) || 5,
         maxIdleTimeMS: parseInt(process.env.MONGODB_MAX_IDLE_TIME) || 30000,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 15000,
         socketTimeoutMS: 45000,
         // Performance optimizations
         retryWrites: true,
@@ -238,9 +252,10 @@ export class VectorStore {
    * @param {number[][]} embeddings - Array of embeddings
    * @param {Object[]} metadatas - Array of metadata objects
    * @param {string[]} ids - Array of unique IDs
+   * @param {Object} tenant - Optional tenant information for isolation
    * @returns {Promise<boolean>} Success status
    */
-  async addDocuments(documents, embeddings, metadatas, ids) {
+  async addDocuments(documents, embeddings, metadatas, ids, tenant = null) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("MongoDB vector store not initialized");
@@ -290,10 +305,18 @@ export class VectorStore {
             fileSize: metadata.fileSize || 0,
             fileType: metadata.fileType || 'unknown',
             uploadedAt: metadata.uploadedAt || metadata.ingestionTime || new Date().toISOString(),
-            textLength: metadata.textLength || metadata.contentLength || filteredData.documents[index].length
+            textLength: metadata.textLength || metadata.contentLength || filteredData.documents[index].length,
+            // Add tenant information for isolation
+            tenantId: tenant?.id || metadata.tenantId || null,
+            tenantType: tenant?.type || metadata.tenantType || null,
+            userId: tenant?.userId || metadata.userId || null,
+            email: tenant?.email || metadata.email || null
           },
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          // Add tenant fields at document level for efficient querying
+          tenantId: tenant?.id || metadata.tenantId || null,
+          tenantType: tenant?.type || metadata.tenantType || null
         };
       });
 
@@ -321,9 +344,10 @@ export class VectorStore {
    * Search for similar documents using vector similarity
    * @param {number[]} queryEmbedding - Query embedding vector
    * @param {number} nResults - Number of results to return
+   * @param {Object} tenant - Tenant information for isolation (optional)
    * @returns {Promise<Object>} Search results
    */
-  async search(queryEmbedding, nResults = 5) {
+  async search(queryEmbedding, nResults = 5, tenant = null) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("MongoDB vector store not initialized");
@@ -335,9 +359,15 @@ export class VectorStore {
 
       console.log(`🔍 Searching for ${nResults} similar documents in MongoDB...`);
 
+      // If tenant is provided and not global/anonymous, use tenant-specific search
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        console.log(`🔒 Using tenant-specific search for tenant: ${tenant.id}`);
+        return await this.searchByTenant(queryEmbedding, nResults, tenant);
+      }
+
       // Use manual cosine similarity calculation for local MongoDB
       // MongoDB Atlas Vector Search requires special configuration
-      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2);
+      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2, tenant);
       console.log(`✅ Found ${results.length} relevant documents`);
       return this.formatSearchResults(results.slice(0, nResults));
     } catch (error) {
@@ -350,25 +380,37 @@ export class VectorStore {
    * Manual vector similarity search (fallback when Atlas Vector Search is not available)
    * @private
    */
-  async manualVectorSearch(queryEmbedding, limit) {
+  async manualVectorSearch(queryEmbedding, limit, tenant = null) {
     try {
+      // Build query filter for tenant isolation
+      let queryFilter = {};
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        queryFilter = {
+          tenantId: tenant.id,
+          tenantType: tenant.type
+        };
+        console.log(`🔒 Applying tenant filter: ${tenant.id} (type: ${tenant.type})`);
+      }
+
       // Use sampling strategy for better performance with large datasets
-      const totalDocs = await this.collection.countDocuments();
+      const totalDocs = await this.collection.countDocuments(queryFilter);
       const sampleSize = Math.min(this.maxDocumentsPerQuery, totalDocs);
 
       let documents;
       if (totalDocs <= sampleSize) {
         // If we have fewer documents than our limit, get all
         documents = await this.collection
-          .find({})
+          .find(queryFilter)
           .sort({ createdAt: -1 })
           .toArray();
       } else {
         // Use aggregation pipeline for more efficient sampling
-        documents = await this.collection.aggregate([
+        const pipeline = [
+          { $match: queryFilter },
           { $sample: { size: sampleSize } },
           { $sort: { createdAt: -1 } }
-        ]).toArray();
+        ];
+        documents = await this.collection.aggregate(pipeline).toArray();
       }
 
       console.log(`🔍 Calculating similarity for ${documents.length} documents`);
@@ -968,9 +1010,10 @@ export class VectorStore {
    * Search with filters (compatibility method for QA service)
    * @param {number[]} queryEmbedding - Query embedding vector
    * @param {Object} filters - Search filters
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Promise<Object>} Search results with documents, distances, metadatas, ids
    */
-  async searchWithFilters(queryEmbedding, filters = {}) {
+  async searchWithFilters(queryEmbedding, filters = {}, tenant = null) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("Vector store not initialized");
@@ -1058,7 +1101,7 @@ export class VectorStore {
       } catch (atlasError) {
         // Fall back to manual vector similarity search
         console.log("⚠️ Atlas Vector Search not available, falling back to manual search");
-        return await this.manualVectorSearchWithFilters(queryEmbedding, filters);
+        return await this.manualVectorSearchWithFilters(queryEmbedding, filters, tenant);
       }
 
     } catch (error) {
@@ -1077,10 +1120,17 @@ export class VectorStore {
    * Manual vector similarity search with filters (fallback when Atlas Vector Search is not available)
    * @private
    */
-  async manualVectorSearchWithFilters(queryEmbedding, filters = {}) {
+  async manualVectorSearchWithFilters(queryEmbedding, filters = {}, tenant = null) {
     try {
       // Build MongoDB query for filters
       const mongoQuery = {};
+
+      // Apply tenant isolation first
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        mongoQuery.tenantId = tenant.id;
+        mongoQuery.tenantType = tenant.type;
+        console.log(`🔒 Applying tenant filter: ${tenant.id} (type: ${tenant.type})`);
+      }
 
       // Apply metadata filters
       if (Object.keys(filters).length > 0) {
@@ -1197,6 +1247,368 @@ export class VectorStore {
     } catch (error) {
       console.error("❌ MongoDB vector store health check failed:", error);
       return false;
+    }
+  }
+
+  // ============================================
+  // MULTI-TENANCY METHODS
+  // ============================================
+
+  /**
+   * Add documents with tenant isolation
+   * @param {Array} texts - Array of text chunks
+   * @param {Array} embeddings - Array of embeddings
+   * @param {Array} metadatas - Array of metadata objects
+   * @param {Array} ids - Array of document IDs
+   * @param {Object} tenant - Tenant information
+   * @returns {Promise<Object>} Operation result
+   */
+  async addDocumentsByTenant(texts, embeddings, metadatas, ids, tenant) {
+    try {
+      console.log('🔍 addDocumentsByTenant called with:', {
+        multiTenancyEnabled: this.multiTenancyEnabled,
+        tenantId: tenant?.id,
+        tenantType: tenant?.type,
+        tenantObject: tenant
+      });
+      
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        console.log('🔄 Falling back to regular addDocuments method');
+        // Fall back to regular method if multi-tenancy is disabled
+        return await this.addDocuments(texts, embeddings, metadatas, ids);
+      }
+
+      // Validate chunk types
+      const validationResult = this.validateChunkTypes(metadatas);
+      if (validationResult.rejectedCount > 0) {
+        throw new Error(`Rejected ${validationResult.rejectedCount} chunks due to chunk type validation`);
+      }
+
+      // Add tenant information to metadata
+      const tenantMetadatas = metadatas.map(metadata => ({
+        ...metadata,
+        tenantId: tenant.id,
+        tenantType: tenant.type,
+        userId: tenant.userId,
+        email: tenant.email
+      }));
+
+      // Prepare documents for insertion
+      const documents = texts.map((text, index) => ({
+        _id: ids[index],
+        content: text,
+        embedding: embeddings[index],
+        metadata: tenantMetadatas[index],
+        createdAt: new Date(),
+        tenantId: tenant.id,
+        tenantType: tenant.type
+      }));
+
+      // Insert documents
+      const result = await this.collection.insertMany(documents, {
+        ordered: false, // Continue on errors
+        writeConcern: { w: 'majority', wtimeoutMS: 5000 }
+      });
+
+      console.log(`✅ Added ${result.insertedCount} documents for tenant ${tenant.id} (${tenant.type})`);
+      return {
+        insertedCount: result.insertedCount,
+        insertedIds: Object.values(result.insertedIds)
+      };
+    } catch (error) {
+      console.error("❌ Failed to add documents by tenant:", error);
+      throw new Error(`Failed to add documents by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * Search documents by tenant
+   * @param {Array} queryEmbedding - Query embedding vector
+   * @param {number} limit - Maximum number of results
+   * @param {Object} tenant - Tenant information
+   * @param {Object} filters - Additional filters
+   * @returns {Promise<Object>} Search results
+   */
+  async searchByTenant(queryEmbedding, limit = 5, tenant, filters = {}) {
+    try {
+      if (!tenant || tenant.id === 'global' || tenant.id === 'anonymous') {
+        // Fall back to regular search if no valid tenant
+        return await this.search(queryEmbedding, limit, filters);
+      }
+
+      // Build tenant-specific filter
+      const tenantFilter = {
+        tenantId: tenant.id,
+        tenantType: tenant.type,
+        ...filters
+      };
+
+      // Use MongoDB Vector Search if available, otherwise fallback to manual search
+      if (this.collection.indexExists && await this.collection.indexExists('vector_index')) {
+        return await this.vectorSearch(queryEmbedding, limit, tenantFilter);
+      } else {
+        const results = await this.manualVectorSearchWithFilters(queryEmbedding, tenantFilter);
+        // Apply limit to results if needed
+        if (results.documents && results.documents[0] && results.documents[0].length > limit) {
+          results.documents[0] = results.documents[0].slice(0, limit);
+          results.distances[0] = results.distances[0].slice(0, limit);
+          results.metadatas[0] = results.metadatas[0].slice(0, limit);
+          results.ids[0] = results.ids[0].slice(0, limit);
+        }
+        return results;
+      }
+    } catch (error) {
+      console.error("❌ Failed to search by tenant:", error);
+      throw new Error(`Failed to search by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * List documents by tenant
+   * @param {Object} tenant - Tenant information
+   * @param {number} limit - Maximum number of results
+   * @param {number} offset - Offset for pagination
+   * @returns {Promise<Array>} Documents list
+   */
+  async listDocumentsByTenant(tenant, limit = 10, offset = 0) {
+    try {
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        // Fall back to regular listing if multi-tenancy is disabled
+        return await this.listDocuments(limit, offset);
+      }
+
+      // Build aggregation pipeline for tenant-specific listing
+      const pipeline = [
+        // Filter by tenant
+        {
+          $match: {
+            tenantId: tenant.id,
+            tenantType: tenant.type
+          }
+        },
+        // Group by document name to get unique documents
+        {
+          $group: {
+            _id: "$metadata.documentName",
+            documentName: { $first: "$metadata.documentName" },
+            fileType: { $first: "$metadata.fileType" },
+            fileSize: { $first: "$metadata.fileSize" },
+            chunks: { $sum: 1 },
+            totalEmbeddings: { $sum: 1 },
+            uploadedAt: { $first: "$metadata.uploadedAt" },
+            version: { $first: "$metadata.version" },
+            tenantId: { $first: "$tenantId" },
+            tenantType: { $first: "$tenantType" }
+          }
+        },
+        // Sort by upload date (newest first)
+        {
+          $sort: { uploadedAt: -1 }
+        },
+        // Apply pagination
+        {
+          $skip: offset
+        },
+        {
+          $limit: limit
+        }
+      ];
+
+      const documents = await this.collection.aggregate(pipeline).toArray();
+
+      return documents.map(doc => ({
+        name: doc.documentName,
+        fileType: doc.fileType,
+        fileSize: doc.fileSize,
+        chunks: doc.chunks,
+        totalEmbeddings: doc.totalEmbeddings,
+        uploadedAt: doc.uploadedAt,
+        version: doc.version,
+        tenantId: doc.tenantId,
+        tenantType: doc.tenantType
+      }));
+    } catch (error) {
+      console.error("❌ Failed to list documents by tenant:", error);
+      throw new Error(`Failed to list documents by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get document details by tenant
+   * @param {Object} tenant - Tenant information
+   * @param {string} documentName - Document name
+   * @returns {Promise<Object>} Document details
+   */
+  async getDocumentByTenant(tenant, documentName) {
+    try {
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        // Fall back to regular method if multi-tenancy is disabled
+        return await this.getDocumentDetails(documentName);
+      }
+
+      // Find documents for this tenant and document name
+      const documents = await this.collection.find({
+        "metadata.documentName": decodeURIComponent(documentName),
+        tenantId: tenant.id,
+        tenantType: tenant.type
+      }).toArray();
+
+      if (documents.length === 0) {
+        throw new Error(`Document "${documentName}" not found for tenant`);
+      }
+
+      // Get the latest version
+      const latestDoc = documents.reduce((latest, current) => {
+        return (!latest || current.metadata.version > latest.metadata.version) ? current : latest;
+      });
+
+      return {
+        name: latestDoc.metadata.documentName,
+        fileType: latestDoc.metadata.fileType,
+        fileSize: latestDoc.metadata.fileSize,
+        chunks: documents.length,
+        totalEmbeddings: documents.length,
+        uploadedAt: latestDoc.metadata.uploadedAt,
+        version: latestDoc.metadata.version,
+        metadata: latestDoc.metadata,
+        tenantId: latestDoc.tenantId,
+        tenantType: latestDoc.tenantType
+      };
+    } catch (error) {
+      console.error("❌ Failed to get document by tenant:", error);
+      throw new Error(`Failed to get document by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete document by tenant
+   * @param {Object} tenant - Tenant information
+   * @param {string} documentId - Document ID
+   * @returns {Promise<boolean>} Success status
+   */
+  async deleteDocumentByTenant(tenant, documentId) {
+    try {
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        // Fall back to regular method if multi-tenancy is disabled
+        return await this.deleteDocument(documentId);
+      }
+
+      // Find and delete all chunks for this document belonging to the tenant
+      const result = await this.collection.deleteMany({
+        _id: { $regex: `^${documentId}` }, // Match document ID prefix
+        tenantId: tenant.id,
+        tenantType: tenant.type
+      });
+
+      console.log(`🗑️ Deleted ${result.deletedCount} chunks for document ${documentId} by tenant ${tenant.id}`);
+      return result.deletedCount > 0;
+    } catch (error) {
+      console.error("❌ Failed to delete document by tenant:", error);
+      throw new Error(`Failed to delete document by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * Clear all documents by tenant (for GDPR compliance)
+   * @param {Object} tenant - Tenant information
+   * @returns {Promise<number>} Number of deleted documents
+   */
+  async clearDocumentsByTenant(tenant) {
+    try {
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        throw new Error("Cannot clear documents for global tenant");
+      }
+
+      const result = await this.collection.deleteMany({
+        tenantId: tenant.id,
+        tenantType: tenant.type
+      });
+
+      console.log(`🗑️ Cleared ${result.deletedCount} documents for tenant ${tenant.id}`);
+      return result.deletedCount;
+    } catch (error) {
+      console.error("❌ Failed to clear documents by tenant:", error);
+      throw new Error(`Failed to clear documents by tenant: ${error.message}`);
+    }
+  }
+
+  /**
+   * Search documents by tenant with text query
+   * @param {string} query - Search query
+   * @param {Object} tenant - Tenant information
+   * @param {Object} filters - Additional filters
+   * @param {number} limit - Maximum results
+   * @returns {Promise<Array>} Search results
+   */
+  async searchDocumentsByTenant(query, tenant, filters = {}, limit = 20) {
+    try {
+      if (!this.multiTenancyEnabled || !tenant || tenant.type === 'global') {
+        // Fall back to regular search if multi-tenancy is disabled
+        return await this.searchDocuments(query, filters, limit);
+      }
+
+      // Build tenant-specific search pipeline
+      const pipeline = [
+        // Filter by tenant
+        {
+          $match: {
+            tenantId: tenant.id,
+            tenantType: tenant.type,
+            ...filters
+          }
+        },
+        // Text search on content
+        {
+          $match: {
+            $or: [
+              { content: { $regex: query, $options: 'i' } },
+              { "metadata.documentName": { $regex: query, $options: 'i' } },
+              { "metadata.title": { $regex: query, $options: 'i' } },
+              { "metadata.description": { $regex: query, $options: 'i' } }
+            ]
+          }
+        },
+        // Group by document
+        {
+          $group: {
+            _id: "$metadata.documentName",
+            documentName: { $first: "$metadata.documentName" },
+            fileType: { $first: "$metadata.fileType" },
+            fileSize: { $first: "$metadata.fileSize" },
+            chunks: { $sum: 1 },
+            totalEmbeddings: { $sum: 1 },
+            uploadedAt: { $first: "$metadata.uploadedAt" },
+            version: { $first: "$metadata.version" },
+            metadata: { $first: "$metadata" },
+            matchingChunks: { $sum: 1 }
+          }
+        },
+        // Sort by relevance (more matching chunks = higher relevance)
+        {
+          $sort: { matchingChunks: -1, uploadedAt: -1 }
+        },
+        // Limit results
+        {
+          $limit: limit
+        }
+      ];
+
+      const results = await this.collection.aggregate(pipeline).toArray();
+
+      return results.map(result => ({
+        name: result.documentName,
+        fileType: result.fileType,
+        fileSize: result.fileSize,
+        chunks: result.chunks,
+        totalEmbeddings: result.totalEmbeddings,
+        uploadedAt: result.uploadedAt,
+        version: result.version,
+        metadata: result.metadata,
+        relevance: result.matchingChunks
+      }));
+    } catch (error) {
+      console.error("❌ Failed to search documents by tenant:", error);
+      throw new Error(`Failed to search documents by tenant: ${error.message}`);
     }
   }
 }

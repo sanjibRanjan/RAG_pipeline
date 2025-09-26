@@ -31,7 +31,7 @@ export class LangChainManager {
         return 'claude-3-haiku-20240307';
       case 'google':
       case 'gemini':
-        return 'gemini-1.5-flash';
+        return 'gemini-1.5-flash-8b'; // Use the 8B parameter version which is more widely available
       default:
         return 'gpt-3.5-turbo';
     }
@@ -46,8 +46,8 @@ export class LangChainManager {
       case 'google':
       case 'gemini':
         return {
-          preprocessing: 'gemini-1.5-flash',  // Fast, cheap for preprocessing
-          synthesis: 'gemini-1.5-pro'        // Powerful for final synthesis
+          preprocessing: 'gemini-1.5-flash-8b',  // Fast, cheap for preprocessing (8B version is more widely available)
+          synthesis: 'gemini-1.5-pro-002'        // Powerful for final synthesis (use specific version)
         };
       case 'openai':
         return {
@@ -215,13 +215,46 @@ export class LangChainManager {
 
     // Use official Google Generative AI SDK
     const genAI = new GoogleGenerativeAI(apiKey);
-    return genAI.getGenerativeModel({
-      model: this.modelName,
-      generationConfig: {
-        temperature: this.temperature,
-        maxOutputTokens: this.maxTokens,
+
+    // Try multiple model versions in case the primary one is not available
+    const modelVersions = this.getFallbackModelVersions(this.modelName);
+
+    for (const modelVersion of modelVersions) {
+      try {
+        console.log(`🔄 Trying Google Gemini model: ${modelVersion}`);
+        const model = genAI.getGenerativeModel({
+          model: modelVersion,
+          generationConfig: {
+            temperature: this.temperature,
+            maxOutputTokens: this.maxTokens,
+          }
+        });
+        console.log(`✅ Successfully initialized model: ${modelVersion}`);
+        return model;
+      } catch (error) {
+        console.warn(`⚠️ Model ${modelVersion} not available: ${error.message}`);
+        continue;
       }
-    });
+    }
+
+    // If all versions fail, throw the last error
+    throw new Error(`All Google Gemini model versions failed. Tried: ${modelVersions.join(', ')}`);
+  }
+
+  /**
+   * Get fallback model versions for Google Gemini
+   * @param {string} primaryModel - The primary model name requested
+   * @returns {string[]} Array of model versions to try
+   */
+  getFallbackModelVersions(primaryModel) {
+    const fallbacks = {
+      'gemini-1.5-flash': ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-flash-002', 'gemini-1.5-flash-latest'],
+      'gemini-1.5-flash-8b': ['gemini-1.5-flash-8b', 'gemini-1.5-flash', 'gemini-1.5-flash-002', 'gemini-1.5-flash-latest'],
+      'gemini-1.5-pro': ['gemini-1.5-pro', 'gemini-1.5-pro-002', 'gemini-1.5-pro-latest'],
+      'gemini-1.5-pro-002': ['gemini-1.5-pro-002', 'gemini-1.5-pro', 'gemini-1.5-pro-latest']
+    };
+
+    return fallbacks[primaryModel] || [primaryModel, `${primaryModel}-latest`];
   }
 
   // Legacy methods for backward compatibility

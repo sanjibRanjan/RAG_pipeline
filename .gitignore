@@ -5,6 +5,8 @@ node_modules
 uploads
 
 
-logs
-logs/*.log
+# Logs
+logs/
 *.log
+
+FirebaseAccount.json

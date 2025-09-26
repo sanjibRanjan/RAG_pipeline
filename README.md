@@ -18,6 +18,158 @@ A comprehensive Retrieval-Augmented Generation system with a modern chat UI for 
 
 This RAG (Retrieval-Augmented Generation) pipeline answers questions from PDF documents using vector embeddings and ChromaDB.
 
+## 🔐 Firebase Authentication & Multi-tenancy
+
+**NEW!** Complete Firebase Authentication integration with multi-tenancy support for secure, isolated user experiences.
+
+### Authentication Features
+- ✅ **Firebase Auth Integration**: Secure user authentication with Firebase
+- ✅ **JWT Token Validation**: Automatic token verification on all API endpoints
+- ✅ **User Profile Management**: Complete user profile and statistics API
+- ✅ **GDPR Compliance**: Data export and deletion capabilities
+- ✅ **Rate Limiting**: Tenant-aware rate limiting for fair usage
+
+### Multi-tenancy Features
+- ✅ **Complete Data Isolation**: Users only see their own documents and conversations
+- ✅ **Tenant-specific Storage**: Separate data storage per user/organization
+- ✅ **Secure API Endpoints**: All endpoints protected with authentication
+- ✅ **User Management**: Comprehensive user statistics and document management
+- ✅ **Conversation Isolation**: Private conversation sessions per user
+
+### Quick Firebase Setup
+```bash
+# 1. Install Firebase dependencies (already included)
+npm install
+
+# 2. Configure Firebase in your environment
+cp env.template .env
+# Edit .env with your Firebase project credentials
+
+# 3. Start the server with authentication enabled
+npm start
+```
+
+### Firebase Configuration
+
+#### 1. Create a Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or select an existing one
+3. Enable Authentication in your Firebase project
+
+#### 2. Generate Service Account Key
+1. Go to Project Settings → Service Accounts
+2. Click "Generate new private key"
+3. Download the JSON file (keep it secure!)
+
+#### 3. Configure Environment Variables
+Add the following to your `.env` file:
+
+```env
+# Firebase Configuration
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY_ID=your-private-key-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour-private-key-content\n-----END PRIVATE KEY-----"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_CLIENT_ID=your-client-id
+FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+FIREBASE_AUTH_PROVIDER_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+FIREBASE_CLIENT_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-xxxxx%40your-project.iam.gserviceaccount.com
+
+# Multi-tenancy Settings
+ENABLE_MULTI_TENANCY=true
+TENANT_ISOLATION_LEVEL=user  # 'user' or 'organization'
+```
+
+#### 4. Alternative: Service Account File
+Instead of environment variables, you can use a service account file:
+
+```env
+FIREBASE_SERVICE_ACCOUNT_KEY_PATH=path/to/serviceAccountKey.json
+```
+
+### API Endpoints
+
+#### Authentication Endpoints
+- `POST /api/auth/verify` - Verify Firebase ID token
+- `GET /api/auth/me` - Get current user profile
+
+#### User Management Endpoints
+- `GET /api/user/stats` - Get user statistics
+- `GET /api/user/documents` - List user's documents
+- `DELETE /api/user/documents/:id` - Delete user's document
+- `POST /api/user/clear-data` - Clear all user data (GDPR)
+- `GET /api/user/export-data` - Export user data (GDPR)
+
+#### Protected Document Endpoints
+- `POST /api/documents/upload` - Upload document (authenticated)
+- `POST /api/documents/ingest` - Ingest document (authenticated)
+
+#### Protected QA Endpoints
+- `POST /api/qa/ask` - Ask questions (authenticated, tenant-isolated)
+
+#### Protected Conversation Endpoints
+- `GET /api/conversations/:id` - Get conversation (tenant-isolated)
+- `DELETE /api/conversations/:id` - Clear conversation (tenant-isolated)
+
+### Client Integration Example
+
+```javascript
+// Get Firebase ID token
+const idToken = await firebase.auth().currentUser.getIdToken();
+
+// Verify token with your API
+const response = await fetch('/api/auth/verify', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${idToken}`
+  },
+  body: JSON.stringify({ idToken })
+});
+
+// Use authenticated endpoints
+const qaResponse = await fetch('/api/qa/ask', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${idToken}`
+  },
+  body: JSON.stringify({
+    question: 'What is machine learning?',
+    sessionId: 'session_123'
+  })
+});
+```
+
+### Security Features
+
+- **JWT Validation**: All Firebase ID tokens are validated on each request
+- **Tenant Isolation**: Complete data separation between users
+- **Rate Limiting**: Configurable per-tenant rate limits
+- **Request Logging**: Comprehensive audit logging with tenant information
+- **CORS Protection**: Configurable origin validation
+
+### Multi-tenancy Levels
+
+#### User-Level Isolation (`TENANT_ISOLATION_LEVEL=user`)
+- Each user has completely separate documents and conversations
+- Best for individual users and small teams
+- Default isolation level
+
+#### Organization-Level Isolation (`TENANT_ISOLATION_LEVEL=organization`)
+- Users within the same organization share documents
+- Requires custom claims in Firebase tokens
+- Best for enterprise deployments
+
+### GDPR Compliance
+
+The system includes GDPR-compliant features:
+- **Right to Access**: `/api/user/export-data` exports all user data
+- **Right to Erasure**: `/api/user/clear-data` deletes all user data
+- **Data Portability**: Export data in structured format
+- **Audit Logging**: Complete request history with user identification
+
 ## 🍃 MongoDB Migration Support
 
 **NEW!** This system now supports MongoDB as an alternative vector database with seamless migration capabilities.
