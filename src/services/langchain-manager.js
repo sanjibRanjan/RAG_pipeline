@@ -31,7 +31,7 @@ export class LangChainManager {
         return 'claude-3-haiku-20240307';
       case 'google':
       case 'gemini':
-        return 'gemini-1.5-flash-8b'; // Use the 8B parameter version which is more widely available
+        return 'gemini-2.5-flash'; // Use the current Gemini Flash model
       default:
         return 'gpt-3.5-turbo';
     }
@@ -46,8 +46,8 @@ export class LangChainManager {
       case 'google':
       case 'gemini':
         return {
-          preprocessing: 'gemini-1.5-flash-8b',  // Fast, cheap for preprocessing (8B version is more widely available)
-          synthesis: 'gemini-1.5-pro-002'        // Powerful for final synthesis (use specific version)
+          preprocessing: 'gemini-2.5-flash',  // Fast, cheap for preprocessing
+          synthesis: 'gemini-2.5-pro'        // Powerful for final synthesis
         };
       case 'openai':
         return {
@@ -248,10 +248,10 @@ export class LangChainManager {
    */
   getFallbackModelVersions(primaryModel) {
     const fallbacks = {
-      'gemini-1.5-flash': ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-flash-002', 'gemini-1.5-flash-latest'],
-      'gemini-1.5-flash-8b': ['gemini-1.5-flash-8b', 'gemini-1.5-flash', 'gemini-1.5-flash-002', 'gemini-1.5-flash-latest'],
-      'gemini-1.5-pro': ['gemini-1.5-pro', 'gemini-1.5-pro-002', 'gemini-1.5-pro-latest'],
-      'gemini-1.5-pro-002': ['gemini-1.5-pro-002', 'gemini-1.5-pro', 'gemini-1.5-pro-latest']
+      'gemini-2.5-flash': ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.0-flash-001'],
+      'gemini-2.5-pro': ['gemini-2.5-pro', 'gemini-pro-latest', 'gemini-2.0-pro-exp'],
+      'gemini-flash-latest': ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+      'gemini-pro-latest': ['gemini-pro-latest', 'gemini-2.5-pro', 'gemini-2.0-pro-exp']
     };
 
     return fallbacks[primaryModel] || [primaryModel, `${primaryModel}-latest`];
@@ -418,6 +418,11 @@ export class LangChainManager {
 
         const generatedAnswer = this.processLLMResponse(response);
 
+        // Validate the generated answer
+        if (!generatedAnswer || generatedAnswer.trim().length < 10) {
+          throw new Error('Generated answer is too short or empty');
+        }
+
         console.log(`✅ Answer generated successfully (${generatedAnswer.length} characters)`);
 
         return {
@@ -515,15 +520,27 @@ export class LangChainManager {
    * @returns {string} Processed answer
    */
   processLLMResponse(response) {
-    if (!response || !response.content) {
-      throw new Error('Empty response from LLM');
+    if (!response) {
+      throw new Error('No response received from LLM');
     }
 
-    let answer = response.content.trim();
+    // Handle different response formats
+    let answer = '';
+    if (response.content) {
+      answer = response.content.trim();
+    } else if (response.text) {
+      answer = response.text.trim();
+    } else if (typeof response === 'string') {
+      answer = response.trim();
+    } else {
+      throw new Error('Invalid response format from LLM');
+    }
 
     // Basic validation
-    if (answer.length < 10) {
+    if (answer.length < 5) {
       console.warn('⚠️ LLM response too short, may indicate issues');
+      // Return a fallback message instead of throwing
+      return 'I apologize, but I received an incomplete response. Please try again.';
     }
 
     // Clean up common LLM artifacts

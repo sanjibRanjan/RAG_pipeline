@@ -1,9 +1,9 @@
 {
   "parentChunks": [
     [
-      "parent_1758863337573_0",
+      "parent_1759211925419_0",
       {
-        "id": "parent_1758863337573_0",
+        "id": "parent_1759211925419_0",
         "content": "--- _chat.txt ---",
         "metadata": {
           "loc": {
@@ -21,907 +21,7 @@
           "windowOverlap": 128,
           "linked_list_ready": true,
           "previous_chunk_id": null,
-          "next_chunk_id": "parent_1758863337573_1",
-          "position_in_document": 0,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": true,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.280Z",
-        "accessCount": 1,
-        "lastAccessed": "2025-09-26T05:15:06.184Z",
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_1",
-      {
-        "id": "parent_1758863337573_1",
-        "content": "[11/05/24, 9:07:29 PM] Rahul Mama Ghar: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.\r\n‎[31/05/24, 8:25:47 PM] Rahul Mama Ghar: ‎image omitted\r\n[31/05/24, 8:26:33 PM] Rahul Mama Ghar: JNTUH university kehan hai ke\r\n[31/05/24, 8:28:15 PM] Sanjib Ranjan: Kail phone karai xeya\r\n[31/05/24, 8:28:17 PM] Sanjib Ranjan: Mama\r\n[31/05/24, 8:28:21 PM] Sanjib Ranjan: Taab kahabo\r\n[31/05/24, 8:28:31 PM] Rahul Mama Ghar: Hotai\r\n[01/06/24, 6:48:01 PM] Rahul Mama Ghar: Hello\r\n[01/06/24, 7:25:53 PM] Sanjib Ranjan: Haan kaha na\r\n[01/06/24, 7:26:09 PM] Sanjib Ranjan: E saab university k offer aail xhoo\r\n[01/06/24, 7:50:46 PM] Rahul Mama Ghar: E university me 10 lakh IC 4 year with mesh bhajaitai consultancy se pata bhelaiga\r\n[01/06/24, 7:51:07 PM] Rahul Mama Ghar: E university niman hai Ki nai\r\n‎[01/06/24, 7:52:50 PM] Rahul Mama Ghar: ‎image omitted\r\n[01/06/24, 7:55:16 PM] Sanjib Ranjan: Ham dekhliya\r\n[01/06/24, 7:55:17 PM] Sanjib Ranjan: Net pa",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 5,
-              "to": 19
-            }
-          },
-          "chunkIndex": 1,
-          "contentLength": 1001,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "list",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_0",
-          "next_chunk_id": "parent_1758863337573_2",
-          "position_in_document": 1,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.281Z",
-        "accessCount": 1,
-        "lastAccessed": "2025-09-26T05:15:06.184Z",
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_2",
-      {
-        "id": "parent_1758863337573_2",
-        "content": "[01/06/24, 7:55:16 PM] Sanjib Ranjan: Ham dekhliya\r\n[01/06/24, 7:55:17 PM] Sanjib Ranjan: Net pa\r\n[01/06/24, 7:55:26 PM] Sanjib Ranjan: Ooni embassy bala ki velo\r\n[01/06/24, 7:55:28 PM] Sanjib Ranjan: Nai hoto\r\n[01/06/24, 7:55:54 PM] Rahul Mama Ghar: Nai Hai Abhi embassy Ki form khulal\r\n[01/06/24, 7:56:40 PM] Rahul Mama Ghar: E university thik rahatai\r\n[01/06/24, 7:59:00 PM] Sanjib Ranjan: Ruka na dekha dana\r\n[01/06/24, 7:59:21 PM] Rahul Mama Ghar: Okay\r\n[01/06/24, 7:59:33 PM] Sanjib Ranjan: 2 din ruka\r\n[01/06/24, 7:59:40 PM] Sanjib Ranjan: Hamra dekha daa\r\n[01/06/24, 8:00:06 PM] Rahul Mama Ghar: Hotai Magar jaldi seat full bhajaitai kahu\r\n[01/06/24, 8:00:40 PM] Sanjib Ranjan: 2 din\r\n[01/06/24, 8:00:41 PM] Sanjib Ranjan: Ruka\r\n[01/06/24, 8:00:46 PM] Sanjib Ranjan: Tension naai la\r\n[01/06/24, 8:00:50 PM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:23:22 AM] Sanjib Ranjan: Kahaliya ga\r\n[04/06/24, 11:23:26 AM] Sanjib Ranjan: E mee na saab cheej\r\n[04/06/24, 11:23:27 AM] Sanjib Ranjan: Ok",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 18,
-              "to": 35
-            }
-          },
-          "chunkIndex": 2,
-          "contentLength": 992,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_1",
-          "next_chunk_id": "parent_1758863337573_3",
-          "position_in_document": 2,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.281Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_3",
-      {
-        "id": "parent_1758863337573_3",
-        "content": "[04/06/24, 11:23:26 AM] Sanjib Ranjan: E mee na saab cheej\r\n[04/06/24, 11:23:27 AM] Sanjib Ranjan: Ok\r\n[04/06/24, 11:23:30 AM] Sanjib Ranjan: Cho\r\n[04/06/24, 11:23:43 AM] Sanjib Ranjan: Baas 200000 j donation wala mangle xhoo\r\n[04/06/24, 11:23:51 AM] Sanjib Ranjan: Se nai malum vela hamra\r\n[04/06/24, 11:23:59 AM] Sanjib Ranjan: K likh k dele xho e saab\r\n‎[04/06/24, 11:24:10 AM] Sanjib Ranjan: ‎image omitted\r\n[04/06/24, 11:24:18 AM] Sanjib Ranjan: Dekha e xhoo fee structure\r\n‎[04/06/24, 11:25:03 AM] Sanjib Ranjan: ‎image omitted\r\n[04/06/24, 11:25:03 AM] Sanjib Ranjan: Dekha e xa pura detail\r\n[04/06/24, 11:25:22 AM] Sanjib Ranjan: Kaata k consultancy xho dekh ka khaaiya\r\n[04/06/24, 11:26:14 AM] Sanjib Ranjan: Bahut jyada donation sab consultancy k profit hoihai max lebe chahi tw 50 k IC 20000 bahut jyada bhagela\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Ek baaji call kaka kariha\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Aai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 34,
-              "to": 47
-            }
-          },
-          "chunkIndex": 3,
-          "contentLength": 931,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_2",
-          "next_chunk_id": "parent_1758863337573_4",
-          "position_in_document": 3,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.281Z",
-        "accessCount": 1,
-        "lastAccessed": "2025-09-26T05:15:06.184Z",
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_4",
-      {
-        "id": "parent_1758863337573_4",
-        "content": "[04/06/24, 11:26:29 AM] Sanjib Ranjan: Ek baaji call kaka kariha\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Aai\r\n[04/06/24, 11:37:05 AM] Rahul Mama Ghar: Ha U consultancy Bala admission Kara detai oke commission Hai ke\r\n[04/06/24, 11:37:25 AM] Rahul Mama Ghar: Consultancy bala\r\n[04/06/24, 11:37:40 AM] Sanjib Ranjan: Aacha\r\n[04/06/24, 11:37:42 AM] Sanjib Ranjan: Ki karba kaha\r\n[04/06/24, 11:38:38 AM] Rahul Mama Ghar: Direct admission bhajetai without consultancy ke through tab 2 lakh IC. nai lagtai\r\n[04/06/24, 11:38:50 AM] Sanjib Ranjan: Aacha\r\n[04/06/24, 11:38:55 AM] Sanjib Ranjan: Dekha daa\r\n[04/06/24, 11:38:56 AM] Rahul Mama Ghar: Kono tarika Hai ke direct admission ke\r\n[04/06/24, 11:39:03 AM] Rahul Mama Ghar: Okay\r\n[04/06/24, 11:39:04 AM] Sanjib Ranjan: Rukja\r\n[04/06/24, 11:39:15 AM] Sanjib Ranjan: Ham dekh ka 1 ghnta me kahabo\r\n[04/06/24, 11:39:28 AM] Sanjib Ranjan: Kono jugaad hoi bala hoto tw ham dekhai xeya",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 46,
-              "to": 59
-            }
-          },
-          "chunkIndex": 4,
-          "contentLength": 924,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_3",
-          "next_chunk_id": "parent_1758863337573_5",
-          "position_in_document": 4,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.281Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_5",
-      {
-        "id": "parent_1758863337573_5",
-        "content": "[04/06/24, 11:39:28 AM] Sanjib Ranjan: Kono jugaad hoi bala hoto tw ham dekhai xeya\r\n[04/06/24, 11:39:40 AM] Rahul Mama Ghar: Website me ham Chech karliyai ta Kono direct tarika nai Hai ke\r\n[04/06/24, 11:39:45 AM] Sanjib Ranjan: Sajh taak ek baji online aaib ka hamar msg dekh liya\r\n[04/06/24, 11:39:57 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:41:28 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:43:58 AM] Sanjib Ranjan: Consultancy kata k hau\r\n[04/06/24, 11:44:06 AM] Sanjib Ranjan: Yaa kono aadmi k naam\r\n[04/06/24, 11:44:15 AM] Sanjib Ranjan: J admission karaba lagi kahale xho\r\n[04/06/24, 11:44:28 AM] Rahul Mama Ghar: KTM ke consultancy hai\r\n[04/06/24, 11:44:39 AM] Sanjib Ranjan: Name nai malum xhoo\r\n‎[04/06/24, 11:44:44 AM] Rahul Mama Ghar: ‎image omitted\r\n[04/06/24, 11:45:01 AM] Rahul Mama Ghar: E Hai consultancy ke naam\r\n[04/06/24, 11:45:12 AM] Sanjib Ranjan: Thkk hai\r\n[04/06/24, 11:45:15 AM] Sanjib Ranjan: Dekh rahal xeya\r\n[04/06/24, 11:45:28 AM] Rahul Mama Ghar: Sanjiv Yadav Hai card Me number Hai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 59,
-              "to": 73
-            }
-          },
-          "chunkIndex": 5,
-          "contentLength": 1011,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_4",
-          "next_chunk_id": "parent_1758863337573_6",
-          "position_in_document": 5,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 1,
-        "lastAccessed": "2025-09-26T05:15:06.184Z",
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_6",
-      {
-        "id": "parent_1758863337573_6",
-        "content": "[04/06/24, 11:45:28 AM] Rahul Mama Ghar: Sanjiv Yadav Hai card Me number Hai\r\n[04/06/24, 11:45:42 AM] Sanjib Ranjan: Haan hamra dekha daa aai\r\n[04/06/24, 11:45:45 AM] Sanjib Ranjan: Ruk jaa\r\n[04/06/24, 11:46:02 AM] Sanjib Ranjan: Saab cheej thik xho\r\n[04/06/24, 11:46:16 AM] Sanjib Ranjan: Khali hamar ego dost sa donation bala baat pucha daa bass\r\n[04/06/24, 11:46:20 AM] Sanjib Ranjan: Sajh taak ruka\r\n[04/06/24, 11:46:34 AM] Rahul Mama Ghar: ❤️\r\n[04/06/24, 11:46:45 AM] Sanjib Ranjan: 🥰\r\n[04/06/24, 11:46:56 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:47:13 AM] Sanjib Ranjan: Ok\r\n[04/06/24, 11:47:34 AM] Rahul Mama Ghar: Direct admission hotai ta 2 lakh IC nai lagtai\r\n[04/06/24, 12:03:36 PM] Sanjib Ranjan: Thk xai bhuj geli baat\r\n[04/06/24, 12:03:44 PM] Sanjib Ranjan: Kon thk kono tarika sa kaam vajai\r\n[04/06/24, 7:42:15 PM] Rahul Mama Ghar: Hello\r\n[04/06/24, 7:47:31 PM] Sanjib Ranjan: Haan suna na\r\n[04/06/24, 7:47:33 PM] Sanjib Ranjan: Aai rukja",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 73,
-              "to": 88
-            }
-          },
-          "chunkIndex": 6,
-          "contentLength": 955,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_5",
-          "next_chunk_id": "parent_1758863337573_7",
-          "position_in_document": 6,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_7",
-      {
-        "id": "parent_1758863337573_7",
-        "content": "[04/06/24, 7:47:31 PM] Sanjib Ranjan: Haan suna na\r\n[04/06/24, 7:47:33 PM] Sanjib Ranjan: Aai rukja\r\n[04/06/24, 7:47:41 PM] Sanjib Ranjan: U aadmi hamar phone nai laig rahal hai\r\n[04/06/24, 7:47:45 PM] Sanjib Ranjan: Online nai hai\r\n[04/06/24, 7:47:49 PM] Sanjib Ranjan: Kani deeer rukja\r\n[04/06/24, 7:48:00 PM] Sanjib Ranjan: Kail sajh taak booking karwa leab\r\n[04/06/24, 7:48:04 PM] Sanjib Ranjan: Tension nai.la\r\n[04/06/24, 8:06:42 PM] Rahul Mama Ghar: Hotai\r\n[05/06/24, 7:33:03 PM] Sanjib Ranjan: Karwala\r\n[05/06/24, 7:33:07 PM] Sanjib Ranjan: Admission\r\n[05/06/24, 7:33:10 PM] Sanjib Ranjan: Dekh leliya\r\n[05/06/24, 7:33:21 PM] Sanjib Ranjan: Koi besi paisa nai maing rahal xho\r\n[05/06/24, 7:35:22 PM] Sanjib Ranjan: Ookar besi bachat nai hotai\r\n[05/06/24, 7:35:24 PM] Sanjib Ranjan: Oohno\r\n[05/06/24, 7:35:33 PM] Sanjib Ranjan: Hamar dost kahal kai ya\r\n[05/06/24, 7:35:46 PM] Sanjib Ranjan: Thike paisa maing rahal hai\r\n[05/06/24, 7:35:59 PM] Sanjib Ranjan: Karwala jaldi sa jaldi",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 87,
-              "to": 103
-            }
-          },
-          "chunkIndex": 7,
-          "contentLength": 986,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_6",
-          "next_chunk_id": "parent_1758863337573_8",
-          "position_in_document": 7,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_8",
-      {
-        "id": "parent_1758863337573_8",
-        "content": "[05/06/24, 7:35:59 PM] Sanjib Ranjan: Karwala jaldi sa jaldi\r\n[05/06/24, 7:36:06 PM] Sanjib Ranjan: Thkk hai na\r\n[05/06/24, 7:36:14 PM] Sanjib Ranjan: Kono dikat hoto tw kahiya\r\n[05/06/24, 8:54:18 PM] Rahul Mama Ghar: Okay\r\n[05/08/24, 10:53:49 PM] Sanjib Ranjan: https://www.google.com/search?q=Grande+City+Hospital+%26+Clinic+Pvt.Ltd&oq=Grande+City+Hospital+%26+Clinic+Pvt.Ltd%0A%0A&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigATIHCAQQIRigATIGCAUQRRg8MgYIBhBFGD3SAQgxMDE0ajBqN6gCFLACAQ&client=ms-android-oneplus-terr1-rso2&sourceid=chrome-mobile&ie=UTF-8\r\n[05/08/24, 10:53:57 PM] Sanjib Ranjan: grande hospital\r\n‎[23/09/24, 1:22:26 PM] Rahul Mama Ghar: MARKSHEET_12_RAHUL SAH.pdf • ‎1 page ‎document omitted\r\n‎[23/09/24, 1:22:26 PM] Rahul Mama Ghar: Rahul class 10.pdf • ‎1 page ‎document omitted\r\n[02/11/24, 3:51:39 PM] Sanjib Ranjan: ‎You deleted this message.\r\n[02/11/24, 4:10:21 PM] Sanjib Ranjan: Complex exam k paper \naaur\nStudy in india program check kara kahiya xa",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 103,
-              "to": 114
-            }
-          },
-          "chunkIndex": 8,
-          "contentLength": 993,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_7",
-          "next_chunk_id": "parent_1758863337573_9",
-          "position_in_document": 8,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_9",
-      {
-        "id": "parent_1758863337573_9",
-        "content": "[02/11/24, 4:10:21 PM] Sanjib Ranjan: Complex exam k paper \naaur\nStudy in india program check kara kahiya xa\r\n[02/11/24, 4:10:23 PM] Sanjib Ranjan: exam\r\n[02/11/24, 4:10:31 PM] Sanjib Ranjan: naitan rait me ham check kaka kahabo\r\n[02/11/24, 6:07:27 PM] Rahul Mama Ghar: Compex 2024-2025 ke exam bhagelai 1stAugust ke\r\n[03/11/24, 10:21:24 AM] Sanjib Ranjan: aacha\r\n[03/11/24, 10:21:32 AM] Sanjib Ranjan: u k result naai aalo tww\r\n[03/11/24, 5:10:16 PM] Rahul Mama Ghar: Chhath ke badh aaitai\r\n[03/11/24, 7:09:40 PM] Sanjib Ranjan: study in india program dekhka\r\n[03/11/24, 7:09:56 PM] Sanjib Ranjan: ookar paper dekha kahiya xhoo\r\n[03/11/24, 7:25:47 PM] Rahul Mama Ghar: Study in India (SI) ke exam nai hoi Hai matre form bharaparai Hai\r\n[03/11/24, 7:26:13 PM] Sanjib Ranjan: tw kahiya nilalta form\r\n[03/11/24, 7:37:25 PM] Rahul Mama Ghar: April me aabai hai 2024 ke bharliyai offer letter aail rahai Magar Kono scholarship nai rahai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 112,
-              "to": 125
-            }
-          },
-          "chunkIndex": 9,
-          "contentLength": 932,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_8",
-          "next_chunk_id": "parent_1758863337573_10",
-          "position_in_document": 9,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_10",
-      {
-        "id": "parent_1758863337573_10",
-        "content": "[03/11/24, 7:38:25 PM] Rahul Mama Ghar: SI se matre admission hoi Hai without scholarship se\r\n[01/12/24, 8:04:40 PM] Rahul Mama Ghar: Hello\r\n[01/12/24, 8:05:31 PM] Rahul Mama Ghar: Hau Vanja\r\n[01/12/24, 8:07:13 PM] Rahul Mama Ghar: Symbosis university me Chandan parhai xo okar WhatsApp number dana ta\r\n[01/12/24, 9:35:21 PM] Sanjib Ranjan: wait\r\n[01/12/24, 9:35:28 PM] Sanjib Ranjan: bhejai xeya\r\n[01/12/24, 9:38:26 PM] Sanjib Ranjan: +9779817649142\r\n[01/12/24, 9:38:39 PM] Sanjib Ranjan: e number xho chandan k baat kara\r\n[01/12/24, 10:04:18 PM] Rahul Mama Ghar: EK ber tuho kahidah Ki sms or call karta mama se baat\r\n[01/12/24, 10:04:32 PM] Sanjib Ranjan: kaih deliya\r\n[01/12/24, 10:04:53 PM] Rahul Mama Ghar: Kail morning me SMS karbai tab hotai\r\n[01/12/24, 10:05:21 PM] Sanjib Ranjan: okk\r\n[04/12/24, 5:47:58 PM] Rahul Mama Ghar: Hello\r\n‎[04/12/24, 5:48:18 PM] Rahul Mama Ghar: ‎image omitted\r\n[04/12/24, 5:49:08 PM] Rahul Mama Ghar: E university kehan hai topan sathi sab se puix ke kahna",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 126,
-              "to": 140
-            }
-          },
-          "chunkIndex": 10,
-          "contentLength": 994,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_9",
-          "next_chunk_id": "parent_1758863337573_11",
-          "position_in_document": 10,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.282Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_11",
-      {
-        "id": "parent_1758863337573_11",
-        "content": "[04/12/24, 5:49:08 PM] Rahul Mama Ghar: E university kehan hai topan sathi sab se puix ke kahna\r\n[05/12/24, 2:25:40 PM] Sanjib Ranjan: aacha dekhai xeya\r\n[08/12/24, 6:09:33 PM] Rahul Mama Ghar: Hello\r\n[08/12/24, 8:16:22 PM] Sanjib Ranjan: haaan kaha\r\n[08/12/24, 8:53:26 PM] Rahul Mama Ghar: E university kehan Hai\r\n[09/12/24, 12:38:40 PM] Sanjib Ranjan: hai tw badiya\r\n[09/12/24, 12:40:35 PM] Sanjib Ranjan: aaike fee dekha la\r\n[09/12/24, 12:40:36 PM] Sanjib Ranjan: ga\r\n[09/12/24, 12:40:42 PM] Sanjib Ranjan: 4 lakh hai\r\n[09/12/24, 12:44:23 PM] Sanjib Ranjan: dekha shanti sa raha aabhi\r\n‎[09/12/24, 12:44:31 PM] Sanjib Ranjan: ‎image omitted\r\n‎[09/12/24, 12:44:49 PM] Sanjib Ranjan: ‎image omitted\r\n[09/12/24, 12:44:58 PM] Sanjib Ranjan: jab time aato admission vajato\r\n[09/12/24, 12:45:01 PM] Sanjib Ranjan: dont worry\r\n‎[09/12/24, 12:52:55 PM] Sanjib Ranjan: ‎image omitted\r\n[09/12/24, 6:34:48 PM] Rahul Mama Ghar: Hotai\r\n[21/07/25, 2:00:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 140,
-              "to": 156
-            }
-          },
-          "chunkIndex": 11,
-          "contentLength": 1005,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_10",
-          "next_chunk_id": "parent_1758863337573_12",
-          "position_in_document": 11,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_12",
-      {
-        "id": "parent_1758863337573_12",
-        "content": "[09/12/24, 6:34:48 PM] Rahul Mama Ghar: Hotai\r\n[21/07/25, 2:00:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/07/25, 2:00:06 PM] Rahul Mama Ghar: .\r\n[21/07/25, 2:00:08 PM] Rahul Mama Ghar: Hello\r\n‎[21/07/25, 3:52:48 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/07/25, 3:53:11 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[21/07/25, 3:52:48 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/07/25, 9:02:33 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[28/08/25, 7:29:06 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[14/09/25, 8:33:16 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[19/09/25, 9:24:57 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 155,
-              "to": 165
-            }
-          },
-          "chunkIndex": 12,
-          "contentLength": 735,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_11",
-          "next_chunk_id": "parent_1758863337573_13",
-          "position_in_document": 12,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_13",
-      {
-        "id": "parent_1758863337573_13",
-        "content": "[19/09/25, 9:24:57 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 12:19:08 AM] Rahul Mama Ghar: https://www.amazon.in/Apple-MacBook-13-inch-10-core-Unified/dp/B0DZDDQ429/ref=sr_1_1?crid=2MWLPDOVN1DB4&dib=eyJ2IjoiMSJ9.cxg64j71asHtIpoHuVSkM2HSh386vB9cT02DKvQaHnEP1p_vc2vl_RaeCnv8PrCQlAyvXoVRSbX69H6zOQQquND1HXRflIti8MUZ6B9NE2SIh9c0usAholVhZenQp1lZiDtPQseUSZfHzHtwcO3c-8DPwAaiuheTJWiKGKfjb6tr1ygyZgfe4KKJExCO55MDrdNcvgVMzAU_mvlZau-UyujqwIsILSrOU47X_jdDhD8.enBvZ_UT1NiwFs3wcRD0gWoltwnRfmtWJr4M-gT3NMs&dib_tag=se&keywords=mac%2Bbook%2Bm4&qid=1758306703&sprefix=mac%2Bbook%2Bm4%2Caps%2C312&sr=8-1&th=1\r\n[20/09/25, 9:28:08 AM] Sanjib Ranjan: 79500\r\n[20/09/25, 9:28:11 AM] Sanjib Ranjan: K aato\r\n[20/09/25, 9:34:36 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:02:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:03:02 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 165,
-              "to": 171
-            }
-          },
-          "chunkIndex": 13,
-          "contentLength": 957,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "list",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_12",
-          "next_chunk_id": "parent_1758863337573_14",
-          "position_in_document": 13,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_14",
-      {
-        "id": "parent_1758863337573_14",
-        "content": "[20/09/25, 10:03:02 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:04:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:50:27 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:56:27 PM] Sanjib Ranjan: Card. Mil gelai\r\n[20/09/25, 10:56:36 PM] Sanjib Ranjan: Paisa jogar kala\r\n[20/09/25, 10:56:39 PM] Rahul Mama Ghar: Symbiosis institute of technology, boys hostel Anthurium H - block , Lavale -412115\r\n[20/09/25, 10:56:41 PM] Sanjib Ranjan: Kail dikat nai hoi kono\r\n[20/09/25, 10:56:43 PM] Rahul Mama Ghar: Okay\r\n[20/09/25, 10:56:54 PM] Rahul Mama Ghar: Number: +91 9241099027\r\n[20/09/25, 10:56:59 PM] Sanjib Ranjan: First hour mae order kara k hai\r\n[20/09/25, 10:57:08 PM] Sanjib Ranjan: Thkk hai👍🏻👍🏻\r\n[20/09/25, 10:57:36 PM] Rahul Mama Ghar: Thik Hai kail sajh tak paisa aaib jaitai\r\n[20/09/25, 11:00:05 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 11:47:40 AM] Sanjib Ranjan: Paisa bheja ki nai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 171,
-              "to": 184
-            }
-          },
-          "chunkIndex": 14,
-          "contentLength": 981,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_13",
-          "next_chunk_id": "parent_1758863337573_15",
-          "position_in_document": 14,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_15",
-      {
-        "id": "parent_1758863337573_15",
-        "content": "[20/09/25, 11:00:05 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 11:47:40 AM] Sanjib Ranjan: Paisa bheja ki nai\r\n[21/09/25, 12:01:44 PM] Rahul Mama Ghar: Abhi nahi aail  Hai 4-5 baje tak aaib jaitai\r\n[21/09/25, 12:05:20 PM] Sanjib Ranjan: Thk hai\r\n‎[21/09/25, 12:55:27 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 12:55:32 PM] Sanjib Ranjan: Thk xho na\r\n[21/09/25, 12:55:37 PM] Sanjib Ranjan: Check it properly\r\n[21/09/25, 12:56:05 PM] Sanjib Ranjan: Number wagera saab\r\n‎[21/09/25, 12:57:29 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 12:57:30 PM] Sanjib Ranjan: Acc : 40334998465\nIfsc : SBIN0009023\r\n[21/09/25, 12:57:49 PM] Sanjib Ranjan: Card share nai kariha photo Apne mae rakhiya\r\n[21/09/25, 12:59:16 PM] Rahul Mama Ghar: Hotai\r\n[21/09/25, 12:59:37 PM] Sanjib Ranjan: Details sahi xhoo na saab tohar dekh lela na\r\n‎[21/09/25, 1:01:37 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 1:02:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 183,
-              "to": 198
-            }
-          },
-          "chunkIndex": 15,
-          "contentLength": 956,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "list",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_14",
-          "next_chunk_id": "parent_1758863337573_16",
-          "position_in_document": 15,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_16",
-      {
-        "id": "parent_1758863337573_16",
-        "content": "[21/09/25, 1:02:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 1:20:38 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 1:22:56 PM] Sanjib Ranjan: Kaha na kaha\r\n[21/09/25, 1:23:25 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 2:24:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 2:30:29 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[21/09/25, 2:31:34 PM] Rahul Mama Ghar: ‎image omitted\r\n‎[21/09/25, 2:59:51 PM] Sanjib Ranjan: ‎Contact card omitted\r\n[21/09/25, 3:44:46 PM] Sanjib Ranjan: Ki vela\r\n‎[21/09/25, 4:15:49 PM] Rahul Mama Ghar: ‎image omitted\r\n‎[21/09/25, 4:15:56 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 4:16:08 PM] Sanjib Ranjan: 👍🏻👍🏻👍🏻\r\n‎[21/09/25, 4:24:32 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 4:24:34 PM] Sanjib Ranjan: Kairdeya na\r\n[21/09/25, 4:24:36 PM] Sanjib Ranjan: Final\r\n[21/09/25, 4:25:24 PM] Rahul Mama Ghar: Ha",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 198,
-              "to": 213
-            }
-          },
-          "chunkIndex": 16,
-          "contentLength": 982,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_15",
-          "next_chunk_id": "parent_1758863337573_17",
-          "position_in_document": 16,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_17",
-      {
-        "id": "parent_1758863337573_17",
-        "content": "[21/09/25, 4:24:36 PM] Sanjib Ranjan: Final\r\n[21/09/25, 4:25:24 PM] Rahul Mama Ghar: Ha\r\n[21/09/25, 4:25:30 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 4:29:38 PM] Sanjib Ranjan: Suna na\r\n[21/09/25, 4:29:47 PM] Sanjib Ranjan: 100 aaro bhej data woi account pa\r\n[21/09/25, 4:30:38 PM] Rahul Mama Ghar: Okay\r\n‎[21/09/25, 4:31:39 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 4:50:15 PM] Sanjib Ranjan:\r\n‎[21/09/25, 4:50:15 PM] Sanjib Ranjan: ‎image omitted\r\n‎[21/09/25, 4:50:16 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 4:50:57 PM] Sanjib Ranjan: Prime expire vagel xalai naitan kailhe aajaito\r\n[21/09/25, 4:51:05 PM] Sanjib Ranjan: Par kani wait kairla\r\n[21/09/25, 4:51:25 PM] Rahul Mama Ghar: Axa Kono baat na\r\n[21/09/25, 4:51:27 PM] Sanjib Ranjan: Saab cheej thkk xhoo na\r\n[21/09/25, 4:51:37 PM] Sanjib Ranjan: Num adresss price dekh lela na\r\n[21/09/25, 4:52:09 PM] Rahul Mama Ghar: Sab thik hai\r\n[21/09/25, 4:52:34 PM] Sanjib Ranjan: Enjoy❤️\r\n[21/09/25, 10:13:46 PM] Sanjib Ranjan: Mama kani dikat aaib gelo",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 212,
-              "to": 229
-            }
-          },
-          "chunkIndex": 17,
-          "contentLength": 1013,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_16",
-          "next_chunk_id": "parent_1758863337573_18",
-          "position_in_document": 17,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_18",
-      {
-        "id": "parent_1758863337573_18",
-        "content": "[21/09/25, 4:52:34 PM] Sanjib Ranjan: Enjoy❤️\r\n[21/09/25, 10:13:46 PM] Sanjib Ranjan: Mama kani dikat aaib gelo\r\n[21/09/25, 10:13:52 PM] Sanjib Ranjan: Order cancel vagela\r\n[21/09/25, 10:14:02 PM] Sanjib Ranjan: 75k k limit hai card k\r\n[21/09/25, 10:25:23 PM] Rahul Mama Ghar: Aab kena hotai\r\n[21/09/25, 10:31:37 PM] Sanjib Ranjan: Kair rahal xaui\r\n[21/09/25, 10:32:02 PM] Sanjib Ranjan: Tension nai laa\r\n[21/09/25, 10:32:05 PM] Sanjib Ranjan: Chill\r\n[21/09/25, 10:32:47 PM] Rahul Mama Ghar: Thik Hai ❤️\r\n[21/09/25, 10:38:05 PM] Sanjib Ranjan: Vajaito tw ham msg kadeba\r\n[21/09/25, 10:43:32 PM] Sanjib Ranjan: 3 go card xai par saab k uhe 75k k limit\r\n[21/09/25, 10:43:34 PM] Sanjib Ranjan: Ki karba\r\n[21/09/25, 10:56:20 PM] Rahul Mama Ghar: SBI debit card se BHI ta apply karay Sakai Hai na\r\n[21/09/25, 10:57:27 PM] Sanjib Ranjan: Haan hokar limit 80k tk chahi\r\n[21/09/25, 10:58:19 PM] Rahul Mama Ghar: Axa ham sathi la Hai ke puxai xiyai ham",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 228,
-              "to": 242
-            }
-          },
-          "chunkIndex": 18,
-          "contentLength": 943,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_17",
-          "next_chunk_id": "parent_1758863337573_19",
-          "position_in_document": 18,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_19",
-      {
-        "id": "parent_1758863337573_19",
-        "content": "[21/09/25, 10:58:19 PM] Rahul Mama Ghar: Axa ham sathi la Hai ke puxai xiyai ham\r\n[21/09/25, 11:21:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 9:05:30 AM] Sanjib Ranjan: Oohh\r\n[22/09/25, 9:05:34 AM] Sanjib Ranjan: Mama\r\n[22/09/25, 11:32:02 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:35:14 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 8:00:40 PM] Sanjib Ranjan: Mama kathi decide karla\r\n[22/09/25, 8:00:42 PM] Sanjib Ranjan: Twww\r\n[22/09/25, 8:01:14 PM] Sanjib Ranjan: Kair sakba aapne order ki ham kair deya\r\n[22/09/25, 8:01:17 PM] Sanjib Ranjan: Kaha\r\n[22/09/25, 8:33:18 PM] Sanjib Ranjan: Call kara naa\r\n[22/09/25, 8:33:19 PM] Sanjib Ranjan: Call\r\n[22/09/25, 8:47:40 PM] Rahul Mama Ghar: Dinner karai xi U ke badh call karba\r\n[22/09/25, 8:47:49 PM] Sanjib Ranjan: Ok\r\n[22/09/25, 9:21:17 PM] Rahul Mama Ghar: ‎Voice call, ‎Answered on other device\r\n‎[22/09/25, 9:25:25 PM] Rahul Mama Ghar: ‎image omitted",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 242,
-              "to": 257
-            }
-          },
-          "chunkIndex": 19,
-          "contentLength": 998,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_18",
-          "next_chunk_id": "parent_1758863337573_20",
-          "position_in_document": 19,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_20",
-      {
-        "id": "parent_1758863337573_20",
-        "content": "‎[22/09/25, 9:25:25 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 9:34:41 PM] Rahul Mama Ghar: +91 9241099027\r\n[22/09/25, 10:38:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[22/09/25, 10:41:55 PM] Sanjib Ranjan: ‎image omitted\r\n[22/09/25, 10:42:09 PM] Sanjib Ranjan: E QR pa 500 bhej daa\r\n‎[22/09/25, 10:42:28 PM] Sanjib Ranjan: ‎image omitted\r\n[22/09/25, 10:55:42 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:03:47 PM] Sanjib Ranjan: 435\r\n[22/09/25, 11:03:54 PM] Sanjib Ranjan: Cvv xai card k\r\n[22/09/25, 11:30:24 PM] Rahul Mama Ghar: Otp\r\n‎[22/09/25, 11:30:53 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 11:34:00 PM] Sanjib Ranjan: Jaldi kara\r\n[22/09/25, 11:34:06 PM] Rahul Mama Ghar: Thik hai\r\n[22/09/25, 11:54:14 PM] Rahul Mama Ghar: ‎This message was deleted.\r\n[22/09/25, 11:54:31 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[22/09/25, 11:56:52 PM] Rahul Mama Ghar: ‎image omitted",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 257,
-              "to": 272
-            }
-          },
-          "chunkIndex": 20,
-          "contentLength": 962,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_19",
-          "next_chunk_id": "parent_1758863337573_21",
-          "position_in_document": 20,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_21",
-      {
-        "id": "parent_1758863337573_21",
-        "content": "‎[22/09/25, 11:56:52 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 11:58:18 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:58:27 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:58:33 PM] Sanjib Ranjan: Kate amount xhoo\r\n[22/09/25, 11:58:38 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[23/09/25, 12:02:28 AM] Sanjib Ranjan: ‎image omitted\r\n[23/09/25, 12:02:41 AM] Sanjib Ranjan: Amount thk xho na\r\n[23/09/25, 12:02:59 AM] Sanjib Ranjan: 500 nai na bhejne xala\r\n[23/09/25, 12:03:04 AM] Rahul Mama Ghar: Total 80100\r\n[23/09/25, 12:03:21 AM] Sanjib Ranjan: Wait\r\n[23/09/25, 12:05:49 AM] Sanjib Ranjan: Aare yree\r\n[23/09/25, 12:05:59 AM] Sanjib Ranjan: U bhaiya offline chail gela\r\n[23/09/25, 12:06:08 AM] Sanjib Ranjan: Kail leba toh hoto\r\n[23/09/25, 12:06:11 AM] Rahul Mama Ghar: Thik Hai kono baat nai\r\n[23/09/25, 12:06:14 AM] Sanjib Ranjan: Hamra la cash xai ki\r\n[23/09/25, 12:06:23 AM] Rahul Mama Ghar: Kail lalebai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 272,
-              "to": 287
-            }
-          },
-          "chunkIndex": 21,
-          "contentLength": 993,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_20",
-          "next_chunk_id": "parent_1758863337573_22",
-          "position_in_document": 21,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_22",
-      {
-        "id": "parent_1758863337573_22",
-        "content": "[23/09/25, 12:06:14 AM] Sanjib Ranjan: Hamra la cash xai ki\r\n[23/09/25, 12:06:23 AM] Rahul Mama Ghar: Kail lalebai\r\n[23/09/25, 12:06:23 AM] Sanjib Ranjan: Bhore uthtai tw karwadeba\r\n[23/09/25, 12:06:31 AM] Sanjib Ranjan: 12 baij gelai ki\r\n[23/09/25, 12:06:41 AM] Sanjib Ranjan: Kara order hamu sutai xeya\r\n[23/09/25, 12:06:41 AM] Rahul Mama Ghar: Otno jaruri nai hai\r\n[23/09/25, 12:06:49 AM] Sanjib Ranjan: Bhorr mae baat kaarba\r\n[23/09/25, 12:06:55 AM] Rahul Mama Ghar: Hotai\r\n[23/09/25, 12:06:57 AM] Sanjib Ranjan: Gnn\r\n[23/09/25, 12:07:03 AM] Rahul Mama Ghar: GN\r\n[23/09/25, 11:07:04 AM] Rahul Mama Ghar: Hello\r\n[23/09/25, 11:14:31 AM] Sanjib Ranjan: Haan kaha na\r\n[23/09/25, 11:14:32 AM] Sanjib Ranjan: Kaha\r\n[23/09/25, 11:14:46 AM] Rahul Mama Ghar: 82 K price Hai ke\r\n[23/09/25, 11:14:48 AM] Rahul Mama Ghar: M4 ke\r\n[23/09/25, 11:14:59 AM] Rahul Mama Ghar: SBI debit card me 4k discount\r\n[23/09/25, 11:15:15 AM] Rahul Mama Ghar: Card xo Kono ta kaha paisa send karai xiya",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 286,
-              "to": 302
-            }
-          },
-          "chunkIndex": 22,
-          "contentLength": 976,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_21",
-          "next_chunk_id": "parent_1758863337573_23",
-          "position_in_document": 22,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_23",
-      {
-        "id": "parent_1758863337573_23",
-        "content": "[23/09/25, 11:15:15 AM] Rahul Mama Ghar: Card xo Kono ta kaha paisa send karai xiya\r\n[23/09/25, 11:15:23 AM] Sanjib Ranjan: Discount k baad k price xhoo na\r\n[23/09/25, 11:15:32 AM] Sanjib Ranjan: Rait mae kahai xala card hai\r\n[23/09/25, 11:15:33 AM] Sanjib Ranjan: Tww\r\n[23/09/25, 11:15:52 AM] Rahul Mama Ghar: U active nai Hai ke\r\n[23/09/25, 11:16:02 AM] Sanjib Ranjan: U bhaiya duty pa hotai\r\n[23/09/25, 11:16:08 AM] Rahul Mama Ghar: Nai actual 82 K Hai ke\r\n[23/09/25, 11:16:09 AM] Sanjib Ranjan: Aabhi phone nai uthatai siad\r\n[23/09/25, 11:16:24 AM] Rahul Mama Ghar: Tosar Kono card Hai Ki nai\r\n[23/09/25, 11:16:44 AM] Sanjib Ranjan: Aare dosar card laka thori na discount miltai\r\n[23/09/25, 11:16:59 AM] Rahul Mama Ghar: sBi ke tosar card\r\n[23/09/25, 11:17:17 AM] Sanjib Ranjan: Aare u aab dekha partai\r\n[23/09/25, 11:17:32 AM] Rahul Mama Ghar: Ham Chandan ke SMS karai xiyai\r\n[23/09/25, 11:17:33 AM] Sanjib Ranjan: Oote limit wala bass uhe card hai\r\n[23/09/25, 11:17:54 AM] Sanjib Ranjan: Bhut condused xa ki",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 302,
-              "to": 316
-            }
-          },
-          "chunkIndex": 23,
-          "contentLength": 1013,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_22",
-          "next_chunk_id": "parent_1758863337573_24",
-          "position_in_document": 23,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": false,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863337573_24",
-      {
-        "id": "parent_1758863337573_24",
-        "content": "[23/09/25, 11:17:54 AM] Sanjib Ranjan: Bhut condused xa ki\r\n[23/09/25, 11:17:55 AM] Sanjib Ranjan: Tahu\r\n[23/09/25, 11:18:03 AM] Sanjib Ranjan: Kani deer ruka\r\n[23/09/25, 11:18:17 AM] Rahul Mama Ghar: Thik hai\r\n[23/09/25, 11:18:40 AM] Sanjib Ranjan: Ok\r\n[24/09/25, 11:48:59 AM] Sanjib Ranjan: Ki vela\r\n[24/09/25, 11:49:03 AM] Sanjib Ranjan: Order kaila\r\n[24/09/25, 11:49:47 AM] Sanjib Ranjan: Ki nai",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 316,
-              "to": 323
-            }
-          },
-          "chunkIndex": 24,
-          "contentLength": 399,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "text",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863337573_23",
-          "next_chunk_id": null,
-          "position_in_document": 24,
-          "total_chunks_in_document": 25,
-          "is_first_chunk": false,
-          "is_last_chunk": true,
-          "linked_list_enabled": true,
-          "linking_strategy": "sequential"
-        },
-        "storedAt": "2025-09-26T05:10:57.283Z",
-        "accessCount": 0,
-        "lastAccessed": null,
-        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
-        "tenantType": "user"
-      }
-    ],
-    [
-      "parent_1758863804881_0",
-      {
-        "id": "parent_1758863804881_0",
-        "content": "--- _chat.txt ---",
-        "metadata": {
-          "loc": {
-            "lines": {
-              "from": 3,
-              "to": 3
-            }
-          },
-          "chunkIndex": 0,
-          "contentLength": 17,
-          "chunkingStrategy": "parent_hierarchical",
-          "chunkType": "parent",
-          "contentType": "table",
-          "windowSize": 1024,
-          "windowOverlap": 128,
-          "linked_list_ready": true,
-          "previous_chunk_id": null,
-          "next_chunk_id": "parent_1758863804881_1",
+          "next_chunk_id": "parent_1759211925420_1",
           "position_in_document": 0,
           "total_chunks_in_document": 5,
           "is_first_chunk": true,
@@ -929,17 +29,17 @@
           "linked_list_enabled": true,
           "linking_strategy": "sequential"
         },
-        "storedAt": "2025-09-26T05:17:01.649Z",
-        "accessCount": 0,
-        "lastAccessed": null,
+        "storedAt": "2025-09-30T05:58:55.532Z",
+        "accessCount": 1,
+        "lastAccessed": "2025-09-30T06:01:05.503Z",
         "tenantId": "vgUJOO8bdqUttBM8rcKtuolM3nE3",
         "tenantType": "user"
       }
     ],
     [
-      "parent_1758863804881_1",
+      "parent_1759211925420_1",
       {
-        "id": "parent_1758863804881_1",
+        "id": "parent_1759211925420_1",
         "content": "[22/06/25, 11:53:56 AM] ~Ajay Mishra: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.\r\n[22/06/25, 11:53:56 AM] ~Ajay Mishra: Hi, I am Mishra ji UGF Front side, Good morning ,parking drainage cleaning expenses\r\n‎[22/06/25, 11:54:38 AM] ~Ajay Mishra: ‎image omitted\r\n[22/06/25, 12:10:25 PM] Sanjib Ranjan: Ok to whom should i pay then\r\n[22/06/25, 1:28:07 PM] ~Ajay Mishra: Mobno_93114 33303\r\n‎[22/06/25, 1:31:10 PM] Sanjib Ranjan: ‎image omitted\r\n[22/06/25, 1:32:03 PM] ~Ajay Mishra: Thxs\r\n[22/06/25, 1:32:07 PM] Sanjib Ranjan: Welcome\r\n[26/06/25, 12:09:26 AM] Sanjib Ranjan: Uncle ji light hae kya aapke ghar mae\r\n[26/06/25, 6:13:11 AM] ~Ajay Mishra: Good morning,night me light off tha.\r\n[26/06/25, 11:36:19 AM] Sanjib Ranjan: Ok uncle👍🏻\r\n[05/07/25, 2:30:40 PM] ~Ajay Mishra: Pl send ₹130 for maid servant,(parking purpose),\r\n[05/07/25, 8:41:11 PM] Sanjib Ranjan: Ok uncle kal bhej dunga\r\n[05/07/25, 9:03:03 PM] ~Ajay Mishra: Ok",
         "metadata": {
           "loc": {
@@ -956,8 +56,8 @@
           "windowSize": 1024,
           "windowOverlap": 128,
           "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863804881_0",
-          "next_chunk_id": "parent_1758863804881_2",
+          "previous_chunk_id": "parent_1759211925419_0",
+          "next_chunk_id": "parent_1759211925420_2",
           "position_in_document": 1,
           "total_chunks_in_document": 5,
           "is_first_chunk": false,
@@ -965,17 +65,17 @@
           "linked_list_enabled": true,
           "linking_strategy": "sequential"
         },
-        "storedAt": "2025-09-26T05:17:01.650Z",
-        "accessCount": 0,
-        "lastAccessed": null,
+        "storedAt": "2025-09-30T05:58:55.533Z",
+        "accessCount": 1,
+        "lastAccessed": "2025-09-30T06:01:05.503Z",
         "tenantId": "vgUJOO8bdqUttBM8rcKtuolM3nE3",
         "tenantType": "user"
       }
     ],
     [
-      "parent_1758863804881_2",
+      "parent_1759211925420_2",
       {
-        "id": "parent_1758863804881_2",
+        "id": "parent_1759211925420_2",
         "content": "[05/07/25, 8:41:11 PM] Sanjib Ranjan: Ok uncle kal bhej dunga\r\n[05/07/25, 9:03:03 PM] ~Ajay Mishra: Ok\r\n[10/07/25, 12:06:41 PM] ~Ajay Mishra: Pl send ₹130 for maid servant,(parking purpose),\r\n‎[10/07/25, 1:57:46 PM] Sanjib Ranjan: ‎image omitted\r\n[10/07/25, 2:31:39 PM] ~Ajay Mishra: Received, thanks.\r\n[10/07/25, 2:31:48 PM] Sanjib Ranjan: 👍🏻👍🏻\r\n[06/08/25, 10:41:58 AM] ~Ajay Mishra: Pl, pay ₹130 for maid servant ( parking area)\r\n[06/08/25, 4:58:01 PM] Sanjib Ranjan: Uncle per banda itna lagta hae toh total bhot jyada hoga na\r\n[06/08/25, 5:43:46 PM] ~Ajay Mishra: ₹1000 maid servant ka hai\r\n[06/08/25, 5:44:12 PM] Sanjib Ranjan: Ohh\r\n[06/08/25, 5:44:24 PM] Sanjib Ranjan: Bhejta hu kal parshoo salary nhi aaya aabhi\r\n[06/08/25, 5:44:27 PM] ~Ajay Mishra: 8 flat\r\n[06/08/25, 5:44:40 PM] Sanjib Ranjan: I will send it\r\n‎[06/08/25, 5:44:42 PM] ~Ajay Mishra: ‎audio omitted\r\n[06/08/25, 5:45:00 PM] ~Ajay Mishra: No issue\r\n‎[06/08/25, 5:45:06 PM] ~Ajay Mishra: ‎audio omitted",
         "metadata": {
           "loc": {
@@ -992,8 +92,8 @@
           "windowSize": 1024,
           "windowOverlap": 128,
           "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863804881_1",
-          "next_chunk_id": "parent_1758863804881_3",
+          "previous_chunk_id": "parent_1759211925420_1",
+          "next_chunk_id": "parent_1759211925420_3",
           "position_in_document": 2,
           "total_chunks_in_document": 5,
           "is_first_chunk": false,
@@ -1001,17 +101,17 @@
           "linked_list_enabled": true,
           "linking_strategy": "sequential"
         },
-        "storedAt": "2025-09-26T05:17:01.650Z",
-        "accessCount": 0,
-        "lastAccessed": null,
+        "storedAt": "2025-09-30T05:58:55.534Z",
+        "accessCount": 1,
+        "lastAccessed": "2025-09-30T06:01:05.503Z",
         "tenantId": "vgUJOO8bdqUttBM8rcKtuolM3nE3",
         "tenantType": "user"
       }
     ],
     [
-      "parent_1758863804881_3",
+      "parent_1759211925420_3",
       {
-        "id": "parent_1758863804881_3",
+        "id": "parent_1759211925420_3",
         "content": "[06/08/25, 5:45:00 PM] ~Ajay Mishra: No issue\r\n‎[06/08/25, 5:45:06 PM] ~Ajay Mishra: ‎audio omitted\r\n[06/08/25, 5:45:09 PM] Sanjib Ranjan: Okk uncle ji👍🏻👍🏻\r\n‎[06/08/25, 5:45:20 PM] ~Ajay Mishra: ‎audio omitted\r\n[06/08/25, 5:45:29 PM] Sanjib Ranjan: 10 taak aajyega\r\n[06/08/25, 5:45:39 PM] ~Ajay Mishra: Ok,👍\r\n[06/08/25, 5:45:48 PM] Sanjib Ranjan: Ok uncle ji👍🏻👍🏻\r\n[11/08/25, 2:37:33 PM] ~Ajay Mishra: Pl pay ur contribution amount\r\n[11/08/25, 2:54:25 PM] Sanjib Ranjan: I will pay it by tomorrow\r\n[11/08/25, 3:27:41 PM] ~Ajay Mishra: Ok,\r\n‎[14/08/25, 9:09:00 AM] Sanjib Ranjan: ‎image omitted\r\n[14/08/25, 9:09:45 AM] ~Ajay Mishra: Good morning,no issue\r\n[14/08/25, 9:09:51 AM] ~Ajay Mishra: Thanks.\r\n[14/08/25, 9:10:21 AM] Sanjib Ranjan: Ok uncle ji👍🏻\r\n[07/09/25, 1:00:48 PM] ~Ajay Mishra: Pl pay ₹130 contribution amount for maid servant.\r\n[08/09/25, 11:05:43 AM] Sanjib Ranjan: Kardunga\r\n[08/09/25, 11:05:46 AM] Sanjib Ranjan: Uncle ji\r\n[08/09/25, 11:50:03 AM] ~Ajay Mishra: Ok, no issue, only routine",
         "metadata": {
           "loc": {
@@ -1028,8 +128,8 @@
           "windowSize": 1024,
           "windowOverlap": 128,
           "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863804881_2",
-          "next_chunk_id": "parent_1758863804881_4",
+          "previous_chunk_id": "parent_1759211925420_2",
+          "next_chunk_id": "parent_1759211925420_4",
           "position_in_document": 3,
           "total_chunks_in_document": 5,
           "is_first_chunk": false,
@@ -1037,17 +137,17 @@
           "linked_list_enabled": true,
           "linking_strategy": "sequential"
         },
-        "storedAt": "2025-09-26T05:17:01.650Z",
-        "accessCount": 0,
-        "lastAccessed": null,
+        "storedAt": "2025-09-30T05:58:55.534Z",
+        "accessCount": 1,
+        "lastAccessed": "2025-09-30T06:01:05.503Z",
         "tenantId": "vgUJOO8bdqUttBM8rcKtuolM3nE3",
         "tenantType": "user"
       }
     ],
     [
-      "parent_1758863804881_4",
+      "parent_1759211925420_4",
       {
-        "id": "parent_1758863804881_4",
+        "id": "parent_1759211925420_4",
         "content": "[08/09/25, 11:05:46 AM] Sanjib Ranjan: Uncle ji\r\n[08/09/25, 11:50:03 AM] ~Ajay Mishra: Ok, no issue, only routine\r\n[08/09/25, 11:50:15 AM] Sanjib Ranjan: 👍🏻👍🏻👍🏻\r\n‎[10/09/25, 10:40:45 PM] Sanjib Ranjan: ‎image omitted",
         "metadata": {
           "loc": {
@@ -1064,7 +164,7 @@
           "windowSize": 1024,
           "windowOverlap": 128,
           "linked_list_ready": true,
-          "previous_chunk_id": "parent_1758863804881_3",
+          "previous_chunk_id": "parent_1759211925420_3",
           "next_chunk_id": null,
           "position_in_document": 4,
           "total_chunks_in_document": 5,
@@ -1073,25 +173,925 @@
           "linked_list_enabled": true,
           "linking_strategy": "sequential"
         },
-        "storedAt": "2025-09-26T05:17:01.650Z",
+        "storedAt": "2025-09-30T05:58:55.534Z",
         "accessCount": 0,
         "lastAccessed": null,
         "tenantId": "vgUJOO8bdqUttBM8rcKtuolM3nE3",
         "tenantType": "user"
       }
+    ],
+    [
+      "parent_1759212308755_0",
+      {
+        "id": "parent_1759212308755_0",
+        "content": "--- _chat.txt ---",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 3,
+              "to": 3
+            }
+          },
+          "chunkIndex": 0,
+          "contentLength": 17,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "table",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": null,
+          "next_chunk_id": "parent_1759212308756_1",
+          "position_in_document": 0,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": true,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.531Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308756_1",
+      {
+        "id": "parent_1759212308756_1",
+        "content": "[11/05/24, 9:07:29 PM] Rahul Mama Ghar: ‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.\r\n‎[31/05/24, 8:25:47 PM] Rahul Mama Ghar: ‎image omitted\r\n[31/05/24, 8:26:33 PM] Rahul Mama Ghar: JNTUH university kehan hai ke\r\n[31/05/24, 8:28:15 PM] Sanjib Ranjan: Kail phone karai xeya\r\n[31/05/24, 8:28:17 PM] Sanjib Ranjan: Mama\r\n[31/05/24, 8:28:21 PM] Sanjib Ranjan: Taab kahabo\r\n[31/05/24, 8:28:31 PM] Rahul Mama Ghar: Hotai\r\n[01/06/24, 6:48:01 PM] Rahul Mama Ghar: Hello\r\n[01/06/24, 7:25:53 PM] Sanjib Ranjan: Haan kaha na\r\n[01/06/24, 7:26:09 PM] Sanjib Ranjan: E saab university k offer aail xhoo\r\n[01/06/24, 7:50:46 PM] Rahul Mama Ghar: E university me 10 lakh IC 4 year with mesh bhajaitai consultancy se pata bhelaiga\r\n[01/06/24, 7:51:07 PM] Rahul Mama Ghar: E university niman hai Ki nai\r\n‎[01/06/24, 7:52:50 PM] Rahul Mama Ghar: ‎image omitted\r\n[01/06/24, 7:55:16 PM] Sanjib Ranjan: Ham dekhliya\r\n[01/06/24, 7:55:17 PM] Sanjib Ranjan: Net pa",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 5,
+              "to": 19
+            }
+          },
+          "chunkIndex": 1,
+          "contentLength": 1001,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308755_0",
+          "next_chunk_id": "parent_1759212308756_2",
+          "position_in_document": 1,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.532Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308756_2",
+      {
+        "id": "parent_1759212308756_2",
+        "content": "[01/06/24, 7:55:16 PM] Sanjib Ranjan: Ham dekhliya\r\n[01/06/24, 7:55:17 PM] Sanjib Ranjan: Net pa\r\n[01/06/24, 7:55:26 PM] Sanjib Ranjan: Ooni embassy bala ki velo\r\n[01/06/24, 7:55:28 PM] Sanjib Ranjan: Nai hoto\r\n[01/06/24, 7:55:54 PM] Rahul Mama Ghar: Nai Hai Abhi embassy Ki form khulal\r\n[01/06/24, 7:56:40 PM] Rahul Mama Ghar: E university thik rahatai\r\n[01/06/24, 7:59:00 PM] Sanjib Ranjan: Ruka na dekha dana\r\n[01/06/24, 7:59:21 PM] Rahul Mama Ghar: Okay\r\n[01/06/24, 7:59:33 PM] Sanjib Ranjan: 2 din ruka\r\n[01/06/24, 7:59:40 PM] Sanjib Ranjan: Hamra dekha daa\r\n[01/06/24, 8:00:06 PM] Rahul Mama Ghar: Hotai Magar jaldi seat full bhajaitai kahu\r\n[01/06/24, 8:00:40 PM] Sanjib Ranjan: 2 din\r\n[01/06/24, 8:00:41 PM] Sanjib Ranjan: Ruka\r\n[01/06/24, 8:00:46 PM] Sanjib Ranjan: Tension naai la\r\n[01/06/24, 8:00:50 PM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:23:22 AM] Sanjib Ranjan: Kahaliya ga\r\n[04/06/24, 11:23:26 AM] Sanjib Ranjan: E mee na saab cheej\r\n[04/06/24, 11:23:27 AM] Sanjib Ranjan: Ok",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 18,
+              "to": 35
+            }
+          },
+          "chunkIndex": 2,
+          "contentLength": 992,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308756_1",
+          "next_chunk_id": "parent_1759212308756_3",
+          "position_in_document": 2,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.532Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308756_3",
+      {
+        "id": "parent_1759212308756_3",
+        "content": "[04/06/24, 11:23:26 AM] Sanjib Ranjan: E mee na saab cheej\r\n[04/06/24, 11:23:27 AM] Sanjib Ranjan: Ok\r\n[04/06/24, 11:23:30 AM] Sanjib Ranjan: Cho\r\n[04/06/24, 11:23:43 AM] Sanjib Ranjan: Baas 200000 j donation wala mangle xhoo\r\n[04/06/24, 11:23:51 AM] Sanjib Ranjan: Se nai malum vela hamra\r\n[04/06/24, 11:23:59 AM] Sanjib Ranjan: K likh k dele xho e saab\r\n‎[04/06/24, 11:24:10 AM] Sanjib Ranjan: ‎image omitted\r\n[04/06/24, 11:24:18 AM] Sanjib Ranjan: Dekha e xhoo fee structure\r\n‎[04/06/24, 11:25:03 AM] Sanjib Ranjan: ‎image omitted\r\n[04/06/24, 11:25:03 AM] Sanjib Ranjan: Dekha e xa pura detail\r\n[04/06/24, 11:25:22 AM] Sanjib Ranjan: Kaata k consultancy xho dekh ka khaaiya\r\n[04/06/24, 11:26:14 AM] Sanjib Ranjan: Bahut jyada donation sab consultancy k profit hoihai max lebe chahi tw 50 k IC 20000 bahut jyada bhagela\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Ek baaji call kaka kariha\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Aai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 34,
+              "to": 47
+            }
+          },
+          "chunkIndex": 3,
+          "contentLength": 931,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308756_2",
+          "next_chunk_id": "parent_1759212308757_4",
+          "position_in_document": 3,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.532Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_4",
+      {
+        "id": "parent_1759212308757_4",
+        "content": "[04/06/24, 11:26:29 AM] Sanjib Ranjan: Ek baaji call kaka kariha\r\n[04/06/24, 11:26:29 AM] Sanjib Ranjan: Aai\r\n[04/06/24, 11:37:05 AM] Rahul Mama Ghar: Ha U consultancy Bala admission Kara detai oke commission Hai ke\r\n[04/06/24, 11:37:25 AM] Rahul Mama Ghar: Consultancy bala\r\n[04/06/24, 11:37:40 AM] Sanjib Ranjan: Aacha\r\n[04/06/24, 11:37:42 AM] Sanjib Ranjan: Ki karba kaha\r\n[04/06/24, 11:38:38 AM] Rahul Mama Ghar: Direct admission bhajetai without consultancy ke through tab 2 lakh IC. nai lagtai\r\n[04/06/24, 11:38:50 AM] Sanjib Ranjan: Aacha\r\n[04/06/24, 11:38:55 AM] Sanjib Ranjan: Dekha daa\r\n[04/06/24, 11:38:56 AM] Rahul Mama Ghar: Kono tarika Hai ke direct admission ke\r\n[04/06/24, 11:39:03 AM] Rahul Mama Ghar: Okay\r\n[04/06/24, 11:39:04 AM] Sanjib Ranjan: Rukja\r\n[04/06/24, 11:39:15 AM] Sanjib Ranjan: Ham dekh ka 1 ghnta me kahabo\r\n[04/06/24, 11:39:28 AM] Sanjib Ranjan: Kono jugaad hoi bala hoto tw ham dekhai xeya",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 46,
+              "to": 59
+            }
+          },
+          "chunkIndex": 4,
+          "contentLength": 924,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308756_3",
+          "next_chunk_id": "parent_1759212308757_5",
+          "position_in_document": 4,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.534Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_5",
+      {
+        "id": "parent_1759212308757_5",
+        "content": "[04/06/24, 11:39:28 AM] Sanjib Ranjan: Kono jugaad hoi bala hoto tw ham dekhai xeya\r\n[04/06/24, 11:39:40 AM] Rahul Mama Ghar: Website me ham Chech karliyai ta Kono direct tarika nai Hai ke\r\n[04/06/24, 11:39:45 AM] Sanjib Ranjan: Sajh taak ek baji online aaib ka hamar msg dekh liya\r\n[04/06/24, 11:39:57 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:41:28 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:43:58 AM] Sanjib Ranjan: Consultancy kata k hau\r\n[04/06/24, 11:44:06 AM] Sanjib Ranjan: Yaa kono aadmi k naam\r\n[04/06/24, 11:44:15 AM] Sanjib Ranjan: J admission karaba lagi kahale xho\r\n[04/06/24, 11:44:28 AM] Rahul Mama Ghar: KTM ke consultancy hai\r\n[04/06/24, 11:44:39 AM] Sanjib Ranjan: Name nai malum xhoo\r\n‎[04/06/24, 11:44:44 AM] Rahul Mama Ghar: ‎image omitted\r\n[04/06/24, 11:45:01 AM] Rahul Mama Ghar: E Hai consultancy ke naam\r\n[04/06/24, 11:45:12 AM] Sanjib Ranjan: Thkk hai\r\n[04/06/24, 11:45:15 AM] Sanjib Ranjan: Dekh rahal xeya\r\n[04/06/24, 11:45:28 AM] Rahul Mama Ghar: Sanjiv Yadav Hai card Me number Hai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 59,
+              "to": 73
+            }
+          },
+          "chunkIndex": 5,
+          "contentLength": 1011,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_4",
+          "next_chunk_id": "parent_1759212308757_6",
+          "position_in_document": 5,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.535Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_6",
+      {
+        "id": "parent_1759212308757_6",
+        "content": "[04/06/24, 11:45:28 AM] Rahul Mama Ghar: Sanjiv Yadav Hai card Me number Hai\r\n[04/06/24, 11:45:42 AM] Sanjib Ranjan: Haan hamra dekha daa aai\r\n[04/06/24, 11:45:45 AM] Sanjib Ranjan: Ruk jaa\r\n[04/06/24, 11:46:02 AM] Sanjib Ranjan: Saab cheej thik xho\r\n[04/06/24, 11:46:16 AM] Sanjib Ranjan: Khali hamar ego dost sa donation bala baat pucha daa bass\r\n[04/06/24, 11:46:20 AM] Sanjib Ranjan: Sajh taak ruka\r\n[04/06/24, 11:46:34 AM] Rahul Mama Ghar: ❤️\r\n[04/06/24, 11:46:45 AM] Sanjib Ranjan: 🥰\r\n[04/06/24, 11:46:56 AM] Rahul Mama Ghar: Hotai\r\n[04/06/24, 11:47:13 AM] Sanjib Ranjan: Ok\r\n[04/06/24, 11:47:34 AM] Rahul Mama Ghar: Direct admission hotai ta 2 lakh IC nai lagtai\r\n[04/06/24, 12:03:36 PM] Sanjib Ranjan: Thk xai bhuj geli baat\r\n[04/06/24, 12:03:44 PM] Sanjib Ranjan: Kon thk kono tarika sa kaam vajai\r\n[04/06/24, 7:42:15 PM] Rahul Mama Ghar: Hello\r\n[04/06/24, 7:47:31 PM] Sanjib Ranjan: Haan suna na\r\n[04/06/24, 7:47:33 PM] Sanjib Ranjan: Aai rukja",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 73,
+              "to": 88
+            }
+          },
+          "chunkIndex": 6,
+          "contentLength": 955,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_5",
+          "next_chunk_id": "parent_1759212308757_7",
+          "position_in_document": 6,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.535Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_7",
+      {
+        "id": "parent_1759212308757_7",
+        "content": "[04/06/24, 7:47:31 PM] Sanjib Ranjan: Haan suna na\r\n[04/06/24, 7:47:33 PM] Sanjib Ranjan: Aai rukja\r\n[04/06/24, 7:47:41 PM] Sanjib Ranjan: U aadmi hamar phone nai laig rahal hai\r\n[04/06/24, 7:47:45 PM] Sanjib Ranjan: Online nai hai\r\n[04/06/24, 7:47:49 PM] Sanjib Ranjan: Kani deeer rukja\r\n[04/06/24, 7:48:00 PM] Sanjib Ranjan: Kail sajh taak booking karwa leab\r\n[04/06/24, 7:48:04 PM] Sanjib Ranjan: Tension nai.la\r\n[04/06/24, 8:06:42 PM] Rahul Mama Ghar: Hotai\r\n[05/06/24, 7:33:03 PM] Sanjib Ranjan: Karwala\r\n[05/06/24, 7:33:07 PM] Sanjib Ranjan: Admission\r\n[05/06/24, 7:33:10 PM] Sanjib Ranjan: Dekh leliya\r\n[05/06/24, 7:33:21 PM] Sanjib Ranjan: Koi besi paisa nai maing rahal xho\r\n[05/06/24, 7:35:22 PM] Sanjib Ranjan: Ookar besi bachat nai hotai\r\n[05/06/24, 7:35:24 PM] Sanjib Ranjan: Oohno\r\n[05/06/24, 7:35:33 PM] Sanjib Ranjan: Hamar dost kahal kai ya\r\n[05/06/24, 7:35:46 PM] Sanjib Ranjan: Thike paisa maing rahal hai\r\n[05/06/24, 7:35:59 PM] Sanjib Ranjan: Karwala jaldi sa jaldi",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 87,
+              "to": 103
+            }
+          },
+          "chunkIndex": 7,
+          "contentLength": 986,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_6",
+          "next_chunk_id": "parent_1759212308757_8",
+          "position_in_document": 7,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.535Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_8",
+      {
+        "id": "parent_1759212308757_8",
+        "content": "[05/06/24, 7:35:59 PM] Sanjib Ranjan: Karwala jaldi sa jaldi\r\n[05/06/24, 7:36:06 PM] Sanjib Ranjan: Thkk hai na\r\n[05/06/24, 7:36:14 PM] Sanjib Ranjan: Kono dikat hoto tw kahiya\r\n[05/06/24, 8:54:18 PM] Rahul Mama Ghar: Okay\r\n[05/08/24, 10:53:49 PM] Sanjib Ranjan: https://www.google.com/search?q=Grande+City+Hospital+%26+Clinic+Pvt.Ltd&oq=Grande+City+Hospital+%26+Clinic+Pvt.Ltd%0A%0A&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigATIHCAQQIRigATIGCAUQRRg8MgYIBhBFGD3SAQgxMDE0ajBqN6gCFLACAQ&client=ms-android-oneplus-terr1-rso2&sourceid=chrome-mobile&ie=UTF-8\r\n[05/08/24, 10:53:57 PM] Sanjib Ranjan: grande hospital\r\n‎[23/09/24, 1:22:26 PM] Rahul Mama Ghar: MARKSHEET_12_RAHUL SAH.pdf • ‎1 page ‎document omitted\r\n‎[23/09/24, 1:22:26 PM] Rahul Mama Ghar: Rahul class 10.pdf • ‎1 page ‎document omitted\r\n[02/11/24, 3:51:39 PM] Sanjib Ranjan: ‎You deleted this message.\r\n[02/11/24, 4:10:21 PM] Sanjib Ranjan: Complex exam k paper \naaur\nStudy in india program check kara kahiya xa",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 103,
+              "to": 114
+            }
+          },
+          "chunkIndex": 8,
+          "contentLength": 993,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_7",
+          "next_chunk_id": "parent_1759212308757_9",
+          "position_in_document": 8,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_9",
+      {
+        "id": "parent_1759212308757_9",
+        "content": "[02/11/24, 4:10:21 PM] Sanjib Ranjan: Complex exam k paper \naaur\nStudy in india program check kara kahiya xa\r\n[02/11/24, 4:10:23 PM] Sanjib Ranjan: exam\r\n[02/11/24, 4:10:31 PM] Sanjib Ranjan: naitan rait me ham check kaka kahabo\r\n[02/11/24, 6:07:27 PM] Rahul Mama Ghar: Compex 2024-2025 ke exam bhagelai 1stAugust ke\r\n[03/11/24, 10:21:24 AM] Sanjib Ranjan: aacha\r\n[03/11/24, 10:21:32 AM] Sanjib Ranjan: u k result naai aalo tww\r\n[03/11/24, 5:10:16 PM] Rahul Mama Ghar: Chhath ke badh aaitai\r\n[03/11/24, 7:09:40 PM] Sanjib Ranjan: study in india program dekhka\r\n[03/11/24, 7:09:56 PM] Sanjib Ranjan: ookar paper dekha kahiya xhoo\r\n[03/11/24, 7:25:47 PM] Rahul Mama Ghar: Study in India (SI) ke exam nai hoi Hai matre form bharaparai Hai\r\n[03/11/24, 7:26:13 PM] Sanjib Ranjan: tw kahiya nilalta form\r\n[03/11/24, 7:37:25 PM] Rahul Mama Ghar: April me aabai hai 2024 ke bharliyai offer letter aail rahai Magar Kono scholarship nai rahai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 112,
+              "to": 125
+            }
+          },
+          "chunkIndex": 9,
+          "contentLength": 932,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_8",
+          "next_chunk_id": "parent_1759212308757_10",
+          "position_in_document": 9,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_10",
+      {
+        "id": "parent_1759212308757_10",
+        "content": "[03/11/24, 7:38:25 PM] Rahul Mama Ghar: SI se matre admission hoi Hai without scholarship se\r\n[01/12/24, 8:04:40 PM] Rahul Mama Ghar: Hello\r\n[01/12/24, 8:05:31 PM] Rahul Mama Ghar: Hau Vanja\r\n[01/12/24, 8:07:13 PM] Rahul Mama Ghar: Symbosis university me Chandan parhai xo okar WhatsApp number dana ta\r\n[01/12/24, 9:35:21 PM] Sanjib Ranjan: wait\r\n[01/12/24, 9:35:28 PM] Sanjib Ranjan: bhejai xeya\r\n[01/12/24, 9:38:26 PM] Sanjib Ranjan: +9779817649142\r\n[01/12/24, 9:38:39 PM] Sanjib Ranjan: e number xho chandan k baat kara\r\n[01/12/24, 10:04:18 PM] Rahul Mama Ghar: EK ber tuho kahidah Ki sms or call karta mama se baat\r\n[01/12/24, 10:04:32 PM] Sanjib Ranjan: kaih deliya\r\n[01/12/24, 10:04:53 PM] Rahul Mama Ghar: Kail morning me SMS karbai tab hotai\r\n[01/12/24, 10:05:21 PM] Sanjib Ranjan: okk\r\n[04/12/24, 5:47:58 PM] Rahul Mama Ghar: Hello\r\n‎[04/12/24, 5:48:18 PM] Rahul Mama Ghar: ‎image omitted\r\n[04/12/24, 5:49:08 PM] Rahul Mama Ghar: E university kehan hai topan sathi sab se puix ke kahna",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 126,
+              "to": 140
+            }
+          },
+          "chunkIndex": 10,
+          "contentLength": 994,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_9",
+          "next_chunk_id": "parent_1759212308757_11",
+          "position_in_document": 10,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_11",
+      {
+        "id": "parent_1759212308757_11",
+        "content": "[04/12/24, 5:49:08 PM] Rahul Mama Ghar: E university kehan hai topan sathi sab se puix ke kahna\r\n[05/12/24, 2:25:40 PM] Sanjib Ranjan: aacha dekhai xeya\r\n[08/12/24, 6:09:33 PM] Rahul Mama Ghar: Hello\r\n[08/12/24, 8:16:22 PM] Sanjib Ranjan: haaan kaha\r\n[08/12/24, 8:53:26 PM] Rahul Mama Ghar: E university kehan Hai\r\n[09/12/24, 12:38:40 PM] Sanjib Ranjan: hai tw badiya\r\n[09/12/24, 12:40:35 PM] Sanjib Ranjan: aaike fee dekha la\r\n[09/12/24, 12:40:36 PM] Sanjib Ranjan: ga\r\n[09/12/24, 12:40:42 PM] Sanjib Ranjan: 4 lakh hai\r\n[09/12/24, 12:44:23 PM] Sanjib Ranjan: dekha shanti sa raha aabhi\r\n‎[09/12/24, 12:44:31 PM] Sanjib Ranjan: ‎image omitted\r\n‎[09/12/24, 12:44:49 PM] Sanjib Ranjan: ‎image omitted\r\n[09/12/24, 12:44:58 PM] Sanjib Ranjan: jab time aato admission vajato\r\n[09/12/24, 12:45:01 PM] Sanjib Ranjan: dont worry\r\n‎[09/12/24, 12:52:55 PM] Sanjib Ranjan: ‎image omitted\r\n[09/12/24, 6:34:48 PM] Rahul Mama Ghar: Hotai\r\n[21/07/25, 2:00:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 140,
+              "to": 156
+            }
+          },
+          "chunkIndex": 11,
+          "contentLength": 1005,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_10",
+          "next_chunk_id": "parent_1759212308757_12",
+          "position_in_document": 11,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_12",
+      {
+        "id": "parent_1759212308757_12",
+        "content": "[09/12/24, 6:34:48 PM] Rahul Mama Ghar: Hotai\r\n[21/07/25, 2:00:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/07/25, 2:00:06 PM] Rahul Mama Ghar: .\r\n[21/07/25, 2:00:08 PM] Rahul Mama Ghar: Hello\r\n‎[21/07/25, 3:52:48 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/07/25, 3:53:11 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[21/07/25, 3:52:48 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/07/25, 9:02:33 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[28/08/25, 7:29:06 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[14/09/25, 8:33:16 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[19/09/25, 9:24:57 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 155,
+              "to": 165
+            }
+          },
+          "chunkIndex": 12,
+          "contentLength": 735,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_11",
+          "next_chunk_id": "parent_1759212308757_13",
+          "position_in_document": 12,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_13",
+      {
+        "id": "parent_1759212308757_13",
+        "content": "[19/09/25, 9:24:57 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 12:19:08 AM] Rahul Mama Ghar: https://www.amazon.in/Apple-MacBook-13-inch-10-core-Unified/dp/B0DZDDQ429/ref=sr_1_1?crid=2MWLPDOVN1DB4&dib=eyJ2IjoiMSJ9.cxg64j71asHtIpoHuVSkM2HSh386vB9cT02DKvQaHnEP1p_vc2vl_RaeCnv8PrCQlAyvXoVRSbX69H6zOQQquND1HXRflIti8MUZ6B9NE2SIh9c0usAholVhZenQp1lZiDtPQseUSZfHzHtwcO3c-8DPwAaiuheTJWiKGKfjb6tr1ygyZgfe4KKJExCO55MDrdNcvgVMzAU_mvlZau-UyujqwIsILSrOU47X_jdDhD8.enBvZ_UT1NiwFs3wcRD0gWoltwnRfmtWJr4M-gT3NMs&dib_tag=se&keywords=mac%2Bbook%2Bm4&qid=1758306703&sprefix=mac%2Bbook%2Bm4%2Caps%2C312&sr=8-1&th=1\r\n[20/09/25, 9:28:08 AM] Sanjib Ranjan: 79500\r\n[20/09/25, 9:28:11 AM] Sanjib Ranjan: K aato\r\n[20/09/25, 9:34:36 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:02:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:03:02 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 165,
+              "to": 171
+            }
+          },
+          "chunkIndex": 13,
+          "contentLength": 957,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_12",
+          "next_chunk_id": "parent_1759212308757_14",
+          "position_in_document": 13,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.536Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_14",
+      {
+        "id": "parent_1759212308757_14",
+        "content": "[20/09/25, 10:03:02 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:04:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:50:27 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[20/09/25, 10:56:27 PM] Sanjib Ranjan: Card. Mil gelai\r\n[20/09/25, 10:56:36 PM] Sanjib Ranjan: Paisa jogar kala\r\n[20/09/25, 10:56:39 PM] Rahul Mama Ghar: Symbiosis institute of technology, boys hostel Anthurium H - block , Lavale -412115\r\n[20/09/25, 10:56:41 PM] Sanjib Ranjan: Kail dikat nai hoi kono\r\n[20/09/25, 10:56:43 PM] Rahul Mama Ghar: Okay\r\n[20/09/25, 10:56:54 PM] Rahul Mama Ghar: Number: +91 9241099027\r\n[20/09/25, 10:56:59 PM] Sanjib Ranjan: First hour mae order kara k hai\r\n[20/09/25, 10:57:08 PM] Sanjib Ranjan: Thkk hai👍🏻👍🏻\r\n[20/09/25, 10:57:36 PM] Rahul Mama Ghar: Thik Hai kail sajh tak paisa aaib jaitai\r\n[20/09/25, 11:00:05 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 11:47:40 AM] Sanjib Ranjan: Paisa bheja ki nai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 171,
+              "to": 184
+            }
+          },
+          "chunkIndex": 14,
+          "contentLength": 981,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_13",
+          "next_chunk_id": "parent_1759212308757_15",
+          "position_in_document": 14,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_15",
+      {
+        "id": "parent_1759212308757_15",
+        "content": "[20/09/25, 11:00:05 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 11:47:40 AM] Sanjib Ranjan: Paisa bheja ki nai\r\n[21/09/25, 12:01:44 PM] Rahul Mama Ghar: Abhi nahi aail  Hai 4-5 baje tak aaib jaitai\r\n[21/09/25, 12:05:20 PM] Sanjib Ranjan: Thk hai\r\n‎[21/09/25, 12:55:27 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 12:55:32 PM] Sanjib Ranjan: Thk xho na\r\n[21/09/25, 12:55:37 PM] Sanjib Ranjan: Check it properly\r\n[21/09/25, 12:56:05 PM] Sanjib Ranjan: Number wagera saab\r\n‎[21/09/25, 12:57:29 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 12:57:30 PM] Sanjib Ranjan: Acc : 40334998465\nIfsc : SBIN0009023\r\n[21/09/25, 12:57:49 PM] Sanjib Ranjan: Card share nai kariha photo Apne mae rakhiya\r\n[21/09/25, 12:59:16 PM] Rahul Mama Ghar: Hotai\r\n[21/09/25, 12:59:37 PM] Sanjib Ranjan: Details sahi xhoo na saab tohar dekh lela na\r\n‎[21/09/25, 1:01:37 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 1:02:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 183,
+              "to": 198
+            }
+          },
+          "chunkIndex": 15,
+          "contentLength": 956,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "list",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_14",
+          "next_chunk_id": "parent_1759212308757_16",
+          "position_in_document": 15,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_16",
+      {
+        "id": "parent_1759212308757_16",
+        "content": "[21/09/25, 1:02:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 1:20:38 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 1:22:56 PM] Sanjib Ranjan: Kaha na kaha\r\n[21/09/25, 1:23:25 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 2:24:19 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[21/09/25, 2:30:29 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[21/09/25, 2:31:34 PM] Rahul Mama Ghar: ‎image omitted\r\n‎[21/09/25, 2:59:51 PM] Sanjib Ranjan: ‎Contact card omitted\r\n[21/09/25, 3:44:46 PM] Sanjib Ranjan: Ki vela\r\n‎[21/09/25, 4:15:49 PM] Rahul Mama Ghar: ‎image omitted\r\n‎[21/09/25, 4:15:56 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 4:16:08 PM] Sanjib Ranjan: 👍🏻👍🏻👍🏻\r\n‎[21/09/25, 4:24:32 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 4:24:34 PM] Sanjib Ranjan: Kairdeya na\r\n[21/09/25, 4:24:36 PM] Sanjib Ranjan: Final\r\n[21/09/25, 4:25:24 PM] Rahul Mama Ghar: Ha",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 198,
+              "to": 213
+            }
+          },
+          "chunkIndex": 16,
+          "contentLength": 982,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_15",
+          "next_chunk_id": "parent_1759212308757_17",
+          "position_in_document": 16,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_17",
+      {
+        "id": "parent_1759212308757_17",
+        "content": "[21/09/25, 4:24:36 PM] Sanjib Ranjan: Final\r\n[21/09/25, 4:25:24 PM] Rahul Mama Ghar: Ha\r\n[21/09/25, 4:25:30 PM] Sanjib Ranjan: Ok👍🏻👍🏻\r\n[21/09/25, 4:29:38 PM] Sanjib Ranjan: Suna na\r\n[21/09/25, 4:29:47 PM] Sanjib Ranjan: 100 aaro bhej data woi account pa\r\n[21/09/25, 4:30:38 PM] Rahul Mama Ghar: Okay\r\n‎[21/09/25, 4:31:39 PM] Rahul Mama Ghar: ‎image omitted\r\n[21/09/25, 4:50:15 PM] Sanjib Ranjan:\r\n‎[21/09/25, 4:50:15 PM] Sanjib Ranjan: ‎image omitted\r\n‎[21/09/25, 4:50:16 PM] Sanjib Ranjan: ‎image omitted\r\n[21/09/25, 4:50:57 PM] Sanjib Ranjan: Prime expire vagel xalai naitan kailhe aajaito\r\n[21/09/25, 4:51:05 PM] Sanjib Ranjan: Par kani wait kairla\r\n[21/09/25, 4:51:25 PM] Rahul Mama Ghar: Axa Kono baat na\r\n[21/09/25, 4:51:27 PM] Sanjib Ranjan: Saab cheej thkk xhoo na\r\n[21/09/25, 4:51:37 PM] Sanjib Ranjan: Num adresss price dekh lela na\r\n[21/09/25, 4:52:09 PM] Rahul Mama Ghar: Sab thik hai\r\n[21/09/25, 4:52:34 PM] Sanjib Ranjan: Enjoy❤️\r\n[21/09/25, 10:13:46 PM] Sanjib Ranjan: Mama kani dikat aaib gelo",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 212,
+              "to": 229
+            }
+          },
+          "chunkIndex": 17,
+          "contentLength": 1013,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_16",
+          "next_chunk_id": "parent_1759212308757_18",
+          "position_in_document": 17,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_18",
+      {
+        "id": "parent_1759212308757_18",
+        "content": "[21/09/25, 4:52:34 PM] Sanjib Ranjan: Enjoy❤️\r\n[21/09/25, 10:13:46 PM] Sanjib Ranjan: Mama kani dikat aaib gelo\r\n[21/09/25, 10:13:52 PM] Sanjib Ranjan: Order cancel vagela\r\n[21/09/25, 10:14:02 PM] Sanjib Ranjan: 75k k limit hai card k\r\n[21/09/25, 10:25:23 PM] Rahul Mama Ghar: Aab kena hotai\r\n[21/09/25, 10:31:37 PM] Sanjib Ranjan: Kair rahal xaui\r\n[21/09/25, 10:32:02 PM] Sanjib Ranjan: Tension nai laa\r\n[21/09/25, 10:32:05 PM] Sanjib Ranjan: Chill\r\n[21/09/25, 10:32:47 PM] Rahul Mama Ghar: Thik Hai ❤️\r\n[21/09/25, 10:38:05 PM] Sanjib Ranjan: Vajaito tw ham msg kadeba\r\n[21/09/25, 10:43:32 PM] Sanjib Ranjan: 3 go card xai par saab k uhe 75k k limit\r\n[21/09/25, 10:43:34 PM] Sanjib Ranjan: Ki karba\r\n[21/09/25, 10:56:20 PM] Rahul Mama Ghar: SBI debit card se BHI ta apply karay Sakai Hai na\r\n[21/09/25, 10:57:27 PM] Sanjib Ranjan: Haan hokar limit 80k tk chahi\r\n[21/09/25, 10:58:19 PM] Rahul Mama Ghar: Axa ham sathi la Hai ke puxai xiyai ham",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 228,
+              "to": 242
+            }
+          },
+          "chunkIndex": 18,
+          "contentLength": 943,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_17",
+          "next_chunk_id": "parent_1759212308757_19",
+          "position_in_document": 18,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_19",
+      {
+        "id": "parent_1759212308757_19",
+        "content": "[21/09/25, 10:58:19 PM] Rahul Mama Ghar: Axa ham sathi la Hai ke puxai xiyai ham\r\n[21/09/25, 11:21:35 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 9:05:30 AM] Sanjib Ranjan: Oohh\r\n[22/09/25, 9:05:34 AM] Sanjib Ranjan: Mama\r\n[22/09/25, 11:32:02 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:35:14 AM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 8:00:40 PM] Sanjib Ranjan: Mama kathi decide karla\r\n[22/09/25, 8:00:42 PM] Sanjib Ranjan: Twww\r\n[22/09/25, 8:01:14 PM] Sanjib Ranjan: Kair sakba aapne order ki ham kair deya\r\n[22/09/25, 8:01:17 PM] Sanjib Ranjan: Kaha\r\n[22/09/25, 8:33:18 PM] Sanjib Ranjan: Call kara naa\r\n[22/09/25, 8:33:19 PM] Sanjib Ranjan: Call\r\n[22/09/25, 8:47:40 PM] Rahul Mama Ghar: Dinner karai xi U ke badh call karba\r\n[22/09/25, 8:47:49 PM] Sanjib Ranjan: Ok\r\n[22/09/25, 9:21:17 PM] Rahul Mama Ghar: ‎Voice call, ‎Answered on other device\r\n‎[22/09/25, 9:25:25 PM] Rahul Mama Ghar: ‎image omitted",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 242,
+              "to": 257
+            }
+          },
+          "chunkIndex": 19,
+          "contentLength": 998,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_18",
+          "next_chunk_id": "parent_1759212308757_20",
+          "position_in_document": 19,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_20",
+      {
+        "id": "parent_1759212308757_20",
+        "content": "‎[22/09/25, 9:25:25 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 9:34:41 PM] Rahul Mama Ghar: +91 9241099027\r\n[22/09/25, 10:38:10 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[22/09/25, 10:41:55 PM] Sanjib Ranjan: ‎image omitted\r\n[22/09/25, 10:42:09 PM] Sanjib Ranjan: E QR pa 500 bhej daa\r\n‎[22/09/25, 10:42:28 PM] Sanjib Ranjan: ‎image omitted\r\n[22/09/25, 10:55:42 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:03:47 PM] Sanjib Ranjan: 435\r\n[22/09/25, 11:03:54 PM] Sanjib Ranjan: Cvv xai card k\r\n[22/09/25, 11:30:24 PM] Rahul Mama Ghar: Otp\r\n‎[22/09/25, 11:30:53 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 11:34:00 PM] Sanjib Ranjan: Jaldi kara\r\n[22/09/25, 11:34:06 PM] Rahul Mama Ghar: Thik hai\r\n[22/09/25, 11:54:14 PM] Rahul Mama Ghar: ‎This message was deleted.\r\n[22/09/25, 11:54:31 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[22/09/25, 11:56:52 PM] Rahul Mama Ghar: ‎image omitted",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 257,
+              "to": 272
+            }
+          },
+          "chunkIndex": 20,
+          "contentLength": 962,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_19",
+          "next_chunk_id": "parent_1759212308757_21",
+          "position_in_document": 20,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_21",
+      {
+        "id": "parent_1759212308757_21",
+        "content": "‎[22/09/25, 11:56:52 PM] Rahul Mama Ghar: ‎image omitted\r\n[22/09/25, 11:58:18 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:58:27 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n[22/09/25, 11:58:33 PM] Sanjib Ranjan: Kate amount xhoo\r\n[22/09/25, 11:58:38 PM] Rahul Mama Ghar: ‎Missed voice call, ‎Click to call back\r\n‎[23/09/25, 12:02:28 AM] Sanjib Ranjan: ‎image omitted\r\n[23/09/25, 12:02:41 AM] Sanjib Ranjan: Amount thk xho na\r\n[23/09/25, 12:02:59 AM] Sanjib Ranjan: 500 nai na bhejne xala\r\n[23/09/25, 12:03:04 AM] Rahul Mama Ghar: Total 80100\r\n[23/09/25, 12:03:21 AM] Sanjib Ranjan: Wait\r\n[23/09/25, 12:05:49 AM] Sanjib Ranjan: Aare yree\r\n[23/09/25, 12:05:59 AM] Sanjib Ranjan: U bhaiya offline chail gela\r\n[23/09/25, 12:06:08 AM] Sanjib Ranjan: Kail leba toh hoto\r\n[23/09/25, 12:06:11 AM] Rahul Mama Ghar: Thik Hai kono baat nai\r\n[23/09/25, 12:06:14 AM] Sanjib Ranjan: Hamra la cash xai ki\r\n[23/09/25, 12:06:23 AM] Rahul Mama Ghar: Kail lalebai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 272,
+              "to": 287
+            }
+          },
+          "chunkIndex": 21,
+          "contentLength": 993,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_20",
+          "next_chunk_id": "parent_1759212308757_22",
+          "position_in_document": 21,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_22",
+      {
+        "id": "parent_1759212308757_22",
+        "content": "[23/09/25, 12:06:14 AM] Sanjib Ranjan: Hamra la cash xai ki\r\n[23/09/25, 12:06:23 AM] Rahul Mama Ghar: Kail lalebai\r\n[23/09/25, 12:06:23 AM] Sanjib Ranjan: Bhore uthtai tw karwadeba\r\n[23/09/25, 12:06:31 AM] Sanjib Ranjan: 12 baij gelai ki\r\n[23/09/25, 12:06:41 AM] Sanjib Ranjan: Kara order hamu sutai xeya\r\n[23/09/25, 12:06:41 AM] Rahul Mama Ghar: Otno jaruri nai hai\r\n[23/09/25, 12:06:49 AM] Sanjib Ranjan: Bhorr mae baat kaarba\r\n[23/09/25, 12:06:55 AM] Rahul Mama Ghar: Hotai\r\n[23/09/25, 12:06:57 AM] Sanjib Ranjan: Gnn\r\n[23/09/25, 12:07:03 AM] Rahul Mama Ghar: GN\r\n[23/09/25, 11:07:04 AM] Rahul Mama Ghar: Hello\r\n[23/09/25, 11:14:31 AM] Sanjib Ranjan: Haan kaha na\r\n[23/09/25, 11:14:32 AM] Sanjib Ranjan: Kaha\r\n[23/09/25, 11:14:46 AM] Rahul Mama Ghar: 82 K price Hai ke\r\n[23/09/25, 11:14:48 AM] Rahul Mama Ghar: M4 ke\r\n[23/09/25, 11:14:59 AM] Rahul Mama Ghar: SBI debit card me 4k discount\r\n[23/09/25, 11:15:15 AM] Rahul Mama Ghar: Card xo Kono ta kaha paisa send karai xiya",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 286,
+              "to": 302
+            }
+          },
+          "chunkIndex": 22,
+          "contentLength": 976,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_21",
+          "next_chunk_id": "parent_1759212308757_23",
+          "position_in_document": 22,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_23",
+      {
+        "id": "parent_1759212308757_23",
+        "content": "[23/09/25, 11:15:15 AM] Rahul Mama Ghar: Card xo Kono ta kaha paisa send karai xiya\r\n[23/09/25, 11:15:23 AM] Sanjib Ranjan: Discount k baad k price xhoo na\r\n[23/09/25, 11:15:32 AM] Sanjib Ranjan: Rait mae kahai xala card hai\r\n[23/09/25, 11:15:33 AM] Sanjib Ranjan: Tww\r\n[23/09/25, 11:15:52 AM] Rahul Mama Ghar: U active nai Hai ke\r\n[23/09/25, 11:16:02 AM] Sanjib Ranjan: U bhaiya duty pa hotai\r\n[23/09/25, 11:16:08 AM] Rahul Mama Ghar: Nai actual 82 K Hai ke\r\n[23/09/25, 11:16:09 AM] Sanjib Ranjan: Aabhi phone nai uthatai siad\r\n[23/09/25, 11:16:24 AM] Rahul Mama Ghar: Tosar Kono card Hai Ki nai\r\n[23/09/25, 11:16:44 AM] Sanjib Ranjan: Aare dosar card laka thori na discount miltai\r\n[23/09/25, 11:16:59 AM] Rahul Mama Ghar: sBi ke tosar card\r\n[23/09/25, 11:17:17 AM] Sanjib Ranjan: Aare u aab dekha partai\r\n[23/09/25, 11:17:32 AM] Rahul Mama Ghar: Ham Chandan ke SMS karai xiyai\r\n[23/09/25, 11:17:33 AM] Sanjib Ranjan: Oote limit wala bass uhe card hai\r\n[23/09/25, 11:17:54 AM] Sanjib Ranjan: Bhut condused xa ki",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 302,
+              "to": 316
+            }
+          },
+          "chunkIndex": 23,
+          "contentLength": 1013,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_22",
+          "next_chunk_id": "parent_1759212308757_24",
+          "position_in_document": 23,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": false,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
+    ],
+    [
+      "parent_1759212308757_24",
+      {
+        "id": "parent_1759212308757_24",
+        "content": "[23/09/25, 11:17:54 AM] Sanjib Ranjan: Bhut condused xa ki\r\n[23/09/25, 11:17:55 AM] Sanjib Ranjan: Tahu\r\n[23/09/25, 11:18:03 AM] Sanjib Ranjan: Kani deer ruka\r\n[23/09/25, 11:18:17 AM] Rahul Mama Ghar: Thik hai\r\n[23/09/25, 11:18:40 AM] Sanjib Ranjan: Ok\r\n[24/09/25, 11:48:59 AM] Sanjib Ranjan: Ki vela\r\n[24/09/25, 11:49:03 AM] Sanjib Ranjan: Order kaila\r\n[24/09/25, 11:49:47 AM] Sanjib Ranjan: Ki nai",
+        "metadata": {
+          "loc": {
+            "lines": {
+              "from": 316,
+              "to": 323
+            }
+          },
+          "chunkIndex": 24,
+          "contentLength": 399,
+          "chunkingStrategy": "parent_hierarchical",
+          "chunkType": "parent",
+          "contentType": "text",
+          "windowSize": 1024,
+          "windowOverlap": 128,
+          "linked_list_ready": true,
+          "previous_chunk_id": "parent_1759212308757_23",
+          "next_chunk_id": null,
+          "position_in_document": 24,
+          "total_chunks_in_document": 25,
+          "is_first_chunk": false,
+          "is_last_chunk": true,
+          "linked_list_enabled": true,
+          "linking_strategy": "sequential"
+        },
+        "storedAt": "2025-09-30T06:06:03.537Z",
+        "accessCount": 0,
+        "lastAccessed": null,
+        "tenantId": "7UrnxBjDUgaSrzUCeBI3Ok5kA8E3",
+        "tenantType": "user"
+      }
     ]
   ],
   "stats": {
-    "totalStored": 60,
+    "totalStored": 30,
     "totalRetrieved": 4,
     "totalDeleted": 0,
     "cacheHits": 4,
     "cacheMisses": 0,
     "lastCleanup": null,
-    "lastSave": "2025-09-26T05:17:02.035Z",
+    "lastSave": "2025-09-30T06:06:04.233Z",
     "lastLoad": null,
-    "createdAt": "2025-09-26T05:08:21.738Z"
+    "createdAt": "2025-09-30T05:58:31.285Z"
   },
-  "savedAt": "2025-09-26T05:17:02.651Z",
+  "savedAt": "2025-09-30T06:06:04.538Z",
   "version": "2.1.0"
 }

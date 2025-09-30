@@ -129,7 +129,14 @@ export class DocumentStore {
         await this.collection.createIndex({ parentId: 1 }, { unique: true });
         await this.collection.createIndex({ "metadata.documentName": 1 });
         await this.collection.createIndex({ createdAt: 1 });
-        console.log("✅ DocumentStore indexes created");
+        
+        // Create tenant-specific indexes for better performance
+        await this.collection.createIndex({ tenantId: 1 });
+        await this.collection.createIndex({ tenantType: 1 });
+        await this.collection.createIndex({ parentId: 1, tenantId: 1 });
+        await this.collection.createIndex({ tenantId: 1, tenantType: 1 });
+        
+        console.log("✅ DocumentStore indexes created (including tenant indexes)");
       } catch (indexError) {
         console.warn("⚠️ Failed to create indexes (possibly due to disk space):", indexError.message);
         console.log("📦 Continuing without indexes - performance may be reduced");
@@ -211,20 +218,31 @@ export class DocumentStore {
 
   /**
    * Load parent chunks from MongoDB into memory
+   * @param {Object} tenant - Optional tenant filter for loading
    * @private
    */
-  async loadFromMongoDB() {
+  async loadFromMongoDB(tenant = null) {
     try {
       console.log("📦 Loading parent chunks from MongoDB...");
 
-      const documents = await this.collection.find({}).toArray();
+      // Build query with optional tenant filtering
+      const query = {};
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        query.tenantId = tenant.id;
+        query.tenantType = tenant.type;
+        console.log(`🔒 Loading parent chunks for tenant: ${tenant.id} (type: ${tenant.type})`);
+      }
+
+      const documents = await this.collection.find(query).toArray();
 
       for (const doc of documents) {
         this.parentChunks.set(doc.parentId, {
           parentId: doc.parentId,
           content: doc.content,
           metadata: doc.metadata,
-          createdAt: doc.createdAt
+          createdAt: doc.createdAt,
+          tenantId: doc.tenantId,
+          tenantType: doc.tenantType
         });
       }
 
@@ -344,7 +362,7 @@ export class DocumentStore {
   }
 
   /**
-   * Retrieve a parent chunk by its ID (with lazy loading)
+   * Retrieve a parent chunk by its ID (with lazy loading and tenant isolation)
    * @param {string} parentId - Unique identifier for the parent chunk
    * @param {Object} tenant - Tenant information for isolation
    * @returns {Object|null} Parent chunk object or null if not found
@@ -355,11 +373,12 @@ export class DocumentStore {
         throw new Error('Parent ID must be a non-empty string');
       }
       
+      // First check in-memory cache with tenant filtering
       let chunk = this.parentChunks.get(parentId);
 
-      // Check tenant isolation if enabled
+      // Check tenant isolation for cached chunk
       if (chunk && tenant && chunk.tenantId && chunk.tenantId !== tenant.id) {
-        console.log(`🚫 Access denied: Parent chunk ${parentId} belongs to different tenant`);
+        console.log(`🚫 Access denied: Parent chunk ${parentId} belongs to different tenant (cached)`);
         this.stats.cacheMisses++;
         return null;
       }
@@ -375,18 +394,38 @@ export class DocumentStore {
         return chunk;
       }
 
-      // Lazy loading: Try to load from MongoDB if not in memory
+      // Lazy loading: Try to load from MongoDB with tenant filtering
       if (this.isInitialized && this.collection) {
         try {
-          const doc = await this.collection.findOne({ parentId });
+          // Build MongoDB query with tenant filtering
+          const mongoQuery = { parentId };
+          
+          // Add tenant filtering if tenant is provided
+          if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+            mongoQuery.tenantId = tenant.id;
+            mongoQuery.tenantType = tenant.type;
+            console.log(`🔒 Applying tenant filter for parent chunk: ${tenant.id} (type: ${tenant.type})`);
+          }
+
+          const doc = await this.collection.findOne(mongoQuery);
           if (doc) {
+            // Additional tenant check for retrieved document
+            if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous' && 
+                doc.tenantId && doc.tenantId !== tenant.id) {
+              console.log(`🚫 Access denied: Parent chunk ${parentId} belongs to different tenant (MongoDB)`);
+              this.stats.cacheMisses++;
+              return null;
+            }
+
             chunk = {
               parentId: doc.parentId,
               content: doc.content,
               metadata: doc.metadata,
               createdAt: doc.createdAt,
               accessCount: (doc.accessCount || 0) + 1,
-              lastAccessed: new Date().toISOString()
+              lastAccessed: new Date().toISOString(),
+              tenantId: doc.tenantId,
+              tenantType: doc.tenantType
             };
 
             // Cache it in memory for future use
@@ -415,25 +454,41 @@ export class DocumentStore {
   }
 
   /**
-   * Check if a parent chunk exists in the store (with lazy loading support)
+   * Check if a parent chunk exists in the store (with lazy loading support and tenant isolation)
    * @param {string} parentId - Unique identifier for the parent chunk
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {boolean} True if chunk exists, false otherwise
    */
-  async hasParentChunk(parentId) {
+  async hasParentChunk(parentId, tenant = null) {
     try {
       if (!parentId || typeof parentId !== 'string') {
         return false;
       }
 
-      // Check in-memory cache first
-      if (this.parentChunks.has(parentId)) {
+      // Check in-memory cache first with tenant filtering
+      const cachedChunk = this.parentChunks.get(parentId);
+      if (cachedChunk) {
+        // Check tenant isolation for cached chunk
+        if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous' && 
+            cachedChunk.tenantId && cachedChunk.tenantId !== tenant.id) {
+          return false;
+        }
         return true;
       }
 
-      // Check MongoDB if using lazy loading
+      // Check MongoDB if using lazy loading with tenant filtering
       if (this.isInitialized && this.collection) {
         try {
-          const count = await this.collection.countDocuments({ parentId }, { limit: 1 });
+          // Build MongoDB query with tenant filtering
+          const mongoQuery = { parentId };
+          
+          // Add tenant filtering if tenant is provided
+          if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+            mongoQuery.tenantId = tenant.id;
+            mongoQuery.tenantType = tenant.type;
+          }
+
+          const count = await this.collection.countDocuments(mongoQuery, { limit: 1 });
           return count > 0;
         } catch (mongoError) {
           console.warn(`⚠️ Failed to check parent chunk existence ${parentId} in MongoDB:`, mongoError.message);
@@ -543,9 +598,10 @@ export class DocumentStore {
   /**
    * Get parent chunks by document name
    * @param {string} documentName - Name of the document
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Array} Array of parent chunks for the document
    */
-  getParentChunksByDocument(documentName) {
+  getParentChunksByDocument(documentName, tenant = null) {
     try {
       if (!documentName || typeof documentName !== 'string') {
         throw new Error('Document name must be a non-empty string');
@@ -554,6 +610,12 @@ export class DocumentStore {
       const chunks = [];
       
       for (const [id, chunk] of this.parentChunks.entries()) {
+        // Check tenant isolation first
+        if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous' && 
+            chunk.tenantId && chunk.tenantId !== tenant.id) {
+          continue; // Skip chunks from different tenants
+        }
+        
         if (chunk.metadata && chunk.metadata.fileName === documentName) {
           chunks.push({ id, ...chunk });
         }
@@ -564,6 +626,34 @@ export class DocumentStore {
       
     } catch (error) {
       console.error(`❌ Failed to get parent chunks for document ${documentName}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Get all parent chunks for a specific tenant
+   * @param {Object} tenant - Tenant information
+   * @returns {Array} Array of parent chunks for the tenant
+   */
+  getParentChunksByTenant(tenant) {
+    try {
+      if (!tenant || !tenant.id || tenant.id === 'global' || tenant.id === 'anonymous') {
+        throw new Error('Valid tenant information is required');
+      }
+      
+      const chunks = [];
+      
+      for (const [id, chunk] of this.parentChunks.entries()) {
+        if (chunk.tenantId === tenant.id && chunk.tenantType === tenant.type) {
+          chunks.push({ id, ...chunk });
+        }
+      }
+      
+      console.log(`📦 Found ${chunks.length} parent chunks for tenant: ${tenant.id}`);
+      return chunks;
+      
+    } catch (error) {
+      console.error(`❌ Failed to get parent chunks for tenant ${tenant?.id}:`, error.message);
       return [];
     }
   }

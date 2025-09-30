@@ -104,6 +104,12 @@ export class MongoVectorStore {
       await this.collection.createIndex({ "metadata.uploadedAt": 1 });
       await this.collection.createIndex({ createdAt: 1 });
 
+      // CRITICAL: Create tenant-specific indexes for proper isolation
+      await this.collection.createIndex({ tenantId: 1 });
+      await this.collection.createIndex({ tenantType: 1 });
+      await this.collection.createIndex({ tenantId: 1, tenantType: 1 });
+      await this.collection.createIndex({ tenantId: 1, createdAt: -1 });
+
       // Vector search index (if using MongoDB Atlas Vector Search)
       // Note: This requires MongoDB Atlas with Vector Search enabled
       try {
@@ -227,9 +233,10 @@ export class MongoVectorStore {
    * @param {number[][]} embeddings - Array of embeddings
    * @param {Object[]} metadatas - Array of metadata objects
    * @param {string[]} ids - Array of unique IDs
+   * @param {Object} tenant - Tenant information for isolation
    * @returns {Promise<boolean>} Success status
    */
-  async addDocuments(documents, embeddings, metadatas, ids) {
+  async addDocuments(documents, embeddings, metadatas, ids, tenant = null) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("MongoDB vector store not initialized");
@@ -257,7 +264,7 @@ export class MongoVectorStore {
       // Filter arrays to only include valid child chunks
       const filteredData = this.filterValidChunks(documents, embeddings, metadatas, ids, validationResult);
 
-      // Prepare documents for MongoDB insertion
+      // Prepare documents for MongoDB insertion with tenant isolation
       const mongoDocuments = filteredData.ids.map((id, index) => {
         const metadata = filteredData.metadatas[index];
         const documentName = metadata.documentName || metadata.source || 'unknown';
@@ -281,6 +288,9 @@ export class MongoVectorStore {
             uploadedAt: metadata.uploadedAt || metadata.ingestionTime || new Date().toISOString(),
             textLength: metadata.textLength || metadata.contentLength || filteredData.documents[index].length
           },
+          // CRITICAL: Add tenant isolation fields
+          tenantId: tenant?.id || null,
+          tenantType: tenant?.type || null,
           createdAt: new Date(),
           updatedAt: new Date()
         };
@@ -310,10 +320,11 @@ export class MongoVectorStore {
    * Search for similar documents using vector similarity
    * @param {number[]} queryEmbedding - Query embedding vector
    * @param {number} nResults - Number of results to return
+   * @param {Object} tenant - Tenant information for isolation
    * @param {Object} filters - Optional metadata filters
    * @returns {Promise<Object>} Search results
    */
-  async search(queryEmbedding, nResults = 5, filters = {}) {
+  async search(queryEmbedding, nResults = 5, tenant = null, filters = {}) {
     try {
       if (!this.isInitialized || !this.collection) {
         throw new Error("MongoDB vector store not initialized");
@@ -325,9 +336,17 @@ export class MongoVectorStore {
 
       console.log(`🔍 Searching for ${nResults} similar documents in MongoDB...`);
 
+      // CRITICAL: Apply tenant filtering
+      const tenantFilters = { ...filters };
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        tenantFilters.tenantId = tenant.id;
+        tenantFilters.tenantType = tenant.type;
+        console.log(`🔒 Using tenant-specific search for tenant: ${tenant.id}`);
+      }
+
       // Use manual cosine similarity calculation for local MongoDB
       // MongoDB Atlas Vector Search requires special configuration
-      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2, filters);
+      const results = await this.manualVectorSearch(queryEmbedding, nResults * 2, tenantFilters);
       console.log(`✅ Found ${results.length} relevant documents`);
       return this.formatSearchResults(results.slice(0, nResults));
     } catch (error) {
@@ -348,7 +367,12 @@ export class MongoVectorStore {
       // Apply metadata filters
       if (Object.keys(filters).length > 0) {
         Object.entries(filters).forEach(([key, value]) => {
-          mongoQuery[`metadata.${key}`] = value;
+          // Handle tenant filters at root level, metadata filters at metadata level
+          if (key === 'tenantId' || key === 'tenantType') {
+            mongoQuery[key] = value;
+          } else {
+            mongoQuery[`metadata.${key}`] = value;
+          }
         });
       }
 
@@ -764,6 +788,39 @@ export class MongoVectorStore {
     } catch (error) {
       console.error("❌ Error searching documents:", error);
       throw new Error(`Failed to search documents: ${error.message}`);
+    }
+  }
+
+  /**
+   * Search documents by tenant with proper isolation
+   * @param {number[]} queryEmbedding - Query embedding vector
+   * @param {number} limit - Maximum number of results
+   * @param {Object} tenant - Tenant information
+   * @param {Object} filters - Additional filters
+   * @returns {Promise<Object>} Search results
+   */
+  async searchByTenant(queryEmbedding, limit = 5, tenant, filters = {}) {
+    try {
+      if (!tenant || tenant.id === 'global' || tenant.id === 'anonymous') {
+        // Fall back to regular search if no valid tenant
+        return await this.search(queryEmbedding, limit, null, filters);
+      }
+
+      // Build tenant-specific filter
+      const tenantFilter = {
+        tenantId: tenant.id,
+        tenantType: tenant.type,
+        ...filters
+      };
+
+      console.log(`🔒 Searching for tenant: ${tenant.id} (type: ${tenant.type})`);
+      const results = await this.manualVectorSearch(queryEmbedding, limit, tenantFilter);
+      console.log(`✅ Found ${results.length} filtered results using manual search`);
+      
+      return this.formatSearchResults(results.slice(0, limit));
+    } catch (error) {
+      console.error("❌ Failed to search by tenant:", error);
+      throw new Error(`Failed to search by tenant: ${error.message}`);
     }
   }
 

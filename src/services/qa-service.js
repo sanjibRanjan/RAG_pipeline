@@ -250,6 +250,11 @@ export class QAService {
    * @returns {Promise<Object>} Answer with sources and confidence
    */
   async answerQuestion(question, conversationHistory = [], tenant = null, options = {}) {
+    // Initialize variables to avoid scope issues in catch block
+    let searchResults = null;
+    let rewrittenQuestion = question;
+    let questionEmbedding = null;
+    
     try {
       if (!this.isInitialized) {
         throw new Error("QA Service not initialized");
@@ -277,14 +282,14 @@ export class QAService {
       }
 
       // Rewrite query for better retrieval using LLM
-      const rewrittenQuestion = await this.rewriteQueryForRetrieval(question);
+      rewrittenQuestion = await this.rewriteQueryForRetrieval(question);
       console.log(`🔍 Using rewritten query for retrieval: "${rewrittenQuestion}"`);
 
       // Generate embedding for the rewritten question
-      const questionEmbedding = await this.embeddingService.generateSingleEmbedding(rewrittenQuestion);
+      questionEmbedding = await this.embeddingService.generateSingleEmbedding(rewrittenQuestion);
 
       // Perform mixed retrieval (semantic + keyword + metadata) - returns child chunks
-      const searchResults = await this.performMixedRetrieval(questionEmbedding, question, tenant);
+      searchResults = await this.performMixedRetrieval(questionEmbedding, question, tenant);
 
       // Phase 1: Perform hierarchical retrieval to get parent chunks
       const relevantChunks = await this.performHierarchicalRetrieval(searchResults, question, tenant);
@@ -416,9 +421,61 @@ export class QAService {
         name: error?.name,
         stack: error?.stack
       });
+      
+      // Provide user-friendly error response instead of throwing
       const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
-      throw new Error(`Failed to answer question: ${errorMessage}`);
+      
+      // Create a fallback response that doesn't break the system
+      const fallbackResponse = {
+        answer: this.generateUserFriendlyErrorMessage(errorMessage, question),
+        sources: [],
+        confidence: 0,
+        question,
+        metadata: {
+          totalChildChunksSearched: searchResults?.documents?.[0]?.length || 0,
+          parentChunksRetrieved: 0,
+          retrievalMethod: 'error_fallback',
+          processingTime: Date.now(),
+          error: errorMessage,
+          fallback: true
+        }
+      };
+      
+      // Cache the fallback response to avoid repeated failures
+      this.setCachedAnswer(question, fallbackResponse, tenant);
+      
+      return fallbackResponse;
     }
+  }
+
+  /**
+   * Generate user-friendly error messages instead of technical errors
+   * @param {string} errorMessage - Technical error message
+   * @param {string} question - Original question
+   * @returns {string} User-friendly error message
+   */
+  generateUserFriendlyErrorMessage(errorMessage, question) {
+    // Map common technical errors to user-friendly messages
+    const errorMappings = {
+      'searchResults is not defined': 'I encountered an issue while searching for information. Please try again.',
+      'Failed to generate embeddings': 'I\'m having trouble processing your question right now. Please try again in a moment.',
+      'Too Many Requests': 'I\'m currently experiencing high demand. Please wait a moment and try again.',
+      'Service Unavailable': 'The service is temporarily unavailable. Please try again later.',
+      'Rate limit': 'I\'m processing many requests right now. Please wait a moment and try again.',
+      'Connection': 'I\'m having trouble connecting to my knowledge base. Please try again.',
+      'Timeout': 'Your question is taking longer than expected to process. Please try again.',
+      'Not initialized': 'The system is starting up. Please wait a moment and try again.'
+    };
+
+    // Find matching error pattern
+    for (const [pattern, friendlyMessage] of Object.entries(errorMappings)) {
+      if (errorMessage.toLowerCase().includes(pattern.toLowerCase())) {
+        return friendlyMessage;
+      }
+    }
+
+    // Default user-friendly message
+    return `I apologize, but I encountered an issue while processing your question: "${question}". Please try rephrasing your question or try again in a moment. If the problem persists, please contact support.`;
   }
 
   /**
@@ -579,15 +636,41 @@ SCORES:`;
 
       const llmScores = await this.langChainManager.generatePreprocessing(rerankingPrompt, { timeout: 10000 });
       
-      // Parse LLM scores
+      // Parse LLM scores with robust error handling
       let parsedScores;
       try {
-        parsedScores = JSON.parse(llmScores.trim());
-        if (!Array.isArray(parsedScores) || parsedScores.length !== scoredChunks.length) {
-          throw new Error('Invalid score format');
+        const trimmedScores = llmScores.trim();
+        if (!trimmedScores) {
+          throw new Error('Empty LLM response');
+        }
+        
+        parsedScores = JSON.parse(trimmedScores);
+        
+        if (!Array.isArray(parsedScores)) {
+          // Try to extract array from response
+          const arrayMatch = trimmedScores.match(/\[[\s\S]*\]/);
+          if (arrayMatch) {
+            parsedScores = JSON.parse(arrayMatch[0]);
+          } else {
+            throw new Error('Response is not an array');
+          }
+        }
+        
+        if (parsedScores.length !== scoredChunks.length) {
+          console.warn(`⚠️ Score count mismatch: expected ${scoredChunks.length}, got ${parsedScores.length}`);
+          // Pad or truncate scores to match chunk count
+          if (parsedScores.length < scoredChunks.length) {
+            const defaultScore = 5; // Neutral score
+            while (parsedScores.length < scoredChunks.length) {
+              parsedScores.push(defaultScore);
+            }
+          } else {
+            parsedScores = parsedScores.slice(0, scoredChunks.length);
+          }
         }
       } catch (parseError) {
         console.warn(`⚠️ Failed to parse LLM re-ranking scores: ${parseError.message}`);
+        console.warn(`⚠️ Raw LLM response: ${llmScores.substring(0, 200)}...`);
         return scoredChunks;
       }
 
@@ -2264,8 +2347,8 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
         };
       } catch (error) {
         console.error(`❌ LLM generation failed: ${error.message}`);
-        // Use improved fallback that extracts relevant content from chunks
-        const fallbackAnswer = this.generateFallbackAnswer(relevantChunks, question);
+        // Use enhanced fallback that extracts relevant content from chunks
+        const fallbackAnswer = this.generateEnhancedFallbackAnswer(relevantChunks, question);
         return {
           answer: fallbackAnswer,
           reasoningStrategy: 'llm_fallback_with_content',
@@ -2283,9 +2366,9 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       }
     }
 
-    // No LLM available - provide simple fallback
-    console.warn("⚠️ No LLM available, using simple fallback response");
-    const fallbackAnswer = this.generateFallbackAnswer(relevantChunks, question);
+    // No LLM available - provide enhanced fallback
+    console.warn("⚠️ No LLM available, using enhanced fallback response");
+    const fallbackAnswer = this.generateEnhancedFallbackAnswer(relevantChunks, question);
     return {
       answer: fallbackAnswer,
       reasoningStrategy: 'no_llm_fallback',
@@ -2838,14 +2921,15 @@ Return only: VALID or INVALID with a brief explanation (max 50 words)`;
       const directPrompt = `You are a highly specialized AI assistant that creates comprehensive, well-structured answers. Your task is to answer the user's question based ONLY on the provided CONTEXT.
 
 CRITICAL REQUIREMENTS:
-1. Your output MUST be a single, valid JSON object with NO additional text
-2. Use ONLY information from the CONTEXT - no external knowledge
-3. If information is not available in CONTEXT, use empty arrays [] or empty strings ""
-4. Ensure all content flows logically and coherently
-5. Avoid repetitive headers or incomplete sentences
-6. Make sure each section is complete and meaningful
+1. Your output MUST be ONLY a valid JSON object - no additional text, no explanations, no markdown
+2. Start your response with { and end with }
+3. Use ONLY information from the CONTEXT - no external knowledge
+4. If information is not available in CONTEXT, use empty arrays [] or empty strings ""
+5. Ensure all content flows logically and coherently
+6. Avoid repetitive headers or incomplete sentences
+7. Make sure each section is complete and meaningful
 
-JSON STRUCTURE:
+REQUIRED JSON FORMAT (return ONLY this structure):
 {
   "title": "Clear, specific title that directly addresses the question",
   "introduction": "A comprehensive opening paragraph that introduces the topic and provides context",
@@ -2896,8 +2980,8 @@ JSON_OUTPUT:`;
       if (result.answer.includes('I encountered an issue generating a detailed answer') ||
           result.answer.includes('All LLM generation attempts failed') ||
           result.answer.includes('fallback answer')) {
-        console.warn("❌ LLM returned fallback response, using content-based fallback");
-        return this.generateFallbackAnswer(relevantChunks, question);
+        console.warn("❌ LLM returned fallback response, using enhanced fallback");
+        return this.generateEnhancedFallbackAnswer(relevantChunks, question);
       }
 
       // Parse and format the JSON response with enhanced validation
@@ -2914,7 +2998,7 @@ JSON_OUTPUT:`;
         const validationResult = this.validateResponseQuality(jsonResponse, question);
         if (!validationResult.isValid) {
           console.warn(`⚠️ Response validation failed: ${validationResult.reason}`);
-          return this.generateFallbackAnswer(relevantChunks, question);
+          return this.generateEnhancedFallbackAnswer(relevantChunks, question);
         }
 
         // Format the structured response into clean, readable text
@@ -2983,7 +3067,7 @@ JSON_OUTPUT:`;
         const finalValidation = this.validateFinalResponse(formattedAnswer, question);
         if (!finalValidation.isValid) {
           console.warn(`⚠️ Final validation failed: ${finalValidation.reason}`);
-          return this.generateFallbackAnswer(relevantChunks, question);
+          return this.generateEnhancedFallbackAnswer(relevantChunks, question);
         }
 
         return formattedAnswer.trim();
@@ -3003,7 +3087,7 @@ JSON_OUTPUT:`;
 
     } catch (error) {
       console.warn("❌ Direct answer generation failed:", error.message);
-      return this.generateFallbackAnswer(relevantChunks, question);
+      return this.generateEnhancedFallbackAnswer(relevantChunks, question);
     }
   }
 
@@ -3013,43 +3097,534 @@ JSON_OUTPUT:`;
    * @returns {Object|null} Parsed JSON object or null if parsing fails
    */
   extractAndParseJSON(response) {
+    if (!response || typeof response !== 'string') {
+      console.warn("Invalid response provided to extractAndParseJSON");
+      return null;
+    }
+
     try {
       // First try direct JSON parsing
-      return JSON.parse(response.trim());
+      const trimmedResponse = response.trim();
+      if (trimmedResponse.length === 0) {
+        console.warn("Empty response provided to extractAndParseJSON");
+        return null;
+      }
+      
+      return JSON.parse(trimmedResponse);
     } catch (e) {
       console.log("Direct JSON parsing failed, attempting extraction...");
 
+      // Clean and validate the response first
+      const cleanedResponse = this.cleanAndValidateJSON(response);
+      
       // Try to extract JSON from code blocks (```json ... ```)
       const jsonBlockRegex = /```(?:json)?\s*(\{[\s\S]*?\})\s*```/i;
-      const jsonBlockMatch = response.match(jsonBlockRegex);
+      const jsonBlockMatch = cleanedResponse.match(jsonBlockRegex);
       if (jsonBlockMatch) {
         try {
-          return JSON.parse(jsonBlockMatch[1].trim());
+          const cleanedJson = this.repairJSON(jsonBlockMatch[1].trim());
+          return JSON.parse(cleanedJson);
         } catch (e2) {
           console.log("JSON block extraction failed:", e2.message);
         }
       }
 
       // Try to find JSON object pattern (starts with { and ends with })
-      const jsonObjectRegex = /\{[\s\S]*\}/;
-      const jsonMatch = response.match(jsonObjectRegex);
+      const jsonObjectRegex = /\{[\s\S]*?\}/;
+      const jsonMatch = cleanedResponse.match(jsonObjectRegex);
       if (jsonMatch) {
         try {
-          // Try to fix common JSON issues
-          let jsonString = jsonMatch[0];
-
-          // Fix trailing commas
-          jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
-
-          // Fix unescaped quotes in strings
-          jsonString = jsonString.replace(/([^\\])"([^"]*)"([^,}\]]*[^\\])"([^"]*)"([^,}\]]*)/g, '$1"$2\\"$3\\"$4"$5');
-
-          return JSON.parse(jsonString);
+          const repairedJson = this.repairJSON(jsonMatch[0]);
+          return JSON.parse(repairedJson);
         } catch (e3) {
           console.log("JSON object extraction failed:", e3.message);
         }
       }
 
+      // Enhanced extraction: Try to convert plain text to structured format
+      console.log("Attempting to convert plain text to structured format...");
+      const structuredResponse = this.convertPlainTextToStructured(cleanedResponse);
+      
+      if (structuredResponse) {
+        return structuredResponse;
+      }
+
+      // Final fallback: return a basic structure
+      console.warn("All JSON extraction methods failed, returning basic structure");
+      return {
+        title: "Response Analysis",
+        introduction: cleanedResponse.substring(0, 200) + (cleanedResponse.length > 200 ? "..." : ""),
+        mainContent: cleanedResponse,
+        keyPoints: [],
+        categories: [],
+        examples: [],
+        conclusion: "Analysis complete."
+      };
+    }
+  }
+
+  /**
+   * Clean and validate JSON response to handle common issues
+   * @param {string} response - Raw response
+   * @returns {string} Cleaned response
+   */
+  cleanAndValidateJSON(response) {
+    if (!response || typeof response !== 'string') {
+      return '';
+    }
+
+    let cleaned = response;
+
+    // Remove duplicate content patterns
+    cleaned = this.removeDuplicateContent(cleaned);
+
+    // Fix cutoff sentences and incomplete content
+    cleaned = this.fixCutoffSentences(cleaned);
+
+    // Remove extra text outside JSON structure
+    cleaned = this.removeExtraText(cleaned);
+
+    // Normalize whitespace and formatting
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    return cleaned;
+  }
+
+  /**
+   * Remove duplicate content and repeated patterns
+   * @param {string} text - Input text
+   * @returns {string} Text with duplicates removed
+   */
+  removeDuplicateContent(text) {
+    // Remove repeated sentences (same sentence appearing multiple times)
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+    const uniqueSentences = [];
+    const seen = new Set();
+
+    for (const sentence of sentences) {
+      const normalized = sentence.trim().toLowerCase();
+      if (!seen.has(normalized) && normalized.length > 10) {
+        seen.add(normalized);
+        uniqueSentences.push(sentence.trim());
+      }
+    }
+
+    // Remove repeated key-value pairs in JSON-like structures
+    let cleaned = text;
+    
+    // Remove duplicate JSON keys (keep the last occurrence)
+    cleaned = cleaned.replace(/"([^"]+)":\s*[^,}]+,?\s*(?=.*"(\1)":)/g, '');
+    
+    // Remove repeated phrases (3+ words repeated)
+    const words = cleaned.split(/\s+/);
+    const phraseMap = new Map();
+    const result = [];
+    
+    for (let i = 0; i < words.length - 2; i++) {
+      const phrase = words.slice(i, i + 3).join(' ').toLowerCase();
+      if (phraseMap.has(phrase)) {
+        // Skip this phrase if it was seen recently
+        if (i - phraseMap.get(phrase) < 10) {
+          continue;
+        }
+      }
+      phraseMap.set(phrase, i);
+      result.push(words[i]);
+    }
+    
+    // Add remaining words
+    result.push(...words.slice(words.length - 2));
+    
+    return result.join(' ');
+  }
+
+  /**
+   * Fix cutoff sentences and incomplete content
+   * @param {string} text - Input text
+   * @returns {string} Text with cutoffs fixed
+   */
+  fixCutoffSentences(text) {
+    let fixed = text;
+
+    // Fix sentences that end abruptly (no punctuation)
+    fixed = fixed.replace(/([a-zA-Z])\s*$/gm, '$1.');
+
+    // Fix incomplete words (likely cutoffs)
+    fixed = fixed.replace(/\b[a-zA-Z]{1,2}\s+/g, '');
+
+    // Fix broken sentences that start with lowercase after period
+    fixed = fixed.replace(/\.\s*([a-z])/g, '. $1');
+
+    // Fix sentences that are too short (likely incomplete)
+    const sentences = fixed.split(/[.!?]+/);
+    const validSentences = sentences.filter(sentence => {
+      const trimmed = sentence.trim();
+      return trimmed.length > 5 && trimmed.length < 500; // Reasonable sentence length
+    });
+
+    return validSentences.join('. ').trim();
+  }
+
+  /**
+   * Remove extra text outside JSON structure
+   * @param {string} text - Input text
+   * @returns {string} Text with extra content removed
+   */
+  removeExtraText(text) {
+    let cleaned = text;
+
+    // Remove text before the first { or [
+    const firstBrace = cleaned.indexOf('{');
+    const firstBracket = cleaned.indexOf('[');
+    
+    if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+      cleaned = cleaned.substring(firstBrace);
+    } else if (firstBracket !== -1) {
+      cleaned = cleaned.substring(firstBracket);
+    }
+
+    // Remove text after the last } or ]
+    const lastBrace = cleaned.lastIndexOf('}');
+    const lastBracket = cleaned.lastIndexOf(']');
+    
+    if (lastBrace !== -1 && (lastBracket === -1 || lastBrace > lastBracket)) {
+      cleaned = cleaned.substring(0, lastBrace + 1);
+    } else if (lastBracket !== -1) {
+      cleaned = cleaned.substring(0, lastBracket + 1);
+    }
+
+    // Remove common prefixes that LLMs add
+    const prefixes = [
+      /^Here's the JSON response:\s*/i,
+      /^Here is the JSON:\s*/i,
+      /^JSON response:\s*/i,
+      /^Response:\s*/i,
+      /^Answer:\s*/i,
+      /^Here's the answer:\s*/i
+    ];
+
+    for (const prefix of prefixes) {
+      cleaned = cleaned.replace(prefix, '');
+    }
+
+    // Remove common suffixes
+    const suffixes = [
+      /\s*This completes the JSON response\.?$/i,
+      /\s*End of JSON\.?$/i,
+      /\s*JSON response complete\.?$/i
+    ];
+
+    for (const suffix of suffixes) {
+      cleaned = cleaned.replace(suffix, '');
+    }
+
+    return cleaned.trim();
+  }
+
+  /**
+   * Repair common JSON formatting issues
+   * @param {string} jsonString - JSON string to repair
+   * @returns {string} Repaired JSON string
+   */
+  repairJSON(jsonString) {
+    let repaired = jsonString;
+
+    // Fix trailing commas in objects and arrays
+    repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+    // Fix unescaped quotes in strings
+    repaired = repaired.replace(/([^\\])"([^"]*)"([^,}\]]*[^\\])"([^"]*)"([^,}\]]*)/g, '$1"$2\\"$3\\"$4"$5');
+
+    // Fix missing quotes around keys
+    repaired = repaired.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+
+    // Fix single quotes to double quotes
+    repaired = repaired.replace(/'/g, '"');
+
+    // Fix common JSON formatting issues
+    repaired = repaired.replace(/\n\s*/g, ' '); // Remove newlines and extra spaces
+    repaired = repaired.replace(/\s+/g, ' '); // Normalize whitespace
+
+    // Fix repeated keys (keep the last occurrence)
+    const keyValuePairs = [];
+    const seenKeys = new Set();
+    const keyValueRegex = /"([^"]+)":\s*([^,}]+)/g;
+    let match;
+
+    while ((match = keyValueRegex.exec(repaired)) !== null) {
+      const key = match[1];
+      const value = match[2];
+      
+      if (seenKeys.has(key)) {
+        // Remove the previous occurrence
+        const index = keyValuePairs.findIndex(pair => pair.key === key);
+        if (index !== -1) {
+          keyValuePairs.splice(index, 1);
+        }
+      }
+      
+      keyValuePairs.push({ key, value });
+      seenKeys.add(key);
+    }
+
+    // Reconstruct JSON if we found repeated keys
+    if (keyValuePairs.length > 0) {
+      const reconstructed = '{' + keyValuePairs.map(pair => `"${pair.key}": ${pair.value}`).join(', ') + '}';
+      if (this.isValidJSON(reconstructed)) {
+        repaired = reconstructed;
+      }
+    }
+
+    return repaired;
+  }
+
+  /**
+   * Check if a string is valid JSON
+   * @param {string} str - String to check
+   * @returns {boolean} True if valid JSON
+   */
+  isValidJSON(str) {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Clean and validate structured response object
+   * @param {Object} response - Structured response object
+   * @returns {Object} Cleaned response object
+   */
+  cleanAndValidateStructuredResponse(response) {
+    if (!response || typeof response !== 'object') {
+      return {};
+    }
+
+    const cleaned = {};
+
+    // Clean title
+    if (response.title && typeof response.title === 'string') {
+      cleaned.title = this.cleanTextContent(response.title);
+    }
+
+    // Clean introduction
+    if (response.introduction && typeof response.introduction === 'string') {
+      cleaned.introduction = this.cleanTextContent(response.introduction);
+    }
+
+    // Clean main content
+    if (response.mainContent && typeof response.mainContent === 'string') {
+      cleaned.mainContent = this.cleanTextContent(response.mainContent);
+    }
+
+    // Clean key points array
+    if (response.keyPoints && Array.isArray(response.keyPoints)) {
+      cleaned.keyPoints = response.keyPoints
+        .filter(point => point && typeof point === 'string' && point.trim().length > 0)
+        .map(point => this.cleanTextContent(point))
+        .filter(point => point.length > 0);
+    }
+
+    // Clean categories array
+    if (response.categories && Array.isArray(response.categories)) {
+      cleaned.categories = response.categories
+        .filter(category => category && typeof category === 'string' && category.trim().length > 0)
+        .map(category => this.cleanTextContent(category))
+        .filter(category => category.length > 0);
+    }
+
+    // Clean examples array
+    if (response.examples && Array.isArray(response.examples)) {
+      cleaned.examples = response.examples
+        .filter(example => example && typeof example === 'string' && example.trim().length > 0)
+        .map(example => this.cleanTextContent(example))
+        .filter(example => example.length > 0);
+    }
+
+    // Clean conclusion
+    if (response.conclusion && typeof response.conclusion === 'string') {
+      cleaned.conclusion = this.cleanTextContent(response.conclusion);
+    }
+
+    return cleaned;
+  }
+
+  /**
+   * Clean individual text content
+   * @param {string} text - Text to clean
+   * @returns {string} Cleaned text
+   */
+  cleanTextContent(text) {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+
+    let cleaned = text;
+
+    // Remove duplicate sentences
+    const sentences = cleaned.split(/[.!?]+/).filter(s => s.trim().length > 5);
+    const uniqueSentences = [];
+    const seen = new Set();
+
+    for (const sentence of sentences) {
+      const normalized = sentence.trim().toLowerCase();
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        uniqueSentences.push(sentence.trim());
+      }
+    }
+
+    cleaned = uniqueSentences.join('. ').trim();
+
+    // Remove repeated phrases
+    cleaned = this.removeRepeatedPhrases(cleaned);
+
+    // Fix cutoff sentences
+    cleaned = this.fixCutoffSentences(cleaned);
+
+    // Remove extra whitespace
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    return cleaned;
+  }
+
+  /**
+   * Remove repeated phrases from text
+   * @param {string} text - Input text
+   * @returns {string} Text with repeated phrases removed
+   */
+  removeRepeatedPhrases(text) {
+    const words = text.split(/\s+/);
+    const result = [];
+    const phraseMap = new Map();
+
+    for (let i = 0; i < words.length - 2; i++) {
+      const phrase = words.slice(i, i + 3).join(' ').toLowerCase();
+      
+      if (phraseMap.has(phrase)) {
+        // Skip this phrase if it was seen recently (within 5 words)
+        if (i - phraseMap.get(phrase) < 5) {
+          continue;
+        }
+      }
+      
+      phraseMap.set(phrase, i);
+      result.push(words[i]);
+    }
+
+    // Add remaining words
+    result.push(...words.slice(words.length - 2));
+
+    return result.join(' ');
+  }
+
+  /**
+   * Convert plain text response to structured JSON format
+   * @param {string} response - Plain text response
+   * @returns {Object|null} Structured JSON object or null if conversion fails
+   */
+  convertPlainTextToStructured(response) {
+    try {
+      // Clean the response
+      const cleanResponse = response.trim();
+      
+      // If response is too short, return null
+      if (cleanResponse.length < 50) {
+        return null;
+      }
+
+      // Extract title (first line or first sentence)
+      let title = "";
+      const firstLine = cleanResponse.split('\n')[0];
+      if (firstLine.length > 10 && firstLine.length < 100) {
+        title = firstLine.replace(/^#+\s*/, '').trim();
+      } else {
+        // Extract first sentence as title
+        const firstSentence = cleanResponse.split('.')[0];
+        if (firstSentence.length > 10 && firstSentence.length < 100) {
+          title = firstSentence.trim();
+        }
+      }
+
+      // Extract introduction (first paragraph or first few sentences)
+      let introduction = "";
+      const paragraphs = cleanResponse.split('\n\n');
+      if (paragraphs.length > 0) {
+        introduction = paragraphs[0].trim();
+        // If first paragraph is too short, use first two sentences
+        if (introduction.length < 50) {
+          const sentences = cleanResponse.split('.');
+          if (sentences.length >= 2) {
+            introduction = sentences.slice(0, 2).join('.').trim() + '.';
+          }
+        }
+      }
+
+      // Extract main content (everything except title and introduction)
+      let mainContent = cleanResponse;
+      if (title && introduction) {
+        mainContent = cleanResponse.replace(title, '').replace(introduction, '').trim();
+      } else if (title) {
+        mainContent = cleanResponse.replace(title, '').trim();
+      }
+
+      // Extract key points (look for bullet points, numbered lists, or key phrases)
+      const keyPoints = [];
+      const bulletPatterns = [
+        /•\s*(.+)/g,
+        /-\s*(.+)/g,
+        /\*\s*(.+)/g,
+        /^\d+\.\s*(.+)$/gm,
+        /^-\s*(.+)$/gm
+      ];
+
+      for (const pattern of bulletPatterns) {
+        const matches = [...cleanResponse.matchAll(pattern)];
+        if (matches.length > 0) {
+          keyPoints.push(...matches.map(match => match[1].trim()));
+          break; // Use first pattern that finds matches
+        }
+      }
+
+      // If no bullet points found, extract key sentences
+      if (keyPoints.length === 0) {
+        const sentences = cleanResponse.split(/[.!?]+/);
+        const keySentences = sentences
+          .filter(sentence => sentence.trim().length > 20 && sentence.trim().length < 200)
+          .slice(0, 5) // Take first 5 meaningful sentences
+          .map(sentence => sentence.trim());
+        keyPoints.push(...keySentences);
+      }
+
+      // Extract conclusion (last paragraph or last few sentences)
+      let conclusion = "";
+      if (paragraphs.length > 1) {
+        conclusion = paragraphs[paragraphs.length - 1].trim();
+      } else {
+        const sentences = cleanResponse.split(/[.!?]+/);
+        if (sentences.length >= 3) {
+          conclusion = sentences.slice(-2).join('. ').trim() + '.';
+        }
+      }
+
+      // Create structured response
+      const structuredResponse = {
+        title: title || "Document Analysis",
+        introduction: introduction || cleanResponse.substring(0, 200) + "...",
+        mainContent: mainContent || cleanResponse,
+        keyPoints: keyPoints.slice(0, 5), // Limit to 5 key points
+        categories: [], // Empty for now
+        examples: [], // Empty for now
+        conclusion: conclusion || "Analysis complete."
+      };
+
+      console.log("✅ Successfully converted plain text to structured format");
+      return structuredResponse;
+
+    } catch (error) {
+      console.log("❌ Failed to convert plain text to structured format:", error.message);
       return null;
     }
   }
@@ -3062,27 +3637,30 @@ JSON_OUTPUT:`;
    */
   formatStructuredResponse(jsonResponse, question) {
     try {
+      // Clean and validate the JSON response first
+      const cleanedResponse = this.cleanAndValidateStructuredResponse(jsonResponse);
+      
       let formattedAnswer = '';
 
       // Add title if meaningful
-      if (jsonResponse.title && jsonResponse.title.trim()) {
-        formattedAnswer += `# ${jsonResponse.title}\n\n`;
+      if (cleanedResponse.title && cleanedResponse.title.trim()) {
+        formattedAnswer += `# ${cleanedResponse.title}\n\n`;
       }
 
       // Add introduction
-      if (jsonResponse.introduction && jsonResponse.introduction.trim()) {
-        formattedAnswer += `${jsonResponse.introduction}\n\n`;
+      if (cleanedResponse.introduction && cleanedResponse.introduction.trim()) {
+        formattedAnswer += `${cleanedResponse.introduction}\n\n`;
       }
 
       // Add main content
-      if (jsonResponse.mainContent && jsonResponse.mainContent.trim()) {
-        formattedAnswer += `${jsonResponse.mainContent}\n\n`;
+      if (cleanedResponse.mainContent && cleanedResponse.mainContent.trim()) {
+        formattedAnswer += `${cleanedResponse.mainContent}\n\n`;
       }
 
       // Add key points if available
-      if (jsonResponse.keyPoints && Array.isArray(jsonResponse.keyPoints) && jsonResponse.keyPoints.length > 0) {
+      if (cleanedResponse.keyPoints && Array.isArray(cleanedResponse.keyPoints) && cleanedResponse.keyPoints.length > 0) {
         formattedAnswer += `## Key Points\n\n`;
-        jsonResponse.keyPoints.forEach(point => {
+        cleanedResponse.keyPoints.forEach(point => {
           if (point && typeof point === 'string' && point.trim()) {
             formattedAnswer += `• ${point.trim()}\n`;
           }
@@ -3091,9 +3669,9 @@ JSON_OUTPUT:`;
       }
 
       // Add categories only if they contain actual content
-      if (jsonResponse.categories && Array.isArray(jsonResponse.categories) && jsonResponse.categories.length > 0) {
+      if (cleanedResponse.categories && Array.isArray(cleanedResponse.categories) && cleanedResponse.categories.length > 0) {
         formattedAnswer += `## Categories\n\n`;
-        jsonResponse.categories.forEach(category => {
+        cleanedResponse.categories.forEach(category => {
           if (category && typeof category === 'string' && category.trim()) {
             formattedAnswer += `• ${category.trim()}\n`;
           }
@@ -3102,9 +3680,9 @@ JSON_OUTPUT:`;
       }
 
       // Add examples only if they contain actual examples
-      if (jsonResponse.examples && Array.isArray(jsonResponse.examples) && jsonResponse.examples.length > 0) {
+      if (cleanedResponse.examples && Array.isArray(cleanedResponse.examples) && cleanedResponse.examples.length > 0) {
         formattedAnswer += `## Examples\n\n`;
-        jsonResponse.examples.forEach(example => {
+        cleanedResponse.examples.forEach(example => {
           if (example && typeof example === 'string' && example.trim()) {
             formattedAnswer += `• ${example.trim()}\n`;
           }
@@ -3113,8 +3691,8 @@ JSON_OUTPUT:`;
       }
 
       // Add conclusion if meaningful
-      if (jsonResponse.conclusion && jsonResponse.conclusion.trim()) {
-        formattedAnswer += `## Conclusion\n\n${jsonResponse.conclusion.trim()}`;
+      if (cleanedResponse.conclusion && cleanedResponse.conclusion.trim()) {
+        formattedAnswer += `## Conclusion\n\n${cleanedResponse.conclusion.trim()}`;
       }
 
       // Clean the output: remove source citations and extra whitespace
@@ -3123,8 +3701,235 @@ JSON_OUTPUT:`;
       return formattedAnswer.trim();
     } catch (error) {
       console.error("❌ Error formatting structured response:", error.message);
-      return JSON.stringify(jsonResponse, null, 2);
+      
+      // Fallback to a simple text format instead of raw JSON
+      try {
+        let fallbackAnswer = "";
+        
+        if (jsonResponse.title) {
+          fallbackAnswer += `# ${jsonResponse.title}\n\n`;
+        }
+        
+        if (jsonResponse.introduction) {
+          fallbackAnswer += `${jsonResponse.introduction}\n\n`;
+        }
+        
+        if (jsonResponse.mainContent) {
+          fallbackAnswer += `${jsonResponse.mainContent}\n\n`;
+        }
+        
+        if (jsonResponse.keyPoints && Array.isArray(jsonResponse.keyPoints) && jsonResponse.keyPoints.length > 0) {
+          fallbackAnswer += `## Key Points\n\n`;
+          jsonResponse.keyPoints.forEach(point => {
+            if (point && typeof point === 'string') {
+              fallbackAnswer += `• ${point.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
+        }
+        
+        if (jsonResponse.conclusion) {
+          fallbackAnswer += `## Conclusion\n\n${jsonResponse.conclusion}`;
+        }
+        
+        return fallbackAnswer.trim() || "I apologize, but I encountered an issue formatting the response. Please try again.";
+      } catch (fallbackError) {
+        console.error("❌ Fallback formatting also failed:", fallbackError.message);
+        return "I apologize, but I encountered an issue processing your request. Please try again.";
+      }
     }
+  }
+
+  /**
+   * Generate enhanced fallback answer with better structure and context
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {string} Enhanced fallback answer
+   */
+  generateEnhancedFallbackAnswer(relevantChunks, question) {
+    if (relevantChunks.length === 0) {
+      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+    }
+
+    try {
+      // Analyze question type for better structure
+      const questionAnalysis = this.analyzeQuestionType(question);
+      
+      // Create a structured answer from chunks
+      let answer = this.createStructuredAnswerFromChunks(relevantChunks, question, questionAnalysis);
+      
+      // Add source attribution
+      answer += '\n\n' + this.generateSourceAttribution(relevantChunks);
+      
+      return answer;
+    } catch (error) {
+      console.warn("⚠️ Enhanced fallback failed, using simple fallback:", error.message);
+      return this.generateFallbackAnswer(relevantChunks, question);
+    }
+  }
+
+  /**
+   * Create a structured answer from chunks with better organization
+   * @param {Array} chunks - Relevant chunks
+   * @param {string} question - Original question
+   * @param {Object} questionAnalysis - Question analysis
+   * @returns {string} Structured answer
+   */
+  createStructuredAnswerFromChunks(chunks, question, questionAnalysis) {
+    // Extract and organize content from chunks
+    const organizedContent = this.extractAndOrganizeContent(chunks, question);
+    
+    let answer = '';
+    
+    // Add title based on question
+    const title = this.generateAnswerTitle(question, questionAnalysis);
+    if (title) {
+      answer += `# ${title}\n\n`;
+    }
+    
+    // Add main answer
+    if (organizedContent.mainAnswer) {
+      answer += `${organizedContent.mainAnswer}\n\n`;
+    }
+    
+    // Add key points
+    if (organizedContent.keyPoints.length > 0) {
+      answer += `## Key Points\n\n`;
+      organizedContent.keyPoints.forEach(point => {
+        answer += `• ${point}\n`;
+      });
+      answer += `\n`;
+    }
+    
+    // Add examples if available
+    if (organizedContent.examples.length > 0) {
+      answer += `## Examples\n\n`;
+      organizedContent.examples.forEach(example => {
+        answer += `• ${example}\n`;
+      });
+      answer += `\n`;
+    }
+    
+    // Add categories if available
+    if (organizedContent.categories.length > 0) {
+      answer += `## Categories\n\n`;
+      organizedContent.categories.forEach(category => {
+        answer += `• ${category}\n`;
+      });
+      answer += `\n`;
+    }
+    
+    return answer.trim();
+  }
+
+  /**
+   * Extract and organize content from chunks
+   * @param {Array} chunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {Object} Organized content
+   */
+  extractAndOrganizeContent(chunks, question) {
+    const organizedContent = {
+      mainAnswer: '',
+      keyPoints: [],
+      examples: [],
+      categories: []
+    };
+    
+    // Combine all chunk content
+    const allText = chunks.map(chunk => chunk.content).join(' ');
+    const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    
+    // Extract main answer (most relevant sentences)
+    const questionWords = question.toLowerCase().split(/\s+/).filter(word => word.length > 3);
+    const scoredSentences = sentences.map(sentence => {
+      const sentenceLower = sentence.toLowerCase();
+      const relevanceScore = questionWords.reduce((score, word) => {
+        return score + (sentenceLower.includes(word) ? 1 : 0);
+      }, 0);
+      
+      return {
+        sentence: sentence.trim(),
+        score: relevanceScore,
+        length: sentence.length
+      };
+    }).sort((a, b) => b.score - a.score || a.length - b.length);
+    
+    // Use top 2-3 sentences as main answer
+    const topSentences = scoredSentences.slice(0, 3).map(s => s.sentence);
+    organizedContent.mainAnswer = topSentences.join(' ');
+    
+    // Extract key points
+    const keyPointPatterns = [
+      /•\s*(.+)/g,
+      /-\s*(.+)/g,
+      /\*\s*(.+)/g,
+      /^\d+\.\s*(.+)$/gm
+    ];
+    
+    for (const pattern of keyPointPatterns) {
+      const matches = [...allText.matchAll(pattern)];
+      if (matches.length > 0) {
+        organizedContent.keyPoints = matches.slice(0, 5).map(match => match[1].trim());
+        break;
+      }
+    }
+    
+    // If no bullet points found, use top sentences as key points
+    if (organizedContent.keyPoints.length === 0) {
+      organizedContent.keyPoints = scoredSentences.slice(0, 5).map(s => s.sentence);
+    }
+    
+    // Extract examples
+    const exampleKeywords = ['example', 'for instance', 'such as', 'including', 'e.g.'];
+    const exampleSentences = sentences.filter(sentence => {
+      const sentenceLower = sentence.toLowerCase();
+      return exampleKeywords.some(keyword => sentenceLower.includes(keyword));
+    });
+    
+    organizedContent.examples = exampleSentences.slice(0, 3).map(s => s.trim());
+    
+    return organizedContent;
+  }
+
+  /**
+   * Generate source attribution for the answer
+   * @param {Array} chunks - Relevant chunks
+   * @returns {string} Source attribution
+   */
+  generateSourceAttribution(chunks) {
+    if (chunks.length === 0) return '';
+    
+    const sources = chunks.map((chunk, index) => {
+      const docName = chunk.metadata?.documentName || 'Document';
+      return `[Source ${index + 1}] ${docName}`;
+    });
+    
+    return `**Sources:** ${sources.join(', ')}`;
+  }
+
+  /**
+   * Enhance answer formatting for better readability
+   * @param {string} answer - Raw answer
+   * @returns {string} Enhanced answer
+   */
+  enhanceAnswerFormatting(answer) {
+    let enhanced = answer;
+    
+    // Ensure proper spacing around headers
+    enhanced = enhanced.replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2');
+    
+    // Fix bullet points formatting
+    enhanced = enhanced.replace(/([^\n])(•\s)/g, '$1\n$2');
+    enhanced = enhanced.replace(/([^\n])(-\s)/g, '$1\n$2');
+    
+    // Ensure proper spacing between sections
+    enhanced = enhanced.replace(/\n{3,}/g, '\n\n');
+    
+    // Clean up extra whitespace
+    enhanced = enhanced.replace(/[ \t]+$/gm, '');
+    
+    return enhanced.trim();
   }
 
   /**
@@ -3166,7 +3971,7 @@ JSON_OUTPUT:`;
   }
 
   /**
-   * Prepare enhanced context from relevant chunks
+   * Prepare enhanced context from relevant chunks with better organization and readability
    * @param {Array} relevantChunks - Relevant document chunks
    * @param {string} question - User's question
    * @returns {string} Enhanced context
@@ -3179,22 +3984,72 @@ JSON_OUTPUT:`;
     // Organize chunks by document and relevance
     const organizedChunks = this.organizeChunksByDocument(relevantChunks);
     
-    // Create structured context
+    // Create structured context with better formatting
     let context = "RELEVANT DOCUMENT CONTENT:\n\n";
     
     Object.entries(organizedChunks).forEach(([docName, chunks], index) => {
       context += `--- Document ${index + 1}: ${docName} ---\n`;
-      chunks.forEach((chunk, chunkIndex) => {
-        context += `\n[Chunk ${chunkIndex + 1}]\n${chunk.content}\n`;
+      
+      // Sort chunks by relevance score if available
+      const sortedChunks = chunks.sort((a, b) => {
+        const scoreA = a.finalScore || a.similarity || 0;
+        const scoreB = b.finalScore || b.similarity || 0;
+        return scoreB - scoreA;
+      });
+      
+      sortedChunks.forEach((chunk, chunkIndex) => {
+        // Add chunk metadata for better context
+        const chunkInfo = `[Chunk ${chunkIndex + 1} - Relevance: ${((chunk.finalScore || chunk.similarity || 0) * 100).toFixed(1)}%]`;
+        context += `\n${chunkInfo}\n${chunk.content}\n`;
       });
       context += "\n";
     });
 
-    // Add question context
-    context += `\nQUESTION CONTEXT: ${question}\n`;
+    // Add question context with analysis
+    const questionAnalysis = this.analyzeQuestionType(question);
+    context += `\nQUESTION ANALYSIS:\n`;
+    context += `- Type: ${questionAnalysis.type}\n`;
+    context += `- Complexity: ${questionAnalysis.complexity}\n`;
+    context += `- Keywords: ${questionAnalysis.keywords.join(', ')}\n`;
+    context += `- Question: ${question}\n`;
     
-    // Limit context length to avoid token limits
-    return context.substring(0, 4000);
+    // Limit context length to avoid token limits but ensure we have enough content
+    const maxLength = 6000; // Increased from 4000 for better context
+    if (context.length > maxLength) {
+      // Truncate but try to keep complete documents
+      const truncatedContext = this.smartTruncateContext(context, maxLength);
+      return truncatedContext;
+    }
+    
+    return context;
+  }
+
+  /**
+   * Smart truncation that preserves document structure
+   * @param {string} context - Full context
+   * @param {number} maxLength - Maximum length
+   * @returns {string} Truncated context
+   */
+  smartTruncateContext(context, maxLength) {
+    const documents = context.split('--- Document');
+    let result = documents[0]; // Keep the header
+    let currentLength = result.length;
+    
+    for (let i = 1; i < documents.length; i++) {
+      const docSection = '--- Document' + documents[i];
+      if (currentLength + docSection.length > maxLength) {
+        // If adding this document would exceed limit, truncate it
+        const remainingSpace = maxLength - currentLength - 100; // Leave some space for question
+        if (remainingSpace > 200) {
+          result += docSection.substring(0, remainingSpace) + '\n\n[Content truncated...]\n';
+        }
+        break;
+      }
+      result += docSection;
+      currentLength = result.length;
+    }
+    
+    return result;
   }
 
   /**
