@@ -468,7 +468,12 @@ export class VectorStore {
     return {
       ids: [results.map(r => r._id || r.chunkId)],
       documents: [results.map(r => r.content)],
-      metadatas: [results.map(r => r.metadata)],
+      metadatas: [results.map(r => ({
+        ...r.metadata,
+        // CRITICAL: Preserve tenant information for isolation
+        tenantId: r.tenantId || r.metadata?.tenantId,
+        tenantType: r.tenantType || r.metadata?.tenantType
+      }))],
       distances: [results.map(r => r.score ? 1 - r.score : 0)] // Convert similarity to distance
     };
   }
@@ -809,6 +814,13 @@ export class VectorStore {
 
       // Build MongoDB query for text search
       const mongoQuery = {};
+
+      // CRITICAL: Apply tenant filtering first for security
+      if (filters.tenantId && filters.tenantId !== 'global' && filters.tenantId !== 'anonymous') {
+        mongoQuery.tenantId = filters.tenantId;
+        mongoQuery.tenantType = filters.tenantType;
+        console.log(`🔒 Applying tenant filter: ${filters.tenantId} (type: ${filters.tenantType})`);
+      }
 
       if (query) {
         mongoQuery.$or = [

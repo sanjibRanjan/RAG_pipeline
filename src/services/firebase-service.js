@@ -83,7 +83,7 @@ export class FirebaseService {
           client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL
         };
       } else {
-        throw new Error("Firebase configuration not found. Please set FIREBASE_SERVICE_ACCOUNT_KEY_PATH or Firebase environment variables.");
+        throw new Error("Firebase configuration not found. Please set Firebase environment variables (FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, etc.) or FIREBASE_SERVICE_ACCOUNT_KEY_PATH.");
       }
 
       // Initialize Firebase Admin

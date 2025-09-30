@@ -853,20 +853,26 @@ COMPRESSED CONTEXT:`;
    * @returns {string} System prompt
    */
   buildSystemPrompt(questionAnalysis) {
-    const baseInstructions = `You are an expert AI assistant specializing in answering questions based on provided document context.
+    const baseInstructions = `You are an expert AI assistant specializing in providing comprehensive, well-structured answers based on document context and conversation history.
 
 CORE PRINCIPLES:
-- Always answer based ONLY on the provided context
-- Be truthful and accurate - if information is not in the context, say so
-- Cite sources when possible using the format [Source X]
-- Provide comprehensive but concise answers
-- Use clear, professional language
+- **COMPREHENSIVE COVERAGE**: Address questions thoroughly using ALL available context
+- **CONVERSATION AWARENESS**: Consider previous conversation context when relevant
+- **SPECIFIC INFORMATION**: Use concrete details, examples, and specific facts from the context
+- **STRUCTURED FORMAT**: Organize answers with clear sections and logical flow
+- **USER-FRIENDLY LANGUAGE**: Write in a conversational, easy-to-understand style
+- **COMPLETE ANSWERS**: Don't stop at surface level - provide depth and completeness
+- Be truthful and accurate - if information is not in the context, say so clearly
 
 RESPONSE GUIDELINES:
-- Structure answers logically with appropriate formatting
-- Use bullet points, numbered lists, or sections when helpful
-- Explain technical terms when they appear in context
-- Maintain context from previous conversation when relevant`;
+- Use clear headings (## Section Name) to organize information
+- Use bullet points (•) for lists and key points
+- Use numbered lists (1., 2., 3.) for step-by-step processes
+- Use **bold** for important terms and concepts
+- Keep paragraphs focused and well-structured
+- Include specific examples and concrete details
+- Maintain context from previous conversation when relevant
+- Provide comprehensive conclusions that tie everything together`;
 
     const typeSpecificInstructions = this.getTypeSpecificInstructions(questionAnalysis);
 
@@ -951,27 +957,179 @@ For general questions:
   buildUserPrompt(question, context, questionAnalysis, conversationHistory) {
     let prompt = `QUESTION: ${question}\n\n`;
 
-    // Add conversation context for follow-up questions
+    // Add comprehensive conversation context
     if (conversationHistory && conversationHistory.length > 0) {
-      const recentContext = this.extractRelevantConversationContext(question, conversationHistory);
-      if (recentContext) {
-        prompt += `CONVERSATION CONTEXT:\n${recentContext}\n\n`;
+      const conversationContext = this.buildComprehensiveConversationContext(question, conversationHistory);
+      if (conversationContext) {
+        prompt += `CONVERSATION CONTEXT:\n${conversationContext}\n\n`;
       }
     }
 
     // Add context with clear instructions
     prompt += `DOCUMENT CONTEXT:\n${context}\n\n`;
 
-    // Add specific instructions based on question complexity
-    if (questionAnalysis.complexity === 'detailed') {
-      prompt += `INSTRUCTIONS: Provide a detailed, comprehensive answer using all relevant information from the context. Include examples and explanations where appropriate.\n\n`;
-    } else {
-      prompt += `INSTRUCTIONS: Provide a clear, focused answer based on the most relevant information in the context.\n\n`;
-    }
+    // Add comprehensive instructions based on question type and complexity
+    const instructions = this.buildAnswerInstructions(questionAnalysis, question);
+    prompt += `INSTRUCTIONS:\n${instructions}\n\n`;
 
-    prompt += `Please answer the question above using only the provided document context.`;
+    prompt += `Please provide a comprehensive, well-structured answer that thoroughly addresses the question using all available context.`;
 
     return prompt;
+  }
+
+  /**
+   * Build comprehensive conversation context
+   * @param {string} question - Current question
+   * @param {Array} conversationHistory - Full conversation history
+   * @returns {string|null} Comprehensive conversation context
+   */
+  buildComprehensiveConversationContext(question, conversationHistory) {
+    if (!conversationHistory || conversationHistory.length === 0) return null;
+
+    // Get recent exchanges (last 8 messages for better context)
+    const recentHistory = conversationHistory.slice(-8);
+
+    // Extract keywords from current question
+    const questionWords = this.extractQuestionKeywords(question);
+
+    // Find related previous messages with relevance scoring
+    const relevantMessages = [];
+    for (const msg of recentHistory) {
+      const relevance = this.calculateMessageRelevance(questionWords, msg.content);
+      
+      if (relevance > 0.2) { // Include messages with some relevance
+        const prefix = msg.type === 'question' ? 'Previous Question' : 'Previous Answer';
+        const truncatedContent = msg.content.length > 200 ? 
+          msg.content.substring(0, 200) + '...' : msg.content;
+        relevantMessages.push({
+          content: `${prefix}: ${truncatedContent}`,
+          relevance: relevance,
+          timestamp: msg.timestamp
+        });
+      }
+    }
+
+    // Sort by relevance and format
+    relevantMessages.sort((a, b) => b.relevance - a.relevance);
+    
+    if (relevantMessages.length === 0) return null;
+
+    let context = "RELEVANT CONVERSATION HISTORY:\n";
+    relevantMessages.forEach((msg, index) => {
+      context += `${index + 1}. ${msg.content}\n`;
+    });
+
+    return context;
+  }
+
+  /**
+   * Extract keywords from question for relevance calculation
+   * @param {string} question - Current question
+   * @returns {Array} Extracted keywords
+   */
+  extractQuestionKeywords(question) {
+    return question.toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !this.isStopWord(word))
+      .slice(0, 8);
+  }
+
+  /**
+   * Calculate relevance between question keywords and message content
+   * @param {Array} questionKeywords - Keywords from current question
+   * @param {string} messageContent - Content of previous message
+   * @returns {number} Relevance score between 0 and 1
+   */
+  calculateMessageRelevance(questionKeywords, messageContent) {
+    if (!questionKeywords.length || !messageContent) return 0;
+
+    const contentWords = messageContent.toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !this.isStopWord(word));
+
+    const intersection = questionKeywords.filter(word => 
+      contentWords.some(contentWord => 
+        contentWord.includes(word) || word.includes(contentWord)
+      )
+    );
+
+    return intersection.length / Math.max(questionKeywords.length, contentWords.length);
+  }
+
+  /**
+   * Build comprehensive answer instructions
+   * @param {Object} questionAnalysis - Question analysis
+   * @param {string} question - Current question
+   * @returns {string} Detailed instructions
+   */
+  buildAnswerInstructions(questionAnalysis, question) {
+    const baseInstructions = [
+      "Provide a comprehensive, well-structured answer that thoroughly addresses the question",
+      "Use ALL available context (both document content and conversation history)",
+      "Organize your answer with clear headings and sections",
+      "Include specific examples and concrete details from the context",
+      "Write in a conversational, user-friendly style",
+      "Ensure your answer is complete and addresses all aspects of the question"
+    ];
+
+    const typeSpecificInstructions = {
+      definition: [
+        "Provide clear, comprehensive definitions",
+        "Include key characteristics and components",
+        "Give practical examples when available"
+      ],
+      how_to: [
+        "Provide step-by-step instructions",
+        "Include prerequisites and requirements",
+        "Note important warnings or considerations"
+      ],
+      comparison: [
+        "Analyze similarities and differences objectively",
+        "Use clear criteria for comparison",
+        "Highlight trade-offs and implications"
+      ],
+      list_categories: [
+        "Organize information into logical groups",
+        "Use clear category names and descriptions",
+        "Provide examples for each category"
+      ],
+      why_explain: [
+        "Explain the reasoning and causes",
+        "Provide context and background",
+        "Include relevant examples and evidence"
+      ]
+    };
+
+    const complexityInstructions = {
+      simple: [
+        "Keep the answer focused and easy to understand",
+        "Use simple language and clear explanations"
+      ],
+      detailed: [
+        "Provide comprehensive coverage of the topic",
+        "Include detailed explanations and examples",
+        "Address multiple aspects and perspectives"
+      ],
+      complex: [
+        "Break down complex topics into manageable sections",
+        "Provide thorough analysis and explanations",
+        "Include multiple viewpoints and considerations"
+      ]
+    };
+
+    let instructions = baseInstructions;
+    
+    if (typeSpecificInstructions[questionAnalysis.type]) {
+      instructions = instructions.concat(typeSpecificInstructions[questionAnalysis.type]);
+    }
+    
+    if (complexityInstructions[questionAnalysis.complexity]) {
+      instructions = instructions.concat(complexityInstructions[questionAnalysis.complexity]);
+    }
+
+    return instructions.map((instruction, index) => `${index + 1}. ${instruction}`).join('\n');
   }
 
   /**

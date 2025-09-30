@@ -306,7 +306,7 @@ export class QAService {
       if (reRankedChunks.length === 0) {
         console.log("⚠️ No relevant documents found");
         return {
-          answer: "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.",
+          answer: "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?",
           sources: [],
           confidence: 0,
           question,
@@ -2199,13 +2199,24 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
     const distances = searchResults.distances?.[0] || [];
     const metadatas = searchResults.metadatas?.[0] || [];
 
-    // Filter chunks based on similarity threshold and question relevance
+    // CRITICAL: Filter chunks based on tenant isolation first
     const relevantChunks = [];
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const distance = distances[i] || 1;
       const similarity = 1 - distance; // Convert distance to similarity
+      const metadata = metadatas[i] || {};
+
+      // CRITICAL: Apply tenant filtering to prevent cross-user data leakage
+      if (tenant && tenant.id && tenant.id !== 'global' && tenant.id !== 'anonymous') {
+        // Check if chunk belongs to the requesting tenant
+        const chunkTenantId = metadata.tenantId;
+        if (chunkTenantId && chunkTenantId !== tenant.id) {
+          console.log(`🚫 Skipping chunk ${i}: belongs to different tenant (${chunkTenantId} vs ${tenant.id})`);
+          continue; // Skip chunks from other tenants
+        }
+      }
 
       // For production fallback (when hierarchical retrieval fails), be very lenient
       // Accept all chunks with reasonable distance, skip only very poor matches
@@ -2220,7 +2231,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
         relevantChunks.push({
           content: chunk,
           similarity,
-          metadata: metadatas[i] || {},
+          metadata: metadata,
           index: i,
           retrievalMethod: 'mixed_fallback' // Mark as fallback retrieval result
         });
@@ -2231,6 +2242,53 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
     const reRankedChunks = await this.applyReRanking(relevantChunks, question, tenant);
 
     return reRankedChunks.slice(0, this.maxResults);
+  }
+
+  /**
+   * Clean text by removing timestamps and improving formatting
+   * @param {string} text - Text to clean
+   * @returns {string} Cleaned text
+   */
+  cleanTextForAnswer(text) {
+    if (!text) return '';
+    
+    // Remove timestamps and date patterns
+    let cleaned = text
+      .replace(/\d{4}-\d{2}-\d{2}/g, '') // Remove dates like 2024-01-01
+      .replace(/\d{2}:\d{2}:\d{2}/g, '') // Remove times like 14:30:25
+      .replace(/\d{2}:\d{2}/g, '') // Remove times like 14:30
+      .replace(/timestamp|time|date/gi, '') // Remove timestamp keywords
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+    
+    // Clean up formatting issues
+    cleaned = cleaned
+      .replace(/•{2,}/g, '•') // Remove multiple bullet points
+      .replace(/~+/g, '') // Remove tildes
+      .replace(/\s+/g, ' ') // Normalize whitespace again
+      .trim();
+    
+    // Convert to bullet points if the text contains list-like patterns
+    if (cleaned.includes('•') || cleaned.includes('-') || cleaned.includes('*')) {
+      // Already has bullet points, just clean them up
+      cleaned = cleaned
+        .replace(/[•\-\*]/g, '•')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => line.startsWith('•') ? line : `• ${line}`)
+        .join('\n');
+    } else if (cleaned.includes('\n') && cleaned.split('\n').length > 2) {
+      // Convert line breaks to bullet points for better readability
+      cleaned = cleaned
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 10) // Only keep substantial lines
+        .map(line => `• ${line}`)
+        .join('\n');
+    }
+    
+    return cleaned;
   }
 
   /**
@@ -2324,8 +2382,11 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
       try {
         console.log(`🤖 Using LLM for answer generation (${this.llmProvider})`);
 
-        // Use the zero tolerance structured generation instead of the general LangChain prompt
-        const answer = await this.generateDirectAnswer(relevantChunks, question, questionAnalysis);
+        // Use the user-friendly answer generation instead of complex JSON parsing
+        let answer = await this.generateUserFriendlyAnswer(relevantChunks, question, conversationHistory);
+        
+        // Clean the answer by removing timestamps and improving formatting
+        answer = this.cleanTextForAnswer(answer);
         
         // Check if answer is null or empty (LLM failed)
         if (!answer || answer.trim().length < 10) {
@@ -2334,7 +2395,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
 
         return {
           answer: answer,
-          reasoningStrategy: 'zero_tolerance_json',
+          reasoningStrategy: 'user_friendly_direct',
           reasoningSteps: [],
           confidence: this.calculateSimplifiedConfidence([], relevantChunks.length, 0.5),
           questionAnalysis,
@@ -2342,7 +2403,7 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
             provider: this.llmProvider,
             model: 'gemini-1.5-flash',
             contextChunks: relevantChunks.length,
-            structuredGeneration: true
+            userFriendlyGeneration: true
           }
         };
       } catch (error) {
@@ -2398,23 +2459,26 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    * @param {Array} conversationHistory - Previous conversation messages
    * @returns {string} Generated comprehensive answer
    */
-  generateAnswer(question, relevantChunks, conversationHistory) {
+  async generateAnswer(question, relevantChunks, conversationHistory) {
     try {
       // Analyze question type and content depth
       const questionAnalysis = this.analyzeQuestionType(question);
 
       // Use LLM for direct answer generation from relevant chunks
-      let answer = this.generateDirectAnswer(relevantChunks, question, questionAnalysis);
+      let answer = await this.generateUserFriendlyAnswer(relevantChunks, question, conversationHistory);
 
       // Simple fallback: use most relevant chunk if LLM fails
       if (!answer || answer.trim().length < 20) {
         console.log("🔄 Direct answer generation failed, using raw chunk content");
         if (relevantChunks.length > 0) {
           const topChunk = relevantChunks[0];
-          answer = `Based on the documents, here's the most relevant information:\n\n${(topChunk.content || '').substring(0, 800)}${(topChunk.content || '').length > 800 ? '...' : ''}`;
+          answer = `Based on the documents, here's the most relevant information:\n\n${this.cleanTextForAnswer((topChunk.content || '').substring(0, 800))}${(topChunk.content || '').length > 800 ? '...' : ''}`;
         } else {
-          answer = "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+          answer = "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?";
         }
+      } else {
+        // Clean the answer by removing timestamps and improving formatting
+        answer = this.cleanTextForAnswer(answer);
       }
 
       // Add conversation context if available
@@ -2449,6 +2513,218 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
   }
 
   /**
+   * Generate user-friendly answer directly without JSON parsing
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} question - Original question
+   * @returns {string} User-friendly answer
+   */
+  async generateUserFriendlyAnswer(relevantChunks, question, conversationHistory = []) {
+    if (!this.langChainManager) {
+      console.warn("⚠️ No LLM available for user-friendly answer generation");
+      return this.generateFallbackAnswer(relevantChunks, question);
+    }
+
+    try {
+      // Prepare context from chunks
+      const context = this.prepareEnhancedContext(relevantChunks, question);
+      
+      // Simple, direct prompt for clean answers
+      const simplePrompt = `Answer the user's question based on the provided context. Be direct, clear, and concise. Use natural language without excessive formatting or bullet points.
+
+CONTEXT:
+${context}
+
+QUESTION:
+${question}
+
+Provide a direct, conversational answer:`;
+
+      const analysis = {
+        type: 'general',
+        complexity: 'simple',
+        keywords: ['answer', 'question', 'information']
+      };
+
+      const chunks = [{
+        content: context,
+        metadata: { documentName: 'simple_context' }
+      }];
+
+      const result = await this.langChainManager.generateAnswer(
+        simplePrompt,
+        chunks,
+        analysis,
+        []
+      );
+
+      // Clean up the answer
+      let answer = result.answer || '';
+      
+      // Remove any JSON artifacts
+      answer = answer.replace(/^[\s]*[{\[].*[}\]]/gm, '');
+      answer = answer.replace(/JSON_OUTPUT:.*$/gm, '');
+      
+      // Remove excessive formatting
+      answer = answer.replace(/^##\s+/gm, '');
+      answer = answer.replace(/^#\s+/gm, '');
+      answer = answer.replace(/^•\s+/gm, '- ');
+      answer = answer.replace(/\*\*(.*?)\*\*/g, '$1');
+      
+      // Clean up extra whitespace
+      answer = answer.replace(/\n\s*\n\s*\n/g, '\n\n');
+      answer = answer.trim();
+      
+      // Ensure the answer is not empty
+      if (!answer || answer.trim().length < 20) {
+        console.log("🔄 Answer too short, using fallback");
+        return this.generateFallbackAnswer(relevantChunks, question);
+      }
+
+      return answer;
+
+    } catch (error) {
+      console.warn("❌ User-friendly answer generation failed:", error.message);
+      return this.generateFallbackAnswer(relevantChunks, question);
+    }
+  }
+
+  /**
+   * Enhance answer formatting and structure
+   * @param {string} answer - Raw answer text
+   * @param {string} question - Original question
+   * @returns {string} Enhanced answer
+   */
+  enhanceAnswerFormatting(answer, question) {
+    if (!answer || typeof answer !== 'string') {
+      return answer;
+    }
+
+    // Minimal formatting - just clean up whitespace
+    let enhanced = answer;
+    
+    // Clean up excessive whitespace
+    enhanced = enhanced.replace(/\n{3,}/g, '\n\n');
+    enhanced = enhanced.replace(/[ \t]+/g, ' ');
+    
+    return enhanced.trim();
+  }
+
+  /**
+   * Ensure answer completeness and relevance
+   * @param {string} answer - Answer text
+   * @param {string} question - Original question
+   * @param {Array} relevantChunks - Source chunks
+   * @returns {string} Complete answer
+   */
+  ensureAnswerCompleteness(answer, question, relevantChunks) {
+    if (!answer || typeof answer !== 'string') {
+      return answer;
+    }
+
+    // Simple check - just ensure answer is not empty
+    if (answer.trim().length < 10) {
+      return "I found some relevant information but couldn't format it properly. Please try rephrasing your question.";
+    }
+
+    return answer;
+  }
+
+  /**
+   * Extract additional context from relevant chunks
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} existingAnswer - Current answer
+   * @returns {string} Additional context
+   */
+  extractAdditionalContext(relevantChunks, existingAnswer) {
+    const answerKeywords = this.extractKeywordsForRelevance(existingAnswer);
+    let additionalInfo = '';
+
+    for (const chunk of relevantChunks.slice(1, 4)) { // Skip first chunk, take next 3
+      if (chunk.content && chunk.content.length > 100) {
+        const chunkKeywords = this.extractKeywordsForRelevance(chunk.content);
+        const relevance = this.calculateRelevance(answerKeywords, chunkKeywords);
+        
+        if (relevance > 0.2) { // If somewhat relevant
+          const excerpt = chunk.content.substring(0, 200);
+          additionalInfo += `• ${excerpt}${chunk.content.length > 200 ? '...' : ''}\n`;
+        }
+      }
+    }
+
+    return additionalInfo.trim();
+  }
+
+  /**
+   * Generate comprehensive fallback answer
+   * @param {Array} relevantChunks - Relevant chunks
+   * @param {string} question - User question
+   * @param {Array} conversationHistory - Conversation history
+   * @returns {string} Comprehensive fallback answer
+   */
+  generateComprehensiveFallback(relevantChunks, question, conversationHistory = []) {
+    if (!relevantChunks || relevantChunks.length === 0) {
+        return "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?";
+    }
+
+    // Simple fallback - just use the most relevant chunk
+    const topChunk = relevantChunks[0];
+    if (topChunk && topChunk.content) {
+      const content = topChunk.content.substring(0, 500);
+      return `Based on the documents, here's the most relevant information:\n\n${content}${topChunk.content.length > 500 ? '...' : ''}`;
+    }
+
+    return "I found some relevant information but couldn't format it properly. Please try rephrasing your question.";
+  }
+
+  /**
+   * Remove generic placeholders and vague statements from answers
+   * @param {string} answer - Raw answer text
+   * @returns {string} Cleaned answer
+   */
+  removeGenericPlaceholders(answer) {
+    if (!answer || typeof answer !== 'string') {
+      return answer;
+    }
+
+    let cleaned = answer;
+
+    // Remove generic phrases
+    const genericPhrases = [
+      /core concepts, methodologies, and practical applications/gi,
+      /provides a solid foundation for understanding/gi,
+      /demonstrates these concepts in action/gi,
+      /covers several important categories/gi,
+      /Practical examples and real-world applications/gi,
+      /This information provides a solid foundation/gi,
+      /for understanding and working with the topic/gi,
+      /The response covers several important categories/gi,
+      /including core concepts, methodologies/gi,
+      /and practical applications/gi
+    ];
+
+    genericPhrases.forEach(phrase => {
+      cleaned = cleaned.replace(phrase, '');
+    });
+
+    // Remove incomplete bullet points with asterisks
+    cleaned = cleaned.replace(/•\s*\*\s*/g, '• ');
+    
+    // Remove empty bullet points
+    cleaned = cleaned.replace(/•\s*\n/g, '');
+    
+    // Remove multiple consecutive newlines
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+    
+    // Remove empty sections
+    cleaned = cleaned.replace(/##\s*[^\n]*\n\s*\n/g, '');
+    
+    // Clean up any remaining formatting issues
+    cleaned = cleaned.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n');
+    
+    return cleaned.trim();
+  }
+
+  /**
    * Generate fallback answer when structured generation fails
    * @param {Array} relevantChunks - Relevant chunks
    * @param {string} question - Original question
@@ -2456,45 +2732,17 @@ Return ONLY a single number from 1-10 representing the relevance score.`;
    */
   generateFallbackAnswer(relevantChunks, question) {
     if (relevantChunks.length === 0) {
-      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+        return "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?";
     }
 
-    try {
-      // Enhanced fallback: Try to create a coherent answer by extracting and organizing content
-      const questionType = this.analyzeQuestionType(question);
-      const answerTitle = this.generateAnswerTitle(question, questionType);
-
-      let answer = answerTitle ? `## ${answerTitle}\n\n` : '';
-
-      // Extract key information from chunks
-      const keyPoints = this.extractKeyPointsFromChunks(relevantChunks, question);
-
-      if (keyPoints.length > 0) {
-        answer += keyPoints.join('\n\n');
-        answer += '\n\n*This answer is based on information found in the uploaded documents.*';
-        return answer;
-      }
-
-      // Fallback to improved text extraction
-      const synthesizedAnswer = this.synthesizeAnswerFromChunks(relevantChunks, question);
-      if (synthesizedAnswer) {
-        return synthesizedAnswer;
-      }
-
-      // Final fallback: return structured preview of top chunk
-      const topChunk = relevantChunks[0];
-      const previewLength = Math.min(800, topChunk.content.length);
-      const preview = (topChunk.content || '').substring(0, previewLength);
-      const sentences = preview.split(/[.!?]+/).filter(s => s.trim().length > 10);
-
-      return `🔍 Answer based on document content:\n\n${sentences.slice(0, 4).join('. ').trim()}${sentences.length > 4 ? '...' : ''}\n\n*Source: Document content*`;
-
-    } catch (error) {
-      console.warn("⚠️ Enhanced fallback failed, using simple fallback:", error.message);
-      // Simple fallback
-      const topChunk = relevantChunks[0];
-      return `Based on the documents, here's the most relevant information:\n\n${(topChunk.content || '').substring(0, 500)}${(topChunk.content || '').length > 500 ? '...' : ''}`;
+    // Simple fallback - just use the most relevant chunk
+    const topChunk = relevantChunks[0];
+    if (topChunk && topChunk.content) {
+      const content = topChunk.content.substring(0, 500);
+      return `Based on the documents, here's the most relevant information:\n\n${content}${topChunk.content.length > 500 ? '...' : ''}`;
     }
+
+    return "I found some relevant information but couldn't format it properly. Please try rephrasing your question.";
   }
 
   /**
@@ -2928,12 +3176,22 @@ CRITICAL REQUIREMENTS:
 5. Ensure all content flows logically and coherently
 6. Avoid repetitive headers or incomplete sentences
 7. Make sure each section is complete and meaningful
+8. For chat/conversation summaries, focus on participants, key topics, and specific events
+9. Use clear, descriptive titles that capture the essence of the content
 
 REQUIRED JSON FORMAT (return ONLY this structure):
 {
-  "title": "Clear, specific title that directly addresses the question",
-  "introduction": "A comprehensive opening paragraph that introduces the topic and provides context",
-  "mainContent": "Detailed explanation of the core topic with smooth transitions between ideas",
+  "title": "Clear, specific title that directly addresses the question (e.g., 'Chat Summary: [Participants]' for conversations)",
+  "overview": "A comprehensive opening paragraph that introduces the topic and provides context",
+  "participants": [
+    "List of key participants or entities mentioned (empty array if not applicable)"
+  ],
+  "primaryTopics": [
+    "Main topics or themes discussed (empty array if not applicable)"
+  ],
+  "specificEvents": [
+    "Specific events, dates, or occurrences mentioned (empty array if not applicable)"
+  ],
   "keyPoints": [
     "Distinct, well-formed bullet points that are essential to understanding the topic"
   ],
@@ -3409,7 +3667,12 @@ JSON_OUTPUT:`;
       cleaned.title = this.cleanTextContent(response.title);
     }
 
-    // Clean introduction
+    // Clean overview (new field)
+    if (response.overview && typeof response.overview === 'string') {
+      cleaned.overview = this.cleanTextContent(response.overview);
+    }
+
+    // Clean introduction (fallback for older format)
     if (response.introduction && typeof response.introduction === 'string') {
       cleaned.introduction = this.cleanTextContent(response.introduction);
     }
@@ -3417,6 +3680,30 @@ JSON_OUTPUT:`;
     // Clean main content
     if (response.mainContent && typeof response.mainContent === 'string') {
       cleaned.mainContent = this.cleanTextContent(response.mainContent);
+    }
+
+    // Clean participants array
+    if (response.participants && Array.isArray(response.participants)) {
+      cleaned.participants = response.participants
+        .filter(participant => participant && typeof participant === 'string' && participant.trim().length > 0)
+        .map(participant => this.cleanTextContent(participant))
+        .filter(participant => participant.length > 0);
+    }
+
+    // Clean primary topics array
+    if (response.primaryTopics && Array.isArray(response.primaryTopics)) {
+      cleaned.primaryTopics = response.primaryTopics
+        .filter(topic => topic && typeof topic === 'string' && topic.trim().length > 0)
+        .map(topic => this.cleanTextContent(topic))
+        .filter(topic => topic.length > 0);
+    }
+
+    // Clean specific events array
+    if (response.specificEvents && Array.isArray(response.specificEvents)) {
+      cleaned.specificEvents = response.specificEvents
+        .filter(event => event && typeof event === 'string' && event.trim().length > 0)
+        .map(event => this.cleanTextContent(event))
+        .filter(event => event.length > 0);
     }
 
     // Clean key points array
@@ -3644,17 +3931,52 @@ JSON_OUTPUT:`;
 
       // Add title if meaningful
       if (cleanedResponse.title && cleanedResponse.title.trim()) {
-        formattedAnswer += `# ${cleanedResponse.title}\n\n`;
+        formattedAnswer += `📖 ${cleanedResponse.title}\n\n`;
       }
 
-      // Add introduction
-      if (cleanedResponse.introduction && cleanedResponse.introduction.trim()) {
-        formattedAnswer += `${cleanedResponse.introduction}\n\n`;
+      // Add overview (previously introduction)
+      if (cleanedResponse.overview && cleanedResponse.overview.trim()) {
+        formattedAnswer += `## Overview\n\n${cleanedResponse.overview.trim()}\n\n`;
+      } else if (cleanedResponse.introduction && cleanedResponse.introduction.trim()) {
+        formattedAnswer += `## Overview\n\n${cleanedResponse.introduction.trim()}\n\n`;
       }
 
-      // Add main content
+      // Add participants if available
+      if (cleanedResponse.participants && Array.isArray(cleanedResponse.participants) && cleanedResponse.participants.length > 0) {
+        formattedAnswer += `## Participants\n\n`;
+        cleanedResponse.participants.forEach(participant => {
+          if (participant && typeof participant === 'string' && participant.trim()) {
+            formattedAnswer += `• ${participant.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add primary topics if available
+      if (cleanedResponse.primaryTopics && Array.isArray(cleanedResponse.primaryTopics) && cleanedResponse.primaryTopics.length > 0) {
+        formattedAnswer += `## Primary Topics\n\n`;
+        cleanedResponse.primaryTopics.forEach(topic => {
+          if (topic && typeof topic === 'string' && topic.trim()) {
+            formattedAnswer += `• ${topic.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add specific events if available
+      if (cleanedResponse.specificEvents && Array.isArray(cleanedResponse.specificEvents) && cleanedResponse.specificEvents.length > 0) {
+        formattedAnswer += `## Specific Events\n\n`;
+        cleanedResponse.specificEvents.forEach(event => {
+          if (event && typeof event === 'string' && event.trim()) {
+            formattedAnswer += `• ${event.trim()}\n`;
+          }
+        });
+        formattedAnswer += `\n`;
+      }
+
+      // Add main content if available (fallback for older format)
       if (cleanedResponse.mainContent && cleanedResponse.mainContent.trim()) {
-        formattedAnswer += `${cleanedResponse.mainContent}\n\n`;
+        formattedAnswer += `## Key Information\n\n${cleanedResponse.mainContent.trim()}\n\n`;
       }
 
       // Add key points if available
@@ -3670,7 +3992,7 @@ JSON_OUTPUT:`;
 
       // Add categories only if they contain actual content
       if (cleanedResponse.categories && Array.isArray(cleanedResponse.categories) && cleanedResponse.categories.length > 0) {
-        formattedAnswer += `## Categories\n\n`;
+        formattedAnswer += `## Key Categories\n\n`;
         cleanedResponse.categories.forEach(category => {
           if (category && typeof category === 'string' && category.trim()) {
             formattedAnswer += `• ${category.trim()}\n`;
@@ -3707,15 +4029,47 @@ JSON_OUTPUT:`;
         let fallbackAnswer = "";
         
         if (jsonResponse.title) {
-          fallbackAnswer += `# ${jsonResponse.title}\n\n`;
+          fallbackAnswer += `📖 ${jsonResponse.title}\n\n`;
         }
         
-        if (jsonResponse.introduction) {
-          fallbackAnswer += `${jsonResponse.introduction}\n\n`;
+        if (jsonResponse.overview) {
+          fallbackAnswer += `## Overview\n\n${jsonResponse.overview}\n\n`;
+        } else if (jsonResponse.introduction) {
+          fallbackAnswer += `## Overview\n\n${jsonResponse.introduction}\n\n`;
+        }
+        
+        if (jsonResponse.participants && Array.isArray(jsonResponse.participants) && jsonResponse.participants.length > 0) {
+          fallbackAnswer += `## Participants\n\n`;
+          jsonResponse.participants.forEach(participant => {
+            if (participant && typeof participant === 'string') {
+              fallbackAnswer += `• ${participant.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
+        }
+        
+        if (jsonResponse.primaryTopics && Array.isArray(jsonResponse.primaryTopics) && jsonResponse.primaryTopics.length > 0) {
+          fallbackAnswer += `## Primary Topics\n\n`;
+          jsonResponse.primaryTopics.forEach(topic => {
+            if (topic && typeof topic === 'string') {
+              fallbackAnswer += `• ${topic.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
+        }
+        
+        if (jsonResponse.specificEvents && Array.isArray(jsonResponse.specificEvents) && jsonResponse.specificEvents.length > 0) {
+          fallbackAnswer += `## Specific Events\n\n`;
+          jsonResponse.specificEvents.forEach(event => {
+            if (event && typeof event === 'string') {
+              fallbackAnswer += `• ${event.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
         }
         
         if (jsonResponse.mainContent) {
-          fallbackAnswer += `${jsonResponse.mainContent}\n\n`;
+          fallbackAnswer += `## Key Information\n\n${jsonResponse.mainContent}\n\n`;
         }
         
         if (jsonResponse.keyPoints && Array.isArray(jsonResponse.keyPoints) && jsonResponse.keyPoints.length > 0) {
@@ -3723,6 +4077,26 @@ JSON_OUTPUT:`;
           jsonResponse.keyPoints.forEach(point => {
             if (point && typeof point === 'string') {
               fallbackAnswer += `• ${point.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
+        }
+        
+        if (jsonResponse.categories && Array.isArray(jsonResponse.categories) && jsonResponse.categories.length > 0) {
+          fallbackAnswer += `## Key Categories\n\n`;
+          jsonResponse.categories.forEach(category => {
+            if (category && typeof category === 'string') {
+              fallbackAnswer += `• ${category.trim()}\n`;
+            }
+          });
+          fallbackAnswer += `\n`;
+        }
+        
+        if (jsonResponse.examples && Array.isArray(jsonResponse.examples) && jsonResponse.examples.length > 0) {
+          fallbackAnswer += `## Examples\n\n`;
+          jsonResponse.examples.forEach(example => {
+            if (example && typeof example === 'string') {
+              fallbackAnswer += `• ${example.trim()}\n`;
             }
           });
           fallbackAnswer += `\n`;
@@ -3748,24 +4122,17 @@ JSON_OUTPUT:`;
    */
   generateEnhancedFallbackAnswer(relevantChunks, question) {
     if (relevantChunks.length === 0) {
-      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+        return "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?";
     }
 
-    try {
-      // Analyze question type for better structure
-      const questionAnalysis = this.analyzeQuestionType(question);
-      
-      // Create a structured answer from chunks
-      let answer = this.createStructuredAnswerFromChunks(relevantChunks, question, questionAnalysis);
-      
-      // Add source attribution
-      answer += '\n\n' + this.generateSourceAttribution(relevantChunks);
-      
-      return answer;
-    } catch (error) {
-      console.warn("⚠️ Enhanced fallback failed, using simple fallback:", error.message);
-      return this.generateFallbackAnswer(relevantChunks, question);
+    // Simple fallback - just use the most relevant chunk
+    const topChunk = relevantChunks[0];
+    if (topChunk && topChunk.content) {
+      const content = topChunk.content.substring(0, 500);
+      return `Based on the documents, here's the most relevant information:\n\n${content}${topChunk.content.length > 500 ? '...' : ''}`;
     }
+
+    return "I found some relevant information but couldn't format it properly. Please try rephrasing your question.";
   }
 
   /**
@@ -3776,50 +4143,18 @@ JSON_OUTPUT:`;
    * @returns {string} Structured answer
    */
   createStructuredAnswerFromChunks(chunks, question, questionAnalysis) {
-    // Extract and organize content from chunks
-    const organizedContent = this.extractAndOrganizeContent(chunks, question);
-    
-    let answer = '';
-    
-    // Add title based on question
-    const title = this.generateAnswerTitle(question, questionAnalysis);
-    if (title) {
-      answer += `# ${title}\n\n`;
+    // Simple approach - just use the most relevant chunk
+    if (chunks.length === 0) {
+      return "No relevant information found.";
     }
     
-    // Add main answer
-    if (organizedContent.mainAnswer) {
-      answer += `${organizedContent.mainAnswer}\n\n`;
+    const topChunk = chunks[0];
+    if (topChunk && topChunk.content) {
+      const content = topChunk.content.substring(0, 500);
+      return content + (topChunk.content.length > 500 ? '...' : '');
     }
     
-    // Add key points
-    if (organizedContent.keyPoints.length > 0) {
-      answer += `## Key Points\n\n`;
-      organizedContent.keyPoints.forEach(point => {
-        answer += `• ${point}\n`;
-      });
-      answer += `\n`;
-    }
-    
-    // Add examples if available
-    if (organizedContent.examples.length > 0) {
-      answer += `## Examples\n\n`;
-      organizedContent.examples.forEach(example => {
-        answer += `• ${example}\n`;
-      });
-      answer += `\n`;
-    }
-    
-    // Add categories if available
-    if (organizedContent.categories.length > 0) {
-      answer += `## Categories\n\n`;
-      organizedContent.categories.forEach(category => {
-        answer += `• ${category}\n`;
-      });
-      answer += `\n`;
-    }
-    
-    return answer.trim();
+    return "I found some relevant information but couldn't format it properly.";
   }
 
   /**
@@ -3836,8 +4171,8 @@ JSON_OUTPUT:`;
       categories: []
     };
     
-    // Combine all chunk content
-    const allText = chunks.map(chunk => chunk.content).join(' ');
+    // Combine all chunk content and clean timestamps
+    const allText = chunks.map(chunk => this.cleanTextForAnswer(chunk.content)).join(' ');
     const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
     
     // Extract main answer (most relevant sentences)
@@ -3940,7 +4275,7 @@ JSON_OUTPUT:`;
    */
   generateFallbackAnswer(relevantChunks, question) {
     if (relevantChunks.length === 0) {
-      return "I couldn't find any relevant information in the documents to answer your question. Please try rephrasing your question or upload more relevant documents.";
+        return "I don't have any information related to your question in the documents I can access. Could you please rephrase your question or upload documents that contain relevant information?";
     }
 
     // Combine all chunk content
@@ -3968,6 +4303,93 @@ JSON_OUTPUT:`;
     const topChunk = relevantChunks[0];
     const previewLength = Math.min(600, topChunk.content.length);
     return `🔍 Here's relevant information from the documents:\n\n${topChunk.content.substring(0, previewLength)}${topChunk.content.length > previewLength ? '...' : ''}`;
+  }
+
+  /**
+   * Prepare conversation context from previous messages
+   * @param {Array} conversationHistory - Previous conversation messages
+   * @param {string} currentQuestion - Current user question
+   * @returns {string} Formatted conversation context
+   */
+  prepareConversationContext(conversationHistory, currentQuestion) {
+    if (!conversationHistory || conversationHistory.length === 0) {
+      return "No previous conversation context available.";
+    }
+
+    // Get recent conversation (last 6 messages - 3 exchanges)
+    const recentMessages = conversationHistory.slice(-6);
+    
+    // Analyze conversation for relevant context
+    const relevantContext = [];
+    const questionKeywords = this.extractKeywordsForRelevance(currentQuestion);
+    
+    for (const message of recentMessages) {
+      if (message.type === 'question' || message.type === 'answer') {
+        const messageKeywords = this.extractKeywordsForRelevance(message.content);
+        const relevance = this.calculateRelevance(questionKeywords, messageKeywords);
+        
+        if (relevance > 0.3) { // Only include relevant messages
+          relevantContext.push({
+            type: message.type,
+            content: message.content,
+            relevance: relevance,
+            timestamp: message.timestamp
+          });
+        }
+      }
+    }
+
+    if (relevantContext.length === 0) {
+      return "No relevant previous conversation context found.";
+    }
+
+      // Format conversation context
+      let context = "RELEVANT CONVERSATION HISTORY:\n\n";
+      relevantContext.forEach((msg, index) => {
+        const prefix = msg.type === 'question' ? 'Q' : 'A';
+        const cleanContent = this.cleanTextForAnswer(msg.content);
+        context += `${prefix}${index + 1}: ${cleanContent.substring(0, 300)}${cleanContent.length > 300 ? '...' : ''}\n`;
+      });
+
+    return context;
+  }
+
+  /**
+   * Extract keywords from text for relevance calculation
+   * @param {string} text - Input text
+   * @returns {Set} Set of keywords
+   */
+  extractKeywordsForRelevance(text) {
+    if (!text || typeof text !== 'string') {
+      return new Set();
+    }
+
+    // Remove common stop words and extract meaningful terms
+    const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them']);
+    
+    return new Set(
+      text.toLowerCase()
+        .replace(/[^\w\s]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2 && !stopWords.has(word))
+    );
+  }
+
+  /**
+   * Calculate relevance between two sets of keywords
+   * @param {Set} keywords1 - First set of keywords
+   * @param {Set} keywords2 - Second set of keywords
+   * @returns {number} Relevance score between 0 and 1
+   */
+  calculateRelevance(keywords1, keywords2) {
+    if (keywords1.size === 0 || keywords2.size === 0) {
+      return 0;
+    }
+
+    const intersection = new Set([...keywords1].filter(x => keywords2.has(x)));
+    const union = new Set([...keywords1, ...keywords2]);
+    
+    return intersection.size / union.size; // Jaccard similarity
   }
 
   /**
@@ -4000,7 +4422,7 @@ JSON_OUTPUT:`;
       sortedChunks.forEach((chunk, chunkIndex) => {
         // Add chunk metadata for better context
         const chunkInfo = `[Chunk ${chunkIndex + 1} - Relevance: ${((chunk.finalScore || chunk.similarity || 0) * 100).toFixed(1)}%]`;
-        context += `\n${chunkInfo}\n${chunk.content}\n`;
+        context += `\n${chunkInfo}\n${this.cleanTextForAnswer(chunk.content)}\n`;
       });
       context += "\n";
     });
